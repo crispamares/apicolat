@@ -15,7 +15,8 @@ function () {
 	this.spinesCondition = null;
 	this.included_spines = null;
 
-
+	this.use_count = false;
+	var self = this;
 	var width = 960,
 	    height = 500;
 
@@ -23,8 +24,7 @@ function () {
 
 	var treemap = d3.layout.treemap()
 	    .size([width, height])
-	    .padding(4)
-	    .value(function(d) { return d.size; });
+	    .padding(4);
 
 	var svg = d3.select(container).append("svg")
 	    .style("width", width + "px")
@@ -35,10 +35,11 @@ function () {
 
 	var leaves = null;
 	var parents = null;
-	var self = this;
+
 
 	this.render = function() {
 
+	    treemap.value(function(d) { return (self.use_count)? 1 : d.size; });
 	    var treemap_data = treemap.nodes(this.data);
 
 	    function recursive_name(node) {

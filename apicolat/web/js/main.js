@@ -30,6 +30,8 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
 
     rpc = WsRpc.instance();
     hub = Hub.instance();
+    
+    var quantitative_attrs = ["feret", "area", "volume"];
 
     // ----------------------------------------
     //     Treemap
@@ -39,15 +41,20 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     hub.subscribe('comboChanged', 
 	    function(topic, msg) { 
 		console.log('To draw', topic, msg);
+
+		treemap.use_count = (msg === '* count *');
+		msg = (msg === '* count *')? quantitative_attrs[0] : msg;
+
 		drawTreemap(when, rpc, treemap, msg);});
 
-    drawTreemap(when, rpc, treemap, "feret");
+    drawTreemap(when, rpc, treemap, quantitative_attrs[0]);
 
     // ----------------------------------------
     //     ComboSelector
     // ----------------------------------------
     var ComboSelector = require("comboSelector");
     var menu = new ComboSelector('#menu');
+    menu.options = quantitative_attrs.concat(menu.options);
     menu.update();
 
 
