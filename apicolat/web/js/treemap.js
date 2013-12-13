@@ -17,8 +17,12 @@ function () {
 
 	this.use_count = false;
 	var self = this;
-	var width = 960,
-	    height = 500;
+
+	var margin = {top: 10, left: 10, bottom: 10, right: 10}
+	, width = parseInt(d3.select(container).style('width'))
+	, width = width - margin.left - margin.right
+	, aspectRatio = .5
+	, height = width * aspectRatio;
 
 	var color = d3.scale.category20c();
 

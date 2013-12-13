@@ -28,8 +28,8 @@ requirejs(['jquery',
 function($, _, when, bootstrap, WsRpc, Hub, d3) {
     console.log('running');
 
-    rpc = WsRpc.instance();
-    hub = Hub.instance();
+    var rpc = WsRpc.instance();
+    var hub = Hub.instance();
     
     var quantitative_attrs = ["feret", "area", "volume"];
 
