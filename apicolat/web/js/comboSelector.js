@@ -1,4 +1,4 @@
-define(['lodash', 'jquery', 'WsRpc', 'hub'],
+define(['lodash', 'jquery', 'hub'],
 function() {
 
     var hub = require('hub');
@@ -6,7 +6,7 @@ function() {
     function ComboSelector(container, table, attributeType) {
 	this.container = $(container);
 	// TODO: autoextract options from table and attributeType
-	this.options = ["size", "length", "angle"];
+	this.options = ["feret", "area", "volume"];
     }
     
     ComboSelector.prototype.update =  function() {

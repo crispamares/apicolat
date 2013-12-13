@@ -41,7 +41,7 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
 		console.log('To draw', topic, msg);
 		drawTreemap(when, rpc, treemap, msg);});
 
-    drawTreemap(when, rpc, treemap, "size");
+    drawTreemap(when, rpc, treemap, "feret");
 
     // ----------------------------------------
     //     ComboSelector
@@ -62,11 +62,11 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     // ----------------------------------------
     //     Dynamics
     // ----------------------------------------
-    rpc.call('DynSelectSrv.new_dselect', ['spines_dselect', 'ds:spines'])
+    rpc.call('DynSelectSrv.new_dselect', ['spines_dselect', 'ds:synapses'])
 	.then(
 	    function(dselect) {
 		treemap.setSpinesDselect(dselect);
-		return rpc.call('DynSelectSrv.new_categorical_condition', [dselect, 'spine_id']);
+		return rpc.call('DynSelectSrv.new_categorical_condition', [dselect, 'synapse_id']);
 	    })
 	.then(function(condition) {
 		treemap.setSpinesCondition(condition);
@@ -80,7 +80,9 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
 
 function drawTreemap(when, rpc, view, column) {
     when.map( groupBySpine(column),
-	    function(pipeline) {return rpc.call('TableSrv.aggregate', ["ds:spines", pipeline]);})
+	    function(pipeline) {
+		console.log( JSON.stringify(pipeline));
+		return rpc.call('TableSrv.aggregate', ["ds:synapses", pipeline]);})
 	.then(
 	    function(views) {
 		console.log('views', views);
@@ -89,47 +91,34 @@ function drawTreemap(when, rpc, view, column) {
 	.then(
 	    function (sizes) {
 		var data = {
-		    name: "sizes",
+		    name: "feret",
 		    children: [
 			   {name: "apical", children: sizes[0] },
-			   {name: "basal", children: sizes[1] }
+			   {name: "colateral", children: sizes[1] }
 			   ]};
 		view.setData(data);
+		console.log(data);
 		view.render();		    
 	    })
 	.otherwise(showError);    
 }
 
-function groupByDendriteId(column) {
-    column = column || 'size';
-
-    var apical_pipeline = [{$match: {dendrite_type:"apical"}},
-		    {$project: {dendrite_type:1, size:1, dendrite_id: 1}  }, 
-		    {$group : {_id: "$dendrite_id", size: {$sum : "$size"}} }, 
-		    {$project : { name: "$_id", size:1 , _id: 0}}];
-
-    var basal_pipeline = apical_pipeline.slice();
-    basal_pipeline[0] = {$match: {dendrite_type:"basal"}};
-
-    return [ apical_pipeline, basal_pipeline];
-}
-
 function groupBySpine(column) {
-    column = column || 'size';
+    column = column || 'feret';
 
-    var project1 = {$project: {dendrite_type:1, dendrite_id: 1, spine_id:1}};
+    var project1 = {$project: {dendrite_type:1, cell: 1, synapse_id:1}};
     project1.$project[column] = 1;
 
-    var group = {$group : {_id: "$dendrite_id", 
-		 children: {$addToSet: {name: "$spine_id", size:'$'+column}} }};
+    var group = {$group : {_id: "$cell", 
+		 children: {$addToSet: {name: "$synapse_id", size:'$'+column}} }};
 
     var apical_pipeline = [{$match: {dendrite_type:"apical"}} ,
 			   project1,
 			   group,
 			   {$project : { name: "$_id", children:1 , _id: 0}}];
 
-    var basal_pipeline = apical_pipeline.slice();
-    basal_pipeline[0] = {$match: {dendrite_type:"basal"}};
+    var colateral_pipeline = apical_pipeline.slice();
+    colateral_pipeline[0] = {$match: {dendrite_type:"colateral"}};
 
-    return [ apical_pipeline, basal_pipeline];
+    return [ apical_pipeline, colateral_pipeline];
 }

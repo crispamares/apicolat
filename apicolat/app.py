@@ -9,6 +9,8 @@ import indyva
 from indyva.dataset.table import Table 
 from indyva.kernel import Kernel
 from indyva.facade.server import WSServer 
+from data_adquisition import init_synapses_table
+from indyva.facade.front import Front
 
 def main():
     print 'Running apicolat'
@@ -16,7 +18,8 @@ def main():
     ws_server = WSServer(port=8080)
     kernel.add_server(ws_server)   
     
-    
+    synapses_table = init_synapses_table()
+    Front.instance().get_method('TableSrv.expose_table')(synapses_table)
     
     kernel.run_forever()
     

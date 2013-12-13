@@ -1,8 +1,8 @@
-define(['lodash', 'jquery', 'WsRpc', 'hub', 'd3'],
+define(['lodash', 'jquery', 'ws-rpc', 'hub', 'd3'],
 function() {
 
     var hub = require('hub').instance();
-    var rpc = require('WsRpc').instance();
+    var rpc = require('ws-rpc').instance();
 
     function SelectionList(container, dselect) {
 	this.container = $(container);

@@ -1,10 +1,10 @@
 
 define(
-["when","WsRpc", "d3", "hub", "jquery"]
+["when","ws-rpc", "d3", "hub", "jquery"]
 ,
 function () {
     var hub = require('hub').instance();
-    var rpc = require('WsRpc').instance();
+    var rpc = require('ws-rpc').instance();
 
     var treemapView = function(container) {
 	// Subscribe to 'r:'
@@ -41,16 +41,25 @@ function () {
 
 	    var treemap_data = treemap.nodes(this.data);
 
+	    function recursive_name(node) {
+		var name = node.name;
+		if ('children' in node && 'parent' in node) {
+		    name = name + '.' + node.parent.name;
+		}
+		return name;
+	    }
+	    
 	    leaves = leaf_layer.selectAll(".leaf")
 		.data(treemap_data.filter(function(d){return ! Boolean(d.children);}),
 		    function(d){return d.name;});
 	    parents = parent_layer.selectAll(".parent")
 		.data(treemap_data.filter(function(d){return Boolean(d.children);}),
-		    function(d){return d.name;});
+		    function(d){return recursive_name(d);}
+		     );
 
 	    parents.enter().append("rect")
 		.attr("class", "node parent")
-		.attr("fill", function(d) { return color(d.name);});
+		.attr("fill", function(d, i) { return color(i);});
 
 	    leaves.enter().append("rect")
 		.attr("class", "node leaf")
