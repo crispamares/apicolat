@@ -7,3 +7,6 @@
 [submodule "lib/indyva-js"]
 	path = lib/indyva-js
 	url = git@bb13.cesvima.upm.es:jmorales/indyva-js.git
+[submodule "apicolat/web/lib/indyva-js"]
+	path = apicolat/web/lib/indyva-js
+	url = git@bb13.cesvima.upm.es:jmorales/indyva-js.git

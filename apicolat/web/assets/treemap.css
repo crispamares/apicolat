@@ -1,0 +1,15 @@
+svg {
+  shape-rendering: crispEdges;
+}
+.node {
+  stroke: white;
+  stroke-width:1px;
+}
+.node.leaf {
+  fill-opacity: 0;
+}
+.node.leaf:hover {
+  fill: red;
+  stroke-width: 3px;
+  fill-opacity: 1;
+}
