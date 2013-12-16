@@ -5,7 +5,10 @@ Created on 13/12/2013
 @author: jmorales
 '''
 
-import pymongo
+import json
+import os
+
+from __init__ import ROOT
 from indyva.dataset.table import Table
 from indyva.dataset.schemas import TableSchema, AttributeSchema
 
@@ -29,10 +32,10 @@ def create_synapses_schema():
     return schema
 
 def init_synapses_table():
-    client = pymongo.MongoClient()
-    col = client.apicolat.synapses
+    with open(os.path.join(os.path.dirname(ROOT), 'data', 'synapses.json')) as f:
+        rows = json.load(f)
     table = Table(name='synapses', schema=create_synapses_schema())
-    for d in col.find({},{'_id':False}):
+    for d in rows:
         table.insert(d)
     return table
 
