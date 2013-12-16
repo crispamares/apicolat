@@ -23,7 +23,8 @@ requirejs(['jquery',
 	   'd3',
 	   'treemap',
 	   'comboSelector',
-	   'selectionList'], 
+	   'selectionList',
+	   'main-bar'], 
 
 function($, _, when, bootstrap, WsRpc, Hub, d3) {
     console.log('running');
@@ -32,6 +33,12 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     var hub = Hub.instance();
     
     var quantitative_attrs = ["feret", "area", "volume"];
+
+    // ----------------------------------------
+    //     Main Bar
+    // ----------------------------------------
+    var MainBar = require("main-bar");
+    var mainBar = new MainBar("#main-bar>div");
 
     // ----------------------------------------
     //     Treemap

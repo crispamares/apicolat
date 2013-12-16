@@ -6,12 +6,33 @@
     <!-- Bootstrap -->
     <link rel="stylesheet" href="assets/bootstrap.min.css" media="screen">
     <link rel="stylesheet" href="assets/treemap.css">
-
+    <style> 
+      /*body { padding-top: 70px; }*/
+    </style>
   </head>
   <body>
 
 
-    <div class="row">
+    <div class="row" id="main-bar">	
+      <div class="col-sm-10 col-sm-offset-1">
+      </div>
+    </div>
+
+    <div class="row hidden" id="init">
+      <div class="col-sm-12">
+        <div class="col-sm-2 col-sm-offset-2 well text-center btn">
+	  <div> <h2>Define Groups</h2> </div>
+	</div>
+        <div class="col-sm-2 col-sm-offset-1 well text-center btn">
+	  <div>  <h2>Compare</h2> </div>
+	</div>
+        <div class="col-sm-2 col-sm-offset-1 well text-center btn">
+	  <div>  <h2>Export</h2> </div>
+	</div>
+      </div>
+    </div>
+
+    <div class="row show" id="groups-definition">
       <div class="col-sm-12">
         <div class="col-sm-9 well">
 	     <div id="overview"></div>
@@ -19,12 +40,22 @@
         <div class="col-sm-3">
 	  <div id="menu"></div>
         </div>
-
-
       </div>
-
-
     </div>
+
+    <div class="row hidden" id="compare">
+      <div class="col-sm-12 well">
+	compare
+      </div>
+    </div>
+
+    <div class="row hidden" id="export">
+      <div class="col-sm-12 well">
+	export
+      </div>
+    </div>
+
+
     <script data-main="js/main" src="js/require.js"></script>
   </body>
 </html>
