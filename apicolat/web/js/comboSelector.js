@@ -11,17 +11,19 @@ function() {
     
     ComboSelector.prototype.update =  function() {
 	
-	var template = _.template('<div class="panel panel-default">'
-			   + '  <div class="panel-heading">'
-			   + '    <h3 class="panel-title">Visible Property</h3>'
-			   + '  </div>'
-			   + '  <div class="panel-body">'
-			   + '<select class="form-control">'
-			   + '<% _.forEach(options, function(option) {%>'
-			   + '<option> <%- option  %> </option> <% }) %>'
-			   + '</select>'
-			   + '  </div>'
-			   + '</div>');
+
+	var template = _.template('	      <form class="form-horizontal" role="form">'
+				  + '		<div class="form-group">'
+				  + '		  <label for="visible-property" class="col-sm-8 control-label">Visible Property</label>'
+				  + '		  <div class="col-sm-4">'
+				  + '		    <select  class="form-control" id="visible-property">'
+				  + '<% _.forEach(options, function(option) {%>'
+				  + '<option> <%- option  %> </option> <% }) %>'
+				  + '</select>'
+				  + '		  </div>'
+				  + '		</div>'
+				  + '	      </form>');
+
 	var html = template({options: this.options});
 	this.container.append(html);
 

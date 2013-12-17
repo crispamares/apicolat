@@ -17,7 +17,6 @@ function() {
 				  + '	  </ul>'
 				  + '	</nav>');
 	var html = template();
-	console.log('paco', html);
 	this.container.append(html);
     }
     

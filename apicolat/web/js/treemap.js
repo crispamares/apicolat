@@ -95,7 +95,6 @@ function () {
 	};
 
 	this.render_dselect = function() {
-	    console.log('paco', leaves);
 	    leaves.style("stroke-width", function(d) { return (self.included_spines.indexOf(d.name) >= 0) ? "3px" : null; });
 	};
 

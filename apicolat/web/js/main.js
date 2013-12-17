@@ -23,7 +23,7 @@ requirejs(['jquery',
 	   'd3',
 	   'treemap',
 	   'comboSelector',
-	   'selectionList',
+	   'categoricalSelector',
 	   'main-bar'], 
 
 function($, _, when, bootstrap, WsRpc, Hub, d3) {
@@ -31,7 +31,23 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
 
     var rpc = WsRpc.instance();
     var hub = Hub.instance();
-    
+
+
+    function createCategoricalSelectors(attributes) {
+	var CategoricalSelector = require("categoricalSelector");
+	attributes.forEach(function(attr) {
+			       var categoricalSelector = new CategoricalSelector('#menu', attr);
+			       rpc.call('DynSelectSrv.new_categorical_condition', [definition_dselect, attr])
+				   .then(function(condition) {
+					     categoricalSelector.setCondition(condition);
+					 })
+				   .otherwise(showError);    
+			   }
+			  );
+    }
+
+
+
     var quantitative_attrs = ["feret", "area", "volume"];
 
     // ----------------------------------------
@@ -60,37 +76,24 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     //     ComboSelector
     // ----------------------------------------
     var ComboSelector = require("comboSelector");
-    var menu = new ComboSelector('#menu');
+    var menu = new ComboSelector('#overview-menu');
     menu.options = quantitative_attrs.concat(menu.options);
     menu.update();
-
-
-    // ----------------------------------------
-    //     SelectionList
-    // ----------------------------------------
-    var SelectionList = require("selectionList");
-    var selectionList = new SelectionList('#menu');
-    selectionList.update();
-
 
     // ----------------------------------------
     //     Dynamics
     // ----------------------------------------
-    rpc.call('DynSelectSrv.new_dselect', ['spines_dselect', 'ds:synapses'])
-	.then(
-	    function(dselect) {
-		treemap.setSpinesDselect(dselect);
-		return rpc.call('DynSelectSrv.new_categorical_condition', [dselect, 'synapse_id']);
-	    })
-	.then(function(condition) {
-		treemap.setSpinesCondition(condition);
-		selectionList.setSpinesCondition(condition);
-	    })
-	.otherwise(showError);    
+    var definition_dselect = "s:definition_dselect"; // Already created in the kernel
+    treemap.setSpinesDselect(definition_dselect);
 
-
+    // ----------------------------------------
+    //     CategoricalSelector
+    // ----------------------------------------
+    createCategoricalSelectors(['dendrite_type', 'cell', 'section10um']);
 
 });
+
+
 
 function drawTreemap(when, rpc, view, column) {
     when.map( groupBySpine(column),
