@@ -33,11 +33,11 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     var hub = Hub.instance();
 
 
-    function createCategoricalSelectors(attributes) {
+    function createCategoricalSelectors(dselect, attributes) {
 	var CategoricalSelector = require("categoricalSelector");
 	attributes.forEach(function(attr) {
 			       var categoricalSelector = new CategoricalSelector('#menu', attr);
-			       rpc.call('DynSelectSrv.new_categorical_condition', [definition_dselect, attr])
+			       rpc.call('DynSelectSrv.new_categorical_condition', [dselect, attr])
 				   .then(function(condition) {
 					     categoricalSelector.setCondition(condition);
 					 })
@@ -84,12 +84,13 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     //     Dynamics
     // ----------------------------------------
     var definition_dselect = "s:definition_dselect"; // Already created in the kernel
+    var definition_dfilter = "f:definition_dfilter"; // Already created in the kernel
     treemap.setSpinesDselect(definition_dselect);
 
     // ----------------------------------------
     //     CategoricalSelector
     // ----------------------------------------
-    createCategoricalSelectors(['dendrite_type', 'cell', 'section10um']);
+    createCategoricalSelectors(definition_dselect, ['dendrite_type', 'cell', 'section10um']);
 
 });
 
