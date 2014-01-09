@@ -21,7 +21,7 @@ def main():
     kernel.add_server(ws_server)   
     
     synapses_table = init_synapses_table()
-    definition_dselect = DynSelect('definition_dselect', synapses_table)
+    definition_dselect = DynSelect('definition_dselect', synapses_table, setop='AND')
     definition_dfilter = DynFilter('definition_dfilter', synapses_table)
     Front.instance().get_method('TableSrv.expose_table')(synapses_table)
     Front.instance().get_method('DynSelectSrv.expose_dselect')(definition_dselect)
