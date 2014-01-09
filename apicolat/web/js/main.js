@@ -1,9 +1,9 @@
 require.config({
     baseUrl: 'js',
+    packages: [{ name: 'when', location: 'vendor/when', main: 'when' }],
     paths: {
         jquery: 'vendor/jquery.min',
 	bootstrap: 'vendor/bootstrap.min',
-	when: 'vendor/when',
 	d3: 'vendor/d3.v3.min',
 	vega: 'vendor/vega',
 	lodash: 'vendor/lodash.min',
@@ -21,10 +21,12 @@ requirejs(['jquery',
 	   'ws-rpc',
 	   'hub',
 	   'd3',
+	   'when/pipeline',
 	   'treemap',
 	   'comboSelector',
 	   'categoricalSelector',
-	   'main-bar'], 
+	   'main-bar'
+], 
 
 function($, _, when, bootstrap, WsRpc, Hub, d3) {
     console.log('running');
