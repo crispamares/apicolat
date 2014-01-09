@@ -1,9 +1,9 @@
 require.config({
     baseUrl: 'js',
+    packages: [{ name: 'when', location: 'vendor/when', main: 'when' }],
     paths: {
         jquery: 'vendor/jquery.min',
 	bootstrap: 'vendor/bootstrap.min',
-	when: 'vendor/when',
 	d3: 'vendor/d3.v3.min',
 	vega: 'vendor/vega',
 	lodash: 'vendor/lodash.min',
@@ -21,76 +21,31 @@ requirejs(['jquery',
 	   'ws-rpc',
 	   'hub',
 	   'd3',
-	   'treemap',
-	   'comboSelector',
-	   'categoricalSelector',
-	   'main-bar'], 
+	   'when/pipeline'
+], 
 
 function($, _, when, bootstrap, WsRpc, Hub, d3) {
     console.log('running');
 
-    var rpc = WsRpc.instance();
+     rpc = WsRpc.instance();
     var hub = Hub.instance();
 
+    pipeline = require('when/pipeline');
 
-    function createCategoricalSelectors(dselect, attributes) {
-	var CategoricalSelector = require("categoricalSelector");
-	attributes.forEach(function(attr) {
-			       var categoricalSelector = new CategoricalSelector('#menu', attr);
-			       rpc.call('DynSelectSrv.new_categorical_condition', [dselect, attr])
-				   .then(function(condition) {
-					     categoricalSelector.setCondition(condition);
-					 })
-				   .otherwise(showError);    
-			   }
-			  );
-    }
+/*
+    rpc.call('DynSelectSrv.new_categorical_condition', [dselect, attr])
+	.then(function(condition) {
+		  categoricalSelector.setCondition(condition);
+	      })
+	.otherwise(showError);    
+*/
 
-
-
-    var quantitative_attrs = ["feret", "area", "volume"];
-
-    // ----------------------------------------
-    //     Main Bar
-    // ----------------------------------------
-    var MainBar = require("main-bar");
-    var mainBar = new MainBar("#main-bar>div");
-
-    // ----------------------------------------
-    //     Treemap
-    // ----------------------------------------
-    var Treemap = require("treemap");
-    var treemap = new Treemap("#overview"); 
-    hub.subscribe('comboChanged', 
-	    function(topic, msg) { 
-		console.log('To draw', topic, msg);
-
-		treemap.use_count = (msg === '* count *');
-		msg = (msg === '* count *')? quantitative_attrs[0] : msg;
-
-		drawTreemap(when, rpc, treemap, msg);});
-
-    drawTreemap(when, rpc, treemap, quantitative_attrs[0]);
-
-    // ----------------------------------------
-    //     ComboSelector
-    // ----------------------------------------
-    var ComboSelector = require("comboSelector");
-    var menu = new ComboSelector('#overview-menu');
-    menu.options = quantitative_attrs.concat(menu.options);
-    menu.update();
-
-    // ----------------------------------------
-    //     Dynamics
-    // ----------------------------------------
-    var definition_dselect = "s:definition_dselect"; // Already created in the kernel
-    var definition_dfilter = "f:definition_dfilter"; // Already created in the kernel
-    treemap.setSpinesDselect(definition_dselect);
-
-    // ----------------------------------------
-    //     CategoricalSelector
-    // ----------------------------------------
-    createCategoricalSelectors(definition_dselect, ['dendrite_type', 'cell', 'section10um']);
+    pipeline([function(m, p){return rpc.call(m, p);},
+	      function(tableView){return rpc.call('TableSrv.get_data', [tableView, 'c_list']);},
+	      function(data){ console.log(data);}
+	     ],
+	     'TableSrv.find' ,["ds:synapses", {'dendrite_type':'apical'}, {'volume':true}]
+	    ).otherwise(showError);
 
 });
 

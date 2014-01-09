@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Apicolat</title>
+    <title>Stats Integration</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap -->
     <link rel="stylesheet" href="assets/bootstrap.min.css" media="screen">
@@ -13,51 +13,21 @@
   <body>
 
 
-    <div class="row" id="main-bar">	
+    <div class="row">	
       <div class="col-sm-10 col-sm-offset-1">
+	<h1>Stats Integration</h1>
       </div>
     </div>
 
-    <div class="row hidden" id="init">
+
+    <div class="row">
       <div class="col-sm-12">
-        <div class="col-sm-2 col-sm-offset-2 well text-center btn">
-	  <div> <h2>Define Groups</h2> </div>
-	</div>
-        <div class="col-sm-2 col-sm-offset-1 well text-center btn">
-	  <div>  <h2>Compare</h2> </div>
-	</div>
-        <div class="col-sm-2 col-sm-offset-1 well text-center btn">
-	  <div>  <h2>Export</h2> </div>
-	</div>
+	<button class="btn" id="pacobtn">paco++</button>
       </div>
     </div>
-
-    <div class="row show" id="groups-definition">
-      <div class="col-sm-12">
-        <div class="col-sm-9 well">
-	  <div class="row">
-	    <div class="col-sm-6 h3"> Synapses Overview </div>
-	    <div class="col-sm-6" id="overview-menu"></div>
-	  </div>
-	  <div class="row">
-	    <div id="overview"></div>
-	  </div>
-      </div>
-        <div class="col-sm-3">
-	  <div id="menu"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="row hidden" id="compare">
+    <div class="row" id="results">
       <div class="col-sm-12 well">
-	compare
-      </div>
-    </div>
-
-    <div class="row hidden" id="export">
-      <div class="col-sm-12 well">
-	export
+	Here the results
       </div>
     </div>
 
