@@ -1,3 +1,4 @@
+
 require.config({
     baseUrl: 'js',
     packages: [{ name: 'when', location: 'vendor/when', main: 'when' }],
@@ -27,25 +28,36 @@ requirejs(['jquery',
 function($, _, when, bootstrap, WsRpc, Hub, d3) {
     console.log('running');
 
-     rpc = WsRpc.instance();
+    var rpc = WsRpc.instance();
     var hub = Hub.instance();
 
-    pipeline = require('when/pipeline');
+    var pipeline = require('when/pipeline');
 
-/*
-    rpc.call('DynSelectSrv.new_categorical_condition', [dselect, attr])
-	.then(function(condition) {
-		  categoricalSelector.setCondition(condition);
-	      })
-	.otherwise(showError);    
-*/
+     subset1 = null;
+     subset2 = null;
 
     pipeline([function(m, p){return rpc.call(m, p);},
 	      function(tableView){return rpc.call('TableSrv.get_data', [tableView, 'c_list']);},
-	      function(data){ console.log(data);}
+	      function(data){ subset1 = data.volume;}
 	     ],
 	     'TableSrv.find' ,["ds:synapses", {'dendrite_type':'apical'}, {'volume':true}]
 	    ).otherwise(showError);
+
+    pipeline([function(m, p){return rpc.call(m, p);},
+	      function(tableView){return rpc.call('TableSrv.get_data', [tableView, 'c_list']);},
+	      function(data){ subset2 = data.volume;}
+	     ],
+	     'TableSrv.find' ,["ds:synapses", {'dendrite_type':'colateral'}, {'volume':true}]
+	    ).otherwise(showError);
+
+
+    $('#comparebtn').on('click',
+			function() {
+			    rpc.call('StatsSrv.compareTwo', [subset1, subset2 ])
+				.then(function(comparison) {console.log(comparison);})
+				.otherwise(showError);			    
+			}
+		       );
 
 });
 
