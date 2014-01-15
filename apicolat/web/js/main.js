@@ -25,7 +25,8 @@ requirejs(['jquery',
 	   'treemap',
 	   'comboSelector',
 	   'categoricalSelector',
-	   'main-bar'
+	   'main-bar',
+	   'conditionsMenu'
 ], 
 
 function($, _, when, bootstrap, WsRpc, Hub, d3) {
@@ -33,22 +34,6 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
 
     var rpc = WsRpc.instance();
     var hub = Hub.instance();
-
-
-    function createCategoricalSelectors(dselect, attributes) {
-	var CategoricalSelector = require("categoricalSelector");
-	attributes.forEach(function(attr) {
-			       var categoricalSelector = new CategoricalSelector('#conditions-list', attr);
-			       rpc.call('DynSelectSrv.new_categorical_condition', [dselect, attr])
-				   .then(function(condition) {
-					     categoricalSelector.setCondition(condition);
-					 })
-				   .otherwise(showError);    
-			   }
-			  );
-    }
-
-
 
     var quantitative_attrs = ["feret", "area", "volume"];
 
@@ -70,9 +55,9 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
 		treemap.use_count = (msg === '* count *');
 		msg = (msg === '* count *')? quantitative_attrs[0] : msg;
 
-		drawTreemap(when, rpc, treemap, msg);});
+		drawTreemap(treemap, msg);});
 
-    drawTreemap(when, rpc, treemap, quantitative_attrs[0]);
+    drawTreemap(treemap, quantitative_attrs[0]);
 
     // ----------------------------------------
     //     ComboSelector
@@ -89,56 +74,80 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     var definition_dfilter = "f:definition_dfilter"; // Already created in the kernel
     treemap.setSpinesDselect(definition_dselect);
 
+
     // ----------------------------------------
-    //     CategoricalSelector
-    // ----------------------------------------
-    createCategoricalSelectors(definition_dselect, ['dendrite_type', 'cell', 'section10um']);
+    //     CategoricalMenu
+    // ----------------------------------------    
+    createCoditionsMenu(definition_dselect);
+
+
+
+
+
+
+
+
+
+
+
+    // =============================================================
+
+    function createCoditionsMenu(dselect, attributes) {
+	var ConditionsMenu = require("conditionsMenu");
+	
+	//TODO: Add schema property to table_service
+	var schema = {"dataset_type": "TABLE", "index": "synapse_id", "attributes": {"synapse_id": {"attribute_type": "CATEGORICAL", "spatial": false, "key": true, "shape": [], "continuous": false, "multivaluated": false}, "dendrite_type": {"attribute_type": "CATEGORICAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "cell": {"attribute_type": "CATEGORICAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "section": {"attribute_type": "ORDINAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "section10um": {"attribute_type": "CATEGORICAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "source": {"attribute_type": "CATEGORICAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "area": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "volume": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "feret": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "dist_section": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "centroid": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [3], "continuous": false, "multivaluated": false}}};
+
+	var conditionsMenu = new ConditionsMenu('#conditions-menu', dselect, schema);
+    }
+
+
+    function drawTreemap(view, column) {
+	when.map( groupBySpine(column),
+		  function(pipeline) {
+		      console.log( JSON.stringify(pipeline));
+		      return rpc.call('TableSrv.aggregate', ["ds:synapses", pipeline]);})
+	    .then(
+		function(views) {
+		    console.log('views', views);
+		    return when.map(views, function(view) {return rpc.call('TableSrv.get_data', [view]);});
+		})
+	    .then(
+		function (sizes) {
+		    var data = {
+			name: "feret",
+			children: [
+			    {name: "apical", children: sizes[0] },
+			    {name: "colateral", children: sizes[1] }
+			]};
+		    view.setData(data);
+		    console.log(data);
+		    view.render();		    
+		})
+	    .otherwise(showError);    
+    }
+
+    function groupBySpine(column) {
+	column = column || 'feret';
+
+	var project1 = {$project: {dendrite_type:1, cell: 1, synapse_id:1}};
+	project1.$project[column] = 1;
+
+	var group = {$group : {_id: "$cell", 
+			       children: {$addToSet: {name: "$synapse_id", size:'$'+column}} }};
+
+	var apical_pipeline = [{$match: {dendrite_type:"apical"}} ,
+			       project1,
+			       group,
+			       {$project : { name: "$_id", children:1 , _id: 0}}];
+
+	var colateral_pipeline = apical_pipeline.slice();
+	colateral_pipeline[0] = {$match: {dendrite_type:"colateral"}};
+
+	return [ apical_pipeline, colateral_pipeline];
+    }
+
 
 });
 
 
-
-function drawTreemap(when, rpc, view, column) {
-    when.map( groupBySpine(column),
-	    function(pipeline) {
-		console.log( JSON.stringify(pipeline));
-		return rpc.call('TableSrv.aggregate', ["ds:synapses", pipeline]);})
-	.then(
-	    function(views) {
-		console.log('views', views);
-		return when.map(views, function(view) {return rpc.call('TableSrv.get_data', [view]);});
-	    })
-	.then(
-	    function (sizes) {
-		var data = {
-		    name: "feret",
-		    children: [
-			   {name: "apical", children: sizes[0] },
-			   {name: "colateral", children: sizes[1] }
-			   ]};
-		view.setData(data);
-		console.log(data);
-		view.render();		    
-	    })
-	.otherwise(showError);    
-}
-
-function groupBySpine(column) {
-    column = column || 'feret';
-
-    var project1 = {$project: {dendrite_type:1, cell: 1, synapse_id:1}};
-    project1.$project[column] = 1;
-
-    var group = {$group : {_id: "$cell", 
-		 children: {$addToSet: {name: "$synapse_id", size:'$'+column}} }};
-
-    var apical_pipeline = [{$match: {dendrite_type:"apical"}} ,
-			   project1,
-			   group,
-			   {$project : { name: "$_id", children:1 , _id: 0}}];
-
-    var colateral_pipeline = apical_pipeline.slice();
-    colateral_pipeline[0] = {$match: {dendrite_type:"colateral"}};
-
-    return [ apical_pipeline, colateral_pipeline];
-}
