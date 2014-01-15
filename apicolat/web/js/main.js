@@ -38,7 +38,7 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     function createCategoricalSelectors(dselect, attributes) {
 	var CategoricalSelector = require("categoricalSelector");
 	attributes.forEach(function(attr) {
-			       var categoricalSelector = new CategoricalSelector('#menu', attr);
+			       var categoricalSelector = new CategoricalSelector('#conditions-list', attr);
 			       rpc.call('DynSelectSrv.new_categorical_condition', [dselect, attr])
 				   .then(function(condition) {
 					     categoricalSelector.setCondition(condition);

@@ -39,15 +39,14 @@ function() {
 //	console.log('updating', this.name, JSON.stringify(this.items));
 
 
-	var div = d3.select(this.container.selector).select("#categorical-selector-"+this.name)
-	    .select('form').selectAll('div').data(_.values(this.items), function(d){return d.name;});
-	div.enter()
-	    .append('div')
-	    .attr("class", "checkbox")
+	var label = d3.select(this.container.selector).select("#categorical-selector-"+this.name)
+	    .select('form').selectAll('label').data(_.values(this.items), function(d){return d.name;});
+	label.enter()
+	    .append('label')
+	    .attr("class", "checkbox-inline")
+	    .text(function(d){return d.name;})
 	    .call(function(checkbox) {
-		      checkbox.append('label')
-			  .text(function(d){return d.name;})
-			  .append('input')
+		      checkbox.append('input')
 			  .attr("value", function(d){return d.name;})
 			  .attr("type", "checkbox")
 			  .on("change", function(d) {
@@ -55,7 +54,7 @@ function() {
 			      });
 		  });
 
-	div.selectAll('input').property('checked', function(d){ return self.items[d.name].included;});
+	label.selectAll('input').property('checked', function(d){ return self.items[d.name].included;});
 	
 
 	div.exit()
