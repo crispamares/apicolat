@@ -110,23 +110,6 @@ function() {
 	return promise;
     };
 
-
-    CategorialSelector.prototype.setCondition = function(condition) {
-	var self = this;
-	this.condition = condition;
-
-	when.map([this._rpcExcludedCategories(condition), 
-		  this._rpcIncludedCategories(condition)])
-	    .then(function(){self.update();});
-
-	hub.subscribe(condition+ ':change',
-	    function(topic, msg) {
-		when.map([self._rpcExcludedCategories(condition), self._rpcIncludedCategories(condition)])
-		    .then(function(){self.update();});
-	    });
-    };
-
-    
     return CategorialSelector;
 }
 );

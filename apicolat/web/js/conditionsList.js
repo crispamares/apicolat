@@ -22,7 +22,6 @@ function() {
     
     ConditionsList.prototype.update =  function() {
 	var self = this;
-	console.log('updating', this.gvConditions);
 
 	var condition = d3.select(this.container.selector)
 	    .selectAll("div.condition")
@@ -31,8 +30,7 @@ function() {
 	condition.enter()
 	    .append('div')
 	    .attr('class', 'condition')
-	    .each(function(d) {console.log('*************',this, d);
-			       createCategoricalSelector(this, d);});
+	    .each(function(d) {createCategoricalSelector(this, d);});
 
 	condition.exit()
 	    .remove();
@@ -43,7 +41,6 @@ function() {
 	var self = this;
 	var promise = rpc.call(this.service+'.grammar', [conditionSet]);
 	promise.then(function(grammar){
-			 console.log(grammar);
 			 self.gvConditions = grammar.conditions;
 			 self.update(); // TODO: Change when sync rendering is used
 		     })
