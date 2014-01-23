@@ -5,12 +5,27 @@ function() {
     var rpc = require('ws-rpc').instance();
     var when = require('when');
 
-    function CategorialSelector(container, name) {
-	this.container = $(container);
-	this.condition = null;
-
+    function CategorialSelector(container, name, grammar) {
+	var self = this;
+	this.container = d3.select(container);
+	this.grammar = grammar;
 	this.name = name;
+	this.condition = 'c:' + grammar.name;
+
 	this.items = {}; //{cat1: {name:'cat1',included:true}, cat2: {name:'cat2',included:false}};
+
+
+	if (this.grammar) {
+	    this.grammar.included_categories.forEach(function(i) { self.items[i] = {name:i, included:true}; });
+	    this.grammar.excluded_categories.forEach(function(i) { self.items[i] = {name:i, included:false}; });
+	}
+
+	hub.subscribe(this.condition+ ':change',
+	    function(topic, msg) {
+		when.map([self._rpcExcludedCategories(condition), self._rpcIncludedCategories(condition)])
+		    .then(function(){self.update();});
+	    });
+
 
 	var template = _.template('<div class="panel panel-default" id="categorical-selector-<%-name%>">'
 			   + '  <div class="panel-heading">'
@@ -30,8 +45,9 @@ function() {
 			   + '  </div>'
 			   + '</div>');
 	var html = template({items: this.items, name: this.name});
-	this.container.append(html);
+	this.container.html(html);
 
+	this.update();
     }
     
     CategorialSelector.prototype.update =  function() {
@@ -39,7 +55,7 @@ function() {
 //	console.log('updating', this.name, JSON.stringify(this.items));
 
 
-	var label = d3.select(this.container.selector).select("#categorical-selector-"+this.name)
+	var label = this.container.select("#categorical-selector-"+this.name)
 	    .select('form').selectAll('label').data(_.values(this.items), function(d){return d.name;});
 	label.enter()
 	    .append('label')
@@ -57,7 +73,7 @@ function() {
 	label.selectAll('input').property('checked', function(d){ return self.items[d.name].included;});
 	
 
-	div.exit()
+	label.exit()
 	    .remove();
 
     };

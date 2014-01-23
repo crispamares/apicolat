@@ -4,6 +4,7 @@ function() {
     var hub = require('hub').instance();
     var rpc = require('ws-rpc').instance();
     var when = require('when');
+    var CategoricalSelector = require("categoricalSelector");
 
     function ConditionsList(container, conditionSet, service) {
 	var self = this;
@@ -11,54 +12,54 @@ function() {
 	this.conditionSet = conditionSet;
 
 	this.service = service || 'DynSelectSrv';
-	this.attributes = [];
+	this.gvConditions = [];
 
-	hub.subscribe(this.service+'.'+conditionSet+':change', this.onConditionSetChange, this);
+	hub.subscribe(conditionSet+':change', this.onConditionSetChange, this);
 	
-	// TODO: Add service method to retrieve conditions information
-	rpc.call(this.service+'.get_conditions', [conditionSet])
-	    .then(function(conditions){})
-	    .otherwise(showError);
-
+	this._rpcGrammar(conditionSet);
 	this.update();
     }
     
     ConditionsList.prototype.update =  function() {
 	var self = this;
-	console.log('updating', this, JSON.stringify(this.attributes));
+	console.log('updating', this.gvConditions);
 
-	var option = d3.select(this.container.selector).select("select")
-	    .selectAll('option').data(self.attributes, _.identity);
-	option.enter()
-	    .append('option')
-	    .text(_.identity);
+	var condition = d3.select(this.container.selector)
+	    .selectAll("div.condition")
+	    .data(this.gvConditions, function(d){return d.name;});
 
-	option.exit()
+	condition.enter()
+	    .append('div')
+	    .attr('class', 'condition')
+	    .each(function(d) {console.log('*************',this, d);
+			       createCategoricalSelector(this, d);});
+
+	condition.exit()
 	    .remove();
 
     };
 
-    ConditionsList.prototype.onConditionSetChange = function(topic, msg) {
-	console.log('ConditionSet Changed', msg);
+    ConditionsList.prototype._rpcGrammar = function(conditionSet) {
+	var self = this;
+	var promise = rpc.call(this.service+'.grammar', [conditionSet]);
+	promise.then(function(grammar){
+			 console.log(grammar);
+			 self.gvConditions = grammar.conditions;
+			 self.update(); // TODO: Change when sync rendering is used
+		     })
+	    .otherwise(showError);
+	return promise;
     };
 
-    ConditionsList.prototype.add_condition = function(attribute) {
-	var self = this;
-	var attribute_schema = this.schema.attributes[attribute];
-	
-	if (attribute_schema.attribute_type === 'CATEGORICAL') {
-	    createCategoricalSelectors(this.conditionSet, attribute, this.service);
-	}
+
+    ConditionsList.prototype.onConditionSetChange = function(topic, msg) {
+	console.log('ConditionSet Changed', msg);
+	this._rpcGrammar(this.conditionSet);
     };
     
-    function createCategoricalSelectors(conditionSet, attribute, service) {
-	var CategoricalSelector = require("categoricalSelector");
-	var categoricalSelector = new CategoricalSelector('#conditions-list', attribute);
-	rpc.call(service+'.new_categorical_condition', [conditionSet, attribute])
-	    .then(function(condition) {
-		      categoricalSelector.setCondition(condition);
-		  })
-	    .otherwise(showError);    
+    function createCategoricalSelector(container, gvCondition) {
+	var categoricalSelector = 
+	    new CategoricalSelector(container, gvCondition.attr, gvCondition);
     }
 
 

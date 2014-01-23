@@ -59,20 +59,10 @@ function() {
 	var attribute_schema = this.schema.attributes[attribute];
 	
 	if (attribute_schema.attribute_type === 'CATEGORICAL') {
-	    createCategoricalSelectors(this.conditionSet, attribute, this.service);
+	    rpc.call(this.service+'.new_categorical_condition', [this.conditionSet, attribute])
+		.otherwise(showError);	    
 	}
     };
-    
-    function createCategoricalSelectors(conditionSet, attribute, service) {
-	var CategoricalSelector = require("categoricalSelector");
-	var categoricalSelector = new CategoricalSelector('#conditions-list', attribute);
-	rpc.call(service+'.new_categorical_condition', [conditionSet, attribute])
-	    .then(function(condition) {
-		      categoricalSelector.setCondition(condition);
-		  })
-	    .otherwise(showError);    
-    }
-
 
     return ConditionsMenu;
 }

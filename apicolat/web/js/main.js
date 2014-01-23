@@ -26,7 +26,8 @@ requirejs(['jquery',
 	   'comboSelector',
 	   'categoricalSelector',
 	   'main-bar',
-	   'conditionsMenu'
+	   'conditionsMenu',
+	   'conditionsList'
 ], 
 
 function($, _, when, bootstrap, WsRpc, Hub, d3) {
@@ -76,10 +77,11 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
 
 
     // ----------------------------------------
-    //     CategoricalMenu
+    //     CategoricalMenu and List
     // ----------------------------------------    
     createCoditionsMenu(definition_dselect);
-
+    var ConditionsList = require("conditionsList");
+    var conditionsList = new ConditionsList('#conditions-list', definition_dselect);    
 
 
 
