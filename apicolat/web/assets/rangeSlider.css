@@ -1,16 +1,28 @@
 .brush{
-  stroke: #aaa;
-  shape-rendering: crispEdges;
+    stroke: #aaa;
+    shape-rendering: crispEdges;
 }
 .brush .extent {
-  stroke: #fff;
-  fill: #e7e7e7;
+    stroke: #fff;
+    fill: #000;
+    fill-opacity: .125;
 }
 .brush .resize {
-  stroke: #aaa;
-  fill: #e7e7e7;
+    stroke: #aaa;
+    fill: #e7e7e7;
+}
+
+.brush .background {
+    fill: #f5f5f5;
+    stroke: none;
 }
 
 svg.slider {
-  background: #f5f5f5;
+/*background: #f5f5f5;*/
+}
+
+svg.slider .axis path, svg.slider .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
 }

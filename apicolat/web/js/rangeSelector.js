@@ -71,6 +71,7 @@ function() {
 	var rangeSlider = new RangeSlider(container);
 	var extent =  [gvCondition.range['relative_min'], gvCondition.range['relative_max']];
 	rangeSlider.setExtent(extent);
+	rangeSlider.setDomain(gvCondition.domain);
 
 	rangeSlider.on('move', function(extent){
 		var params =  {condition_name: self.condition, 
