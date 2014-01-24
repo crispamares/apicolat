@@ -1,4 +1,4 @@
-define(['lodash', 'jquery', 'ws-rpc', 'hub', 'd3', 'when', 'categoricalSelector'],
+define(['lodash', 'jquery', 'ws-rpc', 'hub', 'd3', 'when'],
 function() {
 
     var hub = require('hub').instance();
@@ -60,6 +60,11 @@ function() {
 	
 	if (attribute_schema.attribute_type === 'CATEGORICAL') {
 	    rpc.call(this.service+'.new_categorical_condition', [this.conditionSet, attribute])
+		.otherwise(showError);	    
+	}
+	else if (attribute_schema.attribute_type === 'QUANTITATIVE' &&
+		_.isEqual(attribute_schema.shape, [])) {
+	    rpc.call(this.service+'.new_range_condition', [this.conditionSet, attribute])
 		.otherwise(showError);	    
 	}
     };

@@ -1,10 +1,11 @@
-define(['lodash', 'jquery', 'ws-rpc', 'hub', 'd3', 'when', 'categoricalSelector'],
+define(['lodash', 'jquery', 'ws-rpc', 'hub', 'd3', 'when', 'categoricalSelector', 'rangeSelector'],
 function() {
 
     var hub = require('hub').instance();
     var rpc = require('ws-rpc').instance();
     var when = require('when');
     var CategoricalSelector = require("categoricalSelector");
+    var RangeSelector = require("rangeSelector");
 
     function ConditionsList(container, conditionSet, service) {
 	var self = this;
@@ -30,7 +31,7 @@ function() {
 	condition.enter()
 	    .append('div')
 	    .attr('class', 'condition')
-	    .each(function(d) {createCategoricalSelector(this, d);});
+	    .each(function(d) {createSelector(this, d);});
 
 	condition.exit()
 	    .remove();
@@ -54,9 +55,18 @@ function() {
 	this._rpcGrammar(this.conditionSet);
     };
     
-    function createCategoricalSelector(container, gvCondition) {
-	var categoricalSelector = 
-	    new CategoricalSelector(container, gvCondition.attr, gvCondition);
+    function createSelector(container, gvCondition) {
+	switch (gvCondition.type) {
+	    case('categorical'):
+		var categoricalSelector = 
+		    new CategoricalSelector(container, gvCondition.attr, gvCondition);	    
+		break;
+	    case('range'):
+		var rangeSlider = new RangeSelector(container, gvCondition.attr, gvCondition);
+		break;
+	    default:
+		console.error("Condition Type:", gvCondition.type, "not implemented");
+	    }
     }
 
 

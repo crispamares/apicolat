@@ -24,7 +24,6 @@ requirejs(['jquery',
 	   'when/pipeline',
 	   'treemap',
 	   'comboSelector',
-	   'categoricalSelector',
 	   'main-bar',
 	   'conditionsMenu',
 	   'conditionsList'

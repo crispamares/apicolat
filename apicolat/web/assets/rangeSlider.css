@@ -1,0 +1,16 @@
+.brush{
+  stroke: #aaa;
+  shape-rendering: crispEdges;
+}
+.brush .extent {
+  stroke: #fff;
+  fill: #e7e7e7;
+}
+.brush .resize {
+  stroke: #aaa;
+  fill: #e7e7e7;
+}
+
+svg.slider {
+  background: #f5f5f5;
+}

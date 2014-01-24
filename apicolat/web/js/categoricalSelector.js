@@ -22,7 +22,8 @@ function() {
 
 	hub.subscribe(this.condition+ ':change',
 	    function(topic, msg) {
-		when.map([self._rpcExcludedCategories(condition), self._rpcIncludedCategories(condition)])
+		when.map([self._rpcExcludedCategories(self.condition), 
+			  self._rpcIncludedCategories(self.condition)])
 		    .then(function(){self.update();});
 	    });
 
