@@ -31,7 +31,6 @@ requirejs(['jquery',
 
 function($, _, when, bootstrap, WsRpc, Hub, d3) {
     console.log('running');
-
     var rpc = WsRpc.instance();
     var hub = Hub.instance();
 

@@ -1,10 +1,11 @@
 
 define(
-["when","ws-rpc", "d3", "hub", "jquery"]
+["when","ws-rpc", "d3", "hub",  "bootstrap", "jquery"]
 ,
 function () {
     var hub = require('hub').instance();
     var rpc = require('ws-rpc').instance();
+    require('bootstrap');
 
     var treemapView = function(container) {
 	// Subscribe to 'r:'
@@ -68,11 +69,16 @@ function () {
 
 	    leaves.enter().append("rect")
 		.attr("class", "node leaf")
+		.attr("title", function(d,i){return d.name;})
 		.on("click", function(d) {
 			if (self.spinesCondition) {
 			    rpc.call('ConditionSrv.toggle_category', [self.spinesCondition, d.name]);
 			}
-		    });
+		    })
+		.each(function(){$(this).tooltip({'container': 'body',
+						  'placement': 'right'
+						 });
+				});
 	    leaf_layer
 		.attr("opacity",0)
 	      .transition()
