@@ -26,7 +26,8 @@ requirejs(['jquery',
 	   'comboSelector',
 	   'main-bar',
 	   'conditionsMenu',
-	   'conditionsList'
+	   'conditionsList',
+	   'subsetMenu'
 ], 
 
 function($, _, when, bootstrap, WsRpc, Hub, d3) {
@@ -41,6 +42,13 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     // ----------------------------------------
     var MainBar = require("main-bar");
     var mainBar = new MainBar("#main-bar>div");
+
+    // ----------------------------------------
+    //     Subset Menu
+    // ----------------------------------------
+    var SubsetMenu = require("subsetMenu");
+    var subsetMenu = new SubsetMenu("#subset-list");
+
 
     // ----------------------------------------
     //     Treemap
