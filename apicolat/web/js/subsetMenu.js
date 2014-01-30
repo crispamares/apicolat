@@ -45,15 +45,23 @@ function() {
 			      .on("click", function(){activate(d.name);});
 			  btn_group.select("a.duplicate")
 			      .on("click", function(){duplicate(d);});
+			  btn_group.select("a.remove")
+			      .on("click", function(){remove(d.name);});
+			  btn_group.select("a.rename")
+			      .on("click", function(){modal_rename(d);});
 
 		      });
 
 	    buttons
 		.each(function(d){ 
 			  var btn_group = d3.select(this);
+			  btn_group.select("button")
+			      .text(d.name);
 			  btn_group.selectAll('button')
 			      .classed({"btn-default": !d.active, "btn-primary": d.active});
 		      });
+
+	    buttons.exit().remove();
 
 	}
 
@@ -62,12 +70,27 @@ function() {
 	    update();
 	}
 
+	function modal_rename(subset) {
+	    // TODO show the modal
+	    
+	    update();
+	}
+
+
 	function duplicate(subset) {
 	    var copy = _.clone(subset);
 	    copy.name = subset.name + "_copy";
-	    self.subset.push(copy);
+	    copy.active = false;
+	    self.subsets.push(copy);
 	    update();
 	}
+
+	function remove(name) {
+	    self.subsets = _.remove(self.subsets, function(subset) {return (subset.name !== name);});
+	    update();
+	}
+
+
 
     }
     
