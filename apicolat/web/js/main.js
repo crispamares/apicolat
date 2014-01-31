@@ -85,7 +85,7 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     // ----------------------------------------
     //     CategoricalMenu and List
     // ----------------------------------------    
-    createCoditionsMenu(definition_dselect);
+    var conditionsMenu = createCoditionsMenu(definition_dselect);
     var ConditionsList = require("conditionsList");
     var conditionsList = new ConditionsList('#conditions-list', definition_dselect);    
 
@@ -107,6 +107,7 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
 	var schema = {"dataset_type": "TABLE", "index": "synapse_id", "attributes": {"synapse_id": {"attribute_type": "CATEGORICAL", "spatial": false, "key": true, "shape": [], "continuous": false, "multivaluated": false}, "dendrite_type": {"attribute_type": "CATEGORICAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "cell": {"attribute_type": "CATEGORICAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "section": {"attribute_type": "ORDINAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "section10um": {"attribute_type": "CATEGORICAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "source": {"attribute_type": "CATEGORICAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "area": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "volume": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "feret": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "dist_section": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "centroid": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [3], "continuous": false, "multivaluated": false}}};
 
 	var conditionsMenu = new ConditionsMenu('#conditions-menu', dselect, schema);
+	return conditionsMenu;
     }
 
 

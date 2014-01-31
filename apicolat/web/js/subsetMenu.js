@@ -60,7 +60,7 @@ function() {
 			  btn_group.select("a.remove")
 			      .on("click", function(){remove(d.name);});
 			  btn_group.select("a.rename")
-			      .on("click", function(){modal_rename(d);});
+			      .on("click", function(){rename(d);});
 
 		      });
 
@@ -73,16 +73,26 @@ function() {
 			      .classed({"btn-default": !d.active, "btn-primary": d.active});
 		      });
 
+	    buttons.select("a.remove")
+		.classed('text-muted', function(){return (self.subsets.length <= 1); });
+
 	    buttons.exit().remove();
 
 	}
 
 	function activate(name) {
-	    _.forEach(self.subsets, function(subset) {subset.active = (subset.name === name);});
+	    var activated = null;
+	    _.forEach(self.subsets, function(subset) {
+			  if (subset.name === name) {
+			      activated = subset;
+			  }
+			  subset.active = (subset.name === name);
+		      });
+	    hub.publish("subset_activated", _.clone(activated));
 	    update();
 	}
 
-	function modal_rename(subset) {
+	function rename(subset) {
 	    // TODO show the modal
 	    var modalTemplate = 
 		'  <div class="modal-dialog">' +
@@ -152,15 +162,31 @@ function() {
 	}
 
 	function remove(name) {
-	    self.subsets = _.remove(self.subsets, function(subset) {return (subset.name !== name);});
-	    update();
+	    if (self.subsets.length == 1)
+		return;
+	    
+	    var subset = _.find(self.subsets, {name:name});
+	    self.subsets = _.without(self.subsets, subset);
+	    if (subset.active) {
+		activate(self.subsets[0]);
+	    }
+	    else {
+		update();		
+	    }
+
 	}
 
 	function createSubset() {
-	    self.subsets.push({name:'The new one'});
+	    var subset = {name:'The new one'};
+	    self.subsets.push(subset);
+	    rename(subset);
 	    update();
 	}
 
+	function createDSelect(name) {
+	    
+	    
+	}
 
 
     }
