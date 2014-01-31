@@ -47,7 +47,7 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     //     Subset Menu
     // ----------------------------------------
     var SubsetMenu = require("subsetMenu");
-    var subsetMenu = new SubsetMenu("#subset-list");
+    var subsetMenu = new SubsetMenu("#subset-add","#subset-list");
 
 
     // ----------------------------------------

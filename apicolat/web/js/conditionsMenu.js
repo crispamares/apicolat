@@ -14,20 +14,16 @@ function() {
 	this.attributes = attributes || _.keys(schema.attributes);
 	this.service = service || 'DynSelectSrv';
 
-	console.log('weeeeeee', this);
-
-
-	var template = _.template('	  <div class="panel">'
-				  + '	    <form class="form-inline" >'
-				  + '	      <div class="form-group" style="width:80%;">'
-				  + '		<select class="form-control">'
-				  + '		</select>'
+	var template = _.template('	    <form class="form-horizontal" >'
+				  + '	      <div class="form-group" >'
+				  + '           <div class="col-sm-9">'
+				  + '		   <select class="form-control"> </select>'
+				  + '           </div>'
+				  + '	        <button type="button" class="col-sm-2 btn btn-default" >'
+				  + '		  <span class="glyphicon glyphicon-plus"></span> Add'
+				  + '	        </button>'
 				  + '	      </div>'
-				  + '	      <button type="button" class="btn btn-default" style="width:18%;">'
-				  + '		<span class="glyphicon glyphicon-plus"></span> Add'
-				  + '	      </button>'
-				  + '	    </form>'
-				  + '	  </div>');
+				  + '	    </form>');
 	var html = template();
 	this.container.append(html);
 

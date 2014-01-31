@@ -5,14 +5,24 @@ function() {
     var rpc = require('ws-rpc').instance();
     var when = require('when');
 
-    function SubsetMenu(container, subsets) {
+    function SubsetMenu(addContainer, listContainer, subsets) {
 	var self = this;
-	this.container = d3.select(container);
+	this.listContainer = d3.select(listContainer);
 	this.subsets = subsets;
 
 	this.subsets = [{name: 'paco', active:true}, {name: 'paco2'}];
 
-	var button_template = _.template(
+	d3.select(addContainer)
+	  .append('button')
+	    .attr('class', "btn btn-default")
+	    .on('click', createSubset)
+	    .append('span')
+		.attr('class', "glyphicon")
+		.attr('title', 'Add new subset')
+		.text('+');
+
+
+	var subsets_template = _.template(
 				  '	    <button type="button" class="btn btn-default "><%- name  %></button>' +
 				  '	    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">' +
 				  '           <span class="caret"></span>' +
@@ -20,7 +30,7 @@ function() {
 				  '	    <ul class="dropdown-menu" role="menu">' +
 				  '	      <li><a href="#" class="use-this">Use this</a></li>' +
 				  '	      <li><a href="#" class="rename">Rename</a></li>' +
-				  '	      <li><a href="#" class="duplicate">Duplicate</a></li>' +
+//				  '	      <li><a href="#" class="duplicate">Duplicate</a></li>' +
 				  '	      <li class="divider"></li>' +
 				  '	      <li><a href="#" class="remove">Remove</a></li>' +
 				  '	    </ul>'
@@ -28,8 +38,10 @@ function() {
 
 	update();
 
+
+
 	function update() {
-	    var buttons = self.container.selectAll('div.btn-group')
+	    var buttons = self.listContainer.selectAll('div.btn-group')
 		.data(self.subsets, function(d){return d.name;});
 	    
 	    buttons.enter()
@@ -37,7 +49,7 @@ function() {
 		.classed('btn-group', true)
 		.each(function(d){ 
 			  var btn_group = d3.select(this);
-			  btn_group.html(button_template(d));
+			  btn_group.html(subsets_template(d));
 
 			  btn_group.select("button")
 			      .on("click", function(){activate(d.name);});
@@ -72,8 +84,62 @@ function() {
 
 	function modal_rename(subset) {
 	    // TODO show the modal
-	    
-	    update();
+	    var modalTemplate = 
+		'  <div class="modal-dialog">' +
+		'    <div class="modal-content">' +
+		'      <div class="modal-header">' +
+		'        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' +
+		'        <h4 class="modal-title">Rename the subset</h4>' +
+		'      </div>' +
+		'      <div class="modal-body">' +
+		'        <input type="text" class="form-control" placeholder="New unique name">' +
+		'      </div>' +
+		'      <div class="modal-footer">' +
+		'        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>' +
+		'        <button type="button" class="btn btn-primary submit">Save changes</button>' +
+		'      </div>' +
+		'    </div><!-- /.modal-content -->' +
+		'  </div><!-- /.modal-dialog -->';
+	
+	    var renameModal = d3.selectAll('#rename-subset-modal')
+		.data([subset]);
+	    renameModal.enter()
+		.append('div')
+		.attr('class', "modal")
+		.attr('id', 'rename-subset-modal')
+		.html(modalTemplate);
+
+	    renameModal.select('input')
+		.property('value', subset.name)
+		.on('input', function(){
+			/**
+			 * Validation: the name must be unique
+			 */
+			var newName = this.value;
+			var used = (_.some(self.subsets, function(s){return s.name === newName;}));
+			
+			renameModal.select('.modal-body').classed('has-error', used);
+			renameModal.select('button.submit').attr('disabled', function(){return (used)? 'disabled': null;});
+		    });
+
+
+	    renameModal.select('button.submit')
+		.attr('disabled', 'disabled')
+		.on('click', function(){
+			var input = renameModal.select('input');
+			var newName = input.property('value');
+			if (!_.some(self.subsets, function(s){return s.name === newName;})
+			    || subset.name === newName
+			   )
+			{
+			    subset.name = newName;
+			    $('#rename-subset-modal').modal('hide');
+			    update();	
+			}
+			
+		    });
+
+	    $('#rename-subset-modal').modal('show');
 	}
 
 
@@ -87,6 +153,11 @@ function() {
 
 	function remove(name) {
 	    self.subsets = _.remove(self.subsets, function(subset) {return (subset.name !== name);});
+	    update();
+	}
+
+	function createSubset() {
+	    self.subsets.push({name:'The new one'});
 	    update();
 	}
 
