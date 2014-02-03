@@ -54,6 +54,16 @@ function() {
 	console.log('ConditionSet Changed', msg);
 	this._rpcGrammar(this.conditionSet);
     };
+
+
+    ConditionsList.prototype.setConditionSet = function(conditionSet) {
+	hub.unsubscribe(this.conditionSet+':change', this.onConditionSetChange, this);
+
+	this.conditionSet = conditionSet;
+	hub.subscribe(conditionSet+':change', this.onConditionSetChange, this);
+	this._rpcGrammar(conditionSet);
+    };
+
     
     function createSelector(container, gvCondition) {
 	switch (gvCondition.type) {

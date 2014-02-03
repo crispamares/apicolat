@@ -5,6 +5,7 @@ define(
 function () {
     var hub = require('hub').instance();
     var rpc = require('ws-rpc').instance();
+    var when = require('when');
     require('bootstrap');
 
     var treemapView = function(container) {
@@ -98,6 +99,8 @@ function () {
 		.attr("y", function(d) { return d.y + "px"; })
 		.attr("width", function(d) { return d.dx + "px"; })
 		.attr("height", function(d) { return d.dy + "px"; });
+
+	    self.render_dselect();
 	};
 
 	this.render_dselect = function() {
@@ -122,23 +125,31 @@ function () {
 
     treemapView.prototype._rpcIncludedSpines = function(dselect) {
 	var self = this;
-	var promise = rpc.call('DynSelectSrv.reference', [dselect])
-	    .then(function(included_spines) {self.included_spines = included_spines;});
-	promise.otherwise(showError);
-	return promise;
+	var deferred = when.defer();
+	rpc.call('DynSelectSrv.reference', [dselect])
+	    .then(function(included_spines) {
+		      self.included_spines = included_spines;
+		      deferred.resolve();
+		  });
+	deferred.promise.otherwise(showError);
+	return deferred.promise;
     };
 
-    treemapView.prototype.setSpinesDselect = function(dselect) {
+    treemapView.prototype.onDselectChange = function(topic, msg) {
+	this._rpcIncludedSpines(this.spinesDselect)
+	    .then(this.render_dselect)
+	    .otherwise(showError);
+    };
+
+    treemapView.prototype.setDselect = function(dselect) {
 	var self = this;
+	if (this.spinesDselect) {
+	    hub.unsubscribe(this.spinesDselect+':change', this.onDselectChange, this);
+	}
 	this.spinesDselect = dselect;
 	this.included_spines = null;
-	this._rpcIncludedSpines(dselect);
-	hub.subscribe(dselect+':change', 
-	    function(topic, msg) {
-		self._rpcIncludedSpines(dselect)
-		    .then(self.render_dselect);
-	    });
-
+	this._rpcIncludedSpines(dselect).then(this.render_dselect);
+	hub.subscribe(dselect+':change', this.onDselectChange, this);
     };
 
     treemapView.prototype.setSpinesCondition = function(condition) {

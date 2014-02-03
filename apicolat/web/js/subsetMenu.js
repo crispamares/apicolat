@@ -5,12 +5,11 @@ function() {
     var rpc = require('ws-rpc').instance();
     var when = require('when');
 
-    function SubsetMenu(addContainer, listContainer, subsets) {
+    function SubsetMenu(addContainer, listContainer, subsets, dataset) {
 	var self = this;
 	this.listContainer = d3.select(listContainer);
 	this.subsets = subsets;
-
-	this.subsets = [{name: 'paco', active:true}, {name: 'paco2'}];
+	this.dataset = dataset;
 
 	d3.select(addContainer)
 	  .append('button')
@@ -82,17 +81,24 @@ function() {
 
 	function activate(name) {
 	    var activated = null;
+	    var hasChanged = false;
 	    _.forEach(self.subsets, function(subset) {
 			  if (subset.name === name) {
 			      activated = subset;
+			      hasChanged = ! activated.active;
 			  }
 			  subset.active = (subset.name === name);
 		      });
-	    hub.publish("subset_activated", _.clone(activated));
+	    if (hasChanged) {
+		hub.publish("active_subset_change", _.clone(activated));		
+	    }
+
 	    update();
 	}
 
 	function rename(subset) {
+	    var deferred = when.defer();
+
 	    // TODO show the modal
 	    var modalTemplate = 
 		'  <div class="modal-dialog">' +
@@ -105,7 +111,7 @@ function() {
 		'        <input type="text" class="form-control" placeholder="New unique name">' +
 		'      </div>' +
 		'      <div class="modal-footer">' +
-		'        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>' +
+		'        <button type="button" class="btn btn-default cancel" data-dismiss="modal">Close</button>' +
 		'        <button type="button" class="btn btn-primary submit">Save changes</button>' +
 		'      </div>' +
 		'    </div><!-- /.modal-content -->' +
@@ -143,13 +149,19 @@ function() {
 			   )
 			{
 			    subset.name = newName;
+			    deferred.resolve(newName);			    
 			    $('#rename-subset-modal').modal('hide');
 			    update();	
 			}
 			
 		    });
-
+	    renameModal.select('button.cancel')
+		.on('click', function(){
+			deferred.reject();
+		    });
 	    $('#rename-subset-modal').modal('show');
+	    $('#rename-subset-modal').on('hide.bs.modal', function(){deferred.reject();});
+	    return deferred.promise;
 	}
 
 
@@ -162,13 +174,12 @@ function() {
 	}
 
 	function remove(name) {
-	    if (self.subsets.length == 1)
-		return;
+	    if (self.subsets.length == 1) return;
 	    
 	    var subset = _.find(self.subsets, {name:name});
 	    self.subsets = _.without(self.subsets, subset);
 	    if (subset.active) {
-		activate(self.subsets[0]);
+		activate(self.subsets[0].name);
 	    }
 	    else {
 		update();		
@@ -179,13 +190,19 @@ function() {
 	function createSubset() {
 	    var subset = {name:'The new one'};
 	    self.subsets.push(subset);
-	    rename(subset);
+	    rename(subset)
+		.then(function(name){createDSelect(subset.name, self.dataset);})
+		.otherwise(function(){remove(subset.name);});
 	    update();
 	}
 
-	function createDSelect(name) {
-	    
-	    
+	function createDSelect(name, dataset) {
+	    rpc.call('DynSelectSrv.new_dselect', [name, dataset])
+		.then(function(fullName){
+			  var subset = _.find(self.subsets, {name:name});
+			  subset.conditionSet = fullName;
+		      })
+		.otherwise(showError);
 	}
 
 

@@ -47,10 +47,17 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     var mainBar = new MainBar("#main-bar>div");
 
     // ----------------------------------------
+    //     Dynamics
+    // ----------------------------------------
+    var definition_dselect = "s:definition_dselect"; // Already created in the kernel
+    var definition_dfilter = "f:definition_dfilter"; // Already created in the kernel
+
+    // ----------------------------------------
     //     Subset Menu
     // ----------------------------------------
+    var subsets = [{name:'unnamed', active:true, conditionSet: definition_dselect}];
     var SubsetMenu = require("subsetMenu");
-    var subsetMenu = new SubsetMenu("#subset-add","#subset-list");
+    var subsetMenu = new SubsetMenu("#subset-add","#subset-list", subsets, "ds:synapses");
 
 
     // ----------------------------------------
@@ -68,6 +75,7 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
 		drawTreemap(treemap, msg);});
 
     drawTreemap(treemap, quantitative_attrs[0]);
+    treemap.setDselect(definition_dselect);
 
     // ----------------------------------------
     //     ComboSelector
@@ -76,13 +84,6 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     var menu = new ComboSelector('#overview-menu');
     menu.options = quantitative_attrs.concat(menu.options);
     menu.update();
-
-    // ----------------------------------------
-    //     Dynamics
-    // ----------------------------------------
-    var definition_dselect = "s:definition_dselect"; // Already created in the kernel
-    var definition_dfilter = "f:definition_dfilter"; // Already created in the kernel
-    treemap.setSpinesDselect(definition_dselect);
 
 
     // ----------------------------------------
@@ -93,9 +94,18 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     var conditionsList = new ConditionsList('#conditions-list', definition_dselect);    
 
 
+    hub.subscribe('active_subset_change', changeDselect);
 
-
-
+    function changeDselect(topic, msg) {
+	if (msg.active !== null) {
+	    treemap.setDselect(msg.conditionSet);
+	    conditionsMenu.setConditionSet(msg.conditionSet);
+	    conditionsList.setConditionSet(msg.conditionSet);
+	}
+	else {
+	    console.log('No handled active subset change:', msg);
+	}
+    }
 
 
 

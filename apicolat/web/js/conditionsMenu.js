@@ -32,7 +32,7 @@ function() {
 	var select_widget = d3.select(container).select("select");
 	d3.select(container)
 	    .select("button")
-	    .on("click", function(){self.add_condition(select_widget.property("value"));});
+	    .on("click", function(){self.addCondition(select_widget.property("value"));});
     }
     
     ConditionsMenu.prototype.update =  function() {
@@ -50,10 +50,9 @@ function() {
 
     };
 
-    ConditionsMenu.prototype.add_condition = function(attribute) {
+    ConditionsMenu.prototype.addCondition = function(attribute) {
 	var self = this;
 	var attribute_schema = this.schema.attributes[attribute];
-	
 	if (attribute_schema.attribute_type === 'CATEGORICAL') {
 	    rpc.call(this.service+'.new_categorical_condition', [this.conditionSet, attribute])
 		.otherwise(showError);	    
@@ -63,6 +62,10 @@ function() {
 	    rpc.call(this.service+'.new_range_condition', [this.conditionSet, attribute])
 		.otherwise(showError);	    
 	}
+    };
+
+    ConditionsMenu.prototype.setConditionSet = function(conditionSet) {
+	this.conditionSet = conditionSet;
     };
 
     return ConditionsMenu;
