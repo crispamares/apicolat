@@ -9,6 +9,9 @@ require.config({
 	lodash: 'vendor/lodash.min',
         hub: 'lib/indyva-js/hub',
         'ws-rpc': 'lib/indyva-js/ws-rpc'
+    },
+    shim: {
+	bootstrap: {deps: ['jquery']}
     }
 });
 
