@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="assets/bootstrap.min.css" media="screen">
     <link rel="stylesheet" href="assets/treemap.css">
     <link rel="stylesheet" href="assets/rangeSlider.css">
+    <link rel="stylesheet" href="assets/custom.css">    
     <style> 
       body { padding: 0 15px; }
 
@@ -25,17 +26,19 @@
       </div>
     </div>
 
-    <div class="row well well-sm" id="subsets-bar">	
-      <div class="col-sm-1 col-sm-offset-1">
-	<span class="h3">Subsets:</span>
-      </div>	      
-      <div class="col-sm-10">
-	<div id="subset-list" class="btn-toolbar pull-left" role="toolbar" >  </div>  
-	<div id="subset-add" class="btn-toolbar" role="toolbar" >  </div>  
-      </div>
-    </div>
-
     <div class="row show" id="groups-definition">
+
+      <div class="row well well-sm" id="subsets-bar">	
+	<div class="col-sm-1 col-sm-offset-1">
+	  <span class="h3">Subsets:</span>
+	</div>	      
+	<div class="col-sm-10">
+	  <div id="subset-list" class="btn-toolbar pull-left" role="toolbar" >  </div>  
+	  <div id="subset-add" class="btn-toolbar" role="toolbar" >  </div>  
+	</div>
+      </div>
+
+
       <div class="col-sm-12">
 
         <div class="col-sm-9 well">
@@ -57,8 +60,13 @@
     </div>
 
     <div class="row hidden" id="compare">
-      <div class="col-sm-12 well">
-	compare
+      <div class="col-sm-12">
+
+        <div class="row well well-sm">
+	  <div class="col-sm-11 col-sm-offset-1" id="compare-bar">
+
+          </div>
+        </div>
       </div>
     </div>
 

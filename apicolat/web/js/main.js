@@ -30,7 +30,8 @@ requirejs(['jquery',
 	   'mainBar',
 	   'conditionsMenu',
 	   'conditionsList',
-	   'subsetMenu'
+	   'subsetMenu',
+	   'compareMenu'
 ], 
 
 function($, _, when, bootstrap, WsRpc, Hub, d3) {
@@ -95,6 +96,7 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
 
 
     hub.subscribe('active_subset_change', changeDselect);
+    hub.subscribe('subset_change', changeSubsets);
 
     function changeDselect(topic, msg) {
 	if (msg.active !== null) {
@@ -107,8 +109,20 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
 	}
     }
 
+    function changeSubsets(topic, msg){
+	compareMenu.setSubsets(msg);
+    }
 
 
+    /**
+     * Only in development
+     */
+    mainBar.activeCompare();
+    // ----------------------------------------
+    //     Compare Menu
+    // ----------------------------------------
+    var CompareMenu = require("compareMenu");
+    var compareMenu = new CompareMenu("#compare-bar", getSchema(), subsets, "ds:synapses");
 
 
     // =============================================================
@@ -116,9 +130,7 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     function createCoditionsMenu(dselect, attributes) {
 	var ConditionsMenu = require("conditionsMenu");
 	
-	//TODO: Add schema property to table_service
-	var schema = {"dataset_type": "TABLE", "index": "synapse_id", "attributes": {"synapse_id": {"attribute_type": "CATEGORICAL", "spatial": false, "key": true, "shape": [], "continuous": false, "multivaluated": false}, "dendrite_type": {"attribute_type": "CATEGORICAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "cell": {"attribute_type": "CATEGORICAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "section": {"attribute_type": "ORDINAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "section10um": {"attribute_type": "CATEGORICAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "source": {"attribute_type": "CATEGORICAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "area": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "volume": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "feret": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "dist_section": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "centroid": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [3], "continuous": false, "multivaluated": false}}};
-
+	var schema = getSchema();
 	var conditionsMenu = new ConditionsMenu('#conditions-menu', dselect, schema);
 	return conditionsMenu;
     }
@@ -169,7 +181,16 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
 	return [ apical_pipeline, colateral_pipeline];
     }
 
-
 });
+
+
+
+    function getSchema() {
+	//TODO: Add schema property to table_service
+	var schema = {"dataset_type": "TABLE", "index": "synapse_id", "attributes": {"synapse_id": {"attribute_type": "CATEGORICAL", "spatial": false, "key": true, "shape": [], "continuous": false, "multivaluated": false}, "dendrite_type": {"attribute_type": "CATEGORICAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "cell": {"attribute_type": "CATEGORICAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "section": {"attribute_type": "ORDINAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "section10um": {"attribute_type": "CATEGORICAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "source": {"attribute_type": "CATEGORICAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "area": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "volume": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "feret": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "dist_section": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "centroid": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [3], "continuous": false, "multivaluated": false}}};
+	schema.attributes = _.mapValues(schema.attributes, function(v,k){v.name = k; return v;});
+	return schema;
+    }
+
 
 
