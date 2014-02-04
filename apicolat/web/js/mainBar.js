@@ -25,32 +25,40 @@ function() {
 	var divExport = d3.select('#export');
 
 	this.container.select('li.groups-definition')
-	    .on('click',function(){
-		    self.container.selectAll('li').classed('active', false);
-		    d3.select(this).classed('active', true);
-		    divGroupsDefinition.classed({show:true, hidden:false});
-		    divCompare.classed({show:false, hidden:true});
-		    divExport.classed({show:false, hidden:true});
-		});
+	    .on('click',function(){self.activeGroupsDefinition();});
 
 	this.container.select('li.compare')
-	    .on('click',function(){
-		    self.container.selectAll('li').classed('active', false);
-		    d3.select(this).classed('active', true);
-		    divGroupsDefinition.classed({show:false, hidden:true});
-		    divCompare.classed({show:true, hidden:false});
-		    divExport.classed({show:false, hidden:true});
-		});
+	    .on('click',function(){self.activeCompare();});
 
 	this.container.select('li.export')
-	    .on('click',function(){
-		    self.container.selectAll('li').classed('active', false);
-		    d3.select(this).classed('active', true);
-		    divGroupsDefinition.classed({show:false, hidden:true});
-		    divCompare.classed({show:false, hidden:true});
-		    divExport.classed({show:true, hidden:false});
-		});
+	    .on('click',function(){self.activeExport();});
 
+	this.activeGroupsDefinition = function() {
+	    var li = self.container.select('li.groups-definition');
+	    self.container.selectAll('li').classed('active', false);
+	    li.classed('active', true);
+	    divGroupsDefinition.classed({show:true, hidden:false});
+	    divCompare.classed({show:false, hidden:true});
+	    divExport.classed({show:false, hidden:true});	    
+	};
+	this.activeCompare = function() {
+	    var li = self.container.select('li.compare');
+	    self.container.selectAll('li').classed('active', false);
+	    li.classed('active', true);
+	    divGroupsDefinition.classed({show:false, hidden:true});
+	    divCompare.classed({show:true, hidden:false});
+	    divExport.classed({show:false, hidden:true});
+	};
+	this.activeExport = function() {
+	    var li = self.container.select('li.export');
+	    self.container.selectAll('li').classed('active', false);
+	    li.classed('active', true);
+	    divGroupsDefinition.classed({show:false, hidden:true});
+	    divCompare.classed({show:false, hidden:true});
+	    divExport.classed({show:true, hidden:false});
+	};
+
+	
     }
     
     return MainBar;
