@@ -161,6 +161,9 @@ function() {
 		    });
 	    $('#rename-subset-modal').modal('show');
 	    $('#rename-subset-modal').on('hide.bs.modal', function(){deferred.reject();});
+
+	    //This behavior may be overwritten
+	    deferred.promise.then(function() {hub.publish("subset_change", _.clone(self.subsets));} );
 	    return deferred.promise;
 	}
 
@@ -185,6 +188,7 @@ function() {
 		update();		
 	    }
 
+	    hub.publish("subset_change", _.clone(self.subsets));
 	}
 
 	function createSubset() {
@@ -194,10 +198,11 @@ function() {
 		.then(function(name){createDSelect(subset.name, self.dataset);})
 		.otherwise(function(){remove(subset.name);});
 	    update();
+	    hub.publish("subset_change", _.clone(self.subsets));
 	}
 
 	function createDSelect(name, dataset) {
-	    rpc.call('DynSelectSrv.new_dselect', [name, dataset])
+	    rpc.call('DynSelectSrv.new_dselect', [name, dataset, 'AND'])
 		.then(function(fullName){
 			  var subset = _.find(self.subsets, {name:name});
 			  subset.conditionSet = fullName;
