@@ -27,7 +27,7 @@ requirejs(['jquery',
 	   'when/pipeline',
 	   'treemap',
 	   'comboSelector',
-	   'main-bar',
+	   'mainBar',
 	   'conditionsMenu',
 	   'conditionsList',
 	   'subsetMenu'
@@ -43,7 +43,7 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     // ----------------------------------------
     //     Main Bar
     // ----------------------------------------
-    var MainBar = require("main-bar");
+    var MainBar = require("mainBar");
     var mainBar = new MainBar("#main-bar>div");
 
     // ----------------------------------------
