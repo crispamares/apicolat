@@ -15,7 +15,7 @@ require.config({
     }
 });
 
-function showError(err) { console.log(err, err.stack); }
+function showError(err) { console.error(err, err.stack); }
 
 requirejs(['jquery', 
 	   'lodash',
@@ -31,7 +31,9 @@ requirejs(['jquery',
 	   'conditionsMenu',
 	   'conditionsList',
 	   'subsetMenu',
-	   'compareMenu'
+	   'compareMenu',
+	   'box',
+	   'facetedDistributionsView'
 ], 
 
 function($, _, when, bootstrap, WsRpc, Hub, d3) {
@@ -123,6 +125,18 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     // ----------------------------------------
     var CompareMenu = require("compareMenu");
     var compareMenu = new CompareMenu("#compare-bar", getSchema(), subsets, "ds:synapses");
+    var compareChoices = compareMenu.getChoices();
+    // ----------------------------------------
+    //     FaceteDistributions View
+    // ----------------------------------------
+    var FaceteDistributionsView = require("facetedDistributionsView");
+    facetedDistributionsView = new FaceteDistributionsView("#compare-view", compareChoices, subsets, "ds:synapses");
+
+    hub.subscribe('compare', function(topic, msg) {
+		      console.log('COMPAREEEEEEE');
+		      facetedDistributionsView.setCompareChoices(msg);
+		      facetedDistributionsView.refresh();
+		  });
 
 
     // =============================================================
