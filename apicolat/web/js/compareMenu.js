@@ -45,31 +45,31 @@ function() {
 
 	this.update = function() {
 	    var optionAttr = self.container.select('select.attr').selectAll('option')
-		    .data(self.quantitative_attrs);
+		    .data(self.quantitative_attrs, function(d){return d.name;});
 	    optionAttr.enter()
-		.append('option')
-		.text(function(d){return d.name;});
+		.append('option');
+	    optionAttr.text(function(d){return d.name;});
 	    optionAttr.exit().remove();
 
 	    var optionSubset1 = self.container.select('select.subset1').selectAll('option')
-		    .data(subsets);
+		    .data(subsets, function(d){return d.name;});
 	    optionSubset1.enter()
-		.append('option')
-		.text(function(d){return d.name;});
+		.append('option');
+	    optionSubset1.text(function(d){return d.name;});
 	    optionSubset1.exit().remove();
 	    
 	    var optionSubset2 = self.container.select('select.subset2').selectAll('option')
-		    .data(subsets);
+		    .data(subsets, function(d){return d.name;});
 	    optionSubset2.enter()
-		.append('option')
-		.text(function(d){return d.name;});
+		.append('option');
+	    optionSubset2.text(function(d){return d.name;});
 	    optionSubset2.exit().remove();
 
 	    var optionFacetAttr = self.container.select('select.facet-attr').selectAll('option')
-		    .data(self.categorical_attrs);
+		    .data(self.categorical_attrs, function(d){return d.name;});
 	    optionFacetAttr.enter()
-		.append('option')
-		.text(function(d){return d.name;});
+		.append('option');
+	    optionFacetAttr.text(function(d){return d.name;});
 	    optionFacetAttr.exit().remove();
 
 	};
