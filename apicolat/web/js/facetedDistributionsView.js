@@ -22,35 +22,53 @@ function () {
 	this.distributions = [];
 	this.useOnlyOne = false;
 
-	var margin = {top: 10, left: 80, bottom: 10, right: 10};
+	var margin = {top: 10, left: 80, bottom: 40, right: 10};
 	var width = parseInt(this.container.style('width'));
-	width = width - margin.left - margin.right;
 	var aspectRatio = .5;
 	var height = width * aspectRatio;
+	width = width - margin.left - margin.right;
+	height = height - margin.top - margin.bottom;
+	
+	var boxWidth = 20;
+	var boxMargin = 25;
+	var boxGroupMargin = 20;
 
 	var color = d3.scale.category10();
 
 	var min = Infinity, max = -Infinity;
 
 	var boxPlot = d3.box()
+	    .height(height)
+	    .width(boxWidth)
 	    .whiskers(iqr(1.5)); // width and height setted in update
 
+	x = d3.scale.ordinal(); // domain and rangeBound setted in update
+
 	var y = d3.scale.linear()
-	    .range([0, height]); // domain setted in update
+	    .rangeRound([height, 0]); // domain setted in update
 
-	var x = d3.scale.linear()
-	    .range([0, width]); // domain setted in update
+	var xGroup = d3.scale.linear()
+	    .rangeRound([0, width]); // domain setted in update
 
-	var axis =  d3.svg.axis()
+	var xAxis =  d3.svg.axis()
+	    .scale(x)
+	    .orient("bottom");
+
+	var yAxis =  d3.svg.axis()
 	    .scale(y)
 	    .ticks(5)
 	    .orient("left");
 
 	var svg = this.container.append("svg")
-	    .style("width", width + "px")
-	    .style("height", height + "px");
+	    .attr("class", "box-svg")
+	    .attr("width", width + margin.left + margin.right)
+	    .attr("height", height + margin.bottom + margin.top);
 
-	var gAxis = svg.append("g")
+	var gXAxis = svg.append("g")
+	    .attr("class", "x axis")
+	    .attr("transform", "translate(" + margin.left + "," + (margin.top + height + 10) + ")");
+
+	var gYAxis = svg.append("g")
 	    .attr("class", "y axis")
 	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -62,29 +80,63 @@ function () {
 	this.update = function() {
 	    console.log("UPDATEEEEE", self);
 
+	    var nDistributions = self.distributions.length;
+	    var distributions = _.flatten(_.forEach(self.distributions, function(dist, i){
+				     return _.map(dist, function(v){return v.subset = i;});}));
+	    var factedData = _.groupBy(distributions, 'facetAttr');
+	    paco = self.distributions;
+	    var nBoxGroups = d3.max(_.map(self.distributions, 'length'));
+					     
+	    var boxGroupWidth = nDistributions * (boxWidth + 2 * boxMargin);
+
 	    // -----------------------------
-	    //     Update the axis
+	    //     Resize the svg
+	    // -----------------------------	    
+	    width = (boxGroupWidth + 2*boxGroupMargin) * nBoxGroups;
+	    svg.style("width", width + margin.left + margin.right);
+
 	    // -----------------------------
-	    y.domain(self._getDomain());
-	    gAxis.transition().call(axis);
+	    //     Update the axes
+	    // -----------------------------
+	    y.domain(self._getDomain())
+	        .nice();
+	    boxPlot.domain(y.domain());
+	    gYAxis.transition().call(yAxis);
 
-	    x.domain([0, self.distributions[0].length]);
+	    x.domain(_.keys(factedData))
+		.rangeBands([0,width]);
+	    gXAxis.transition().call(xAxis);
 
-	    boxPlot.width(40)
-		.height(height - 20)
-		.domain(y);
+	    xGroup.rangeRound([0, width])
+		.domain([0, nBoxGroups]);
 
-	    var box = gBoxes.selectAll('g.box')
-		.data(self.distributions[0]);
+	    // -----------------------------
+	    //     Update the boxPlots
+	    // -----------------------------
+
+	    var boxGroup = gBoxes.selectAll('g.boxGroup')
+		.data(_.values(factedData));
+	    boxGroup.enter().append('g')
+		.classed('boxGroup', true);
+
+	    var box = boxGroup.selectAll('g.box')
+		.data(function(d) { return d; });
 
 	    box.enter().append('g')
 		.classed('box', true);
 
-	    box.attr("transform", function(d,i) {return "translate(" + x(i) + "," + 0 + ")";})
+	    boxGroup.attr("transform", function(d,i) {return "translate(" + (xGroup(i) + boxGroupMargin) + ",0)";});
+
+	    box.attr("transform", function(d,i) {
+			 var offset = boxMargin + ((boxGroupWidth/2) * d.subset);
+			 return "translate(" + offset + ",0)";})
+		.classed('subset1', function(d){return !self.useOnlyOne && d.subset === 0;})
+		.classed('subset2', function(d){return !self.useOnlyOne && d.subset === 1;})
 		.datum(function(d){return d.list;})
 		.call(boxPlot);
 	    
 	    box.exit().remove();
+	    boxGroup.exit().remove();
 
 	    console.log(y.domain());
 	};
@@ -120,18 +172,25 @@ function () {
 		this.useOnlyOne = true;
 		this._rpcGetSubsetData(dataset, c.attr, conditionSet1, c.facetAttr)
 		    .then(function(data){
-			      self.distributions = [data]; self.update();});
+			      self.distributions = [_.map(data, function(v){v.dist = c.subset1; return v;})]; 
+			      self.update();});
 	    }
 	    else {
 		this.useOnlyOne = false;
 		when.map([[dataset, c.attr, conditionSet1, c.facetAttr],
 			  [dataset, c.attr, conditionSet2, c.facetAttr]],
-			 self._rpcGetSubsetData)
-		    .then(function(a){self.distributions = a; self.update();});
+			 function(v){return self._rpcGetSubsetData(v[0],v[1],v[2],v[3]);})
+		    .then(function(a){
+			      var data = [];
+			      data[0] = _.map(a[0], function(v){v.dist = c.subset1; return v;});
+			      data[1] = _.map(a[1], function(v){v.dist = c.subset2; return v;});
+			      self.distributions = data; 
+			      self.update();});
 	    }
 	};
 
 	this._rpcGetSubsetData = function(dataset, attr, conditionSet, facetAttr) {
+	    console.log('RPC:', dataset, attr, conditionSet, facetAttr);
 	    var tasks = [
 		function (conditionSet) {	return rpc.call('DynSelectSrv.query', conditionSet);},
 		function (query) {
@@ -144,7 +203,7 @@ function () {
 				       },
 				       {$project: {facetAttr: '$_id', _id: false, 'list':true, 'max':true, 'min':true}}
 				      ];
-		    console.log(JSON.stringify(aggregation));
+		    //console.log(JSON.stringify(aggregation));
 		    var promise = rpc.call('TableSrv.aggregate', [dataset, aggregation]);
 		    return promise;
 		},

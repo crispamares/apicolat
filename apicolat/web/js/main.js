@@ -130,7 +130,7 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     //     FaceteDistributions View
     // ----------------------------------------
     var FaceteDistributionsView = require("facetedDistributionsView");
-    facetedDistributionsView = new FaceteDistributionsView("#compare-view", compareChoices, subsets, "ds:synapses");
+    var facetedDistributionsView = new FaceteDistributionsView("#compare-view", compareChoices, subsets, "ds:synapses");
 
     hub.subscribe('compare', function(topic, msg) {
 		      console.log('COMPAREEEEEEE');

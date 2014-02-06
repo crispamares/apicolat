@@ -195,10 +195,10 @@ function() {
 	    var subset = {name:'The new one'};
 	    self.subsets.push(subset);
 	    rename(subset)
-		.then(function(name){createDSelect(subset.name, self.dataset);})
+		.then(function(name){createDSelect(subset.name, self.dataset);
+			hub.publish("subset_change", _.clone(self.subsets));})
 		.otherwise(function(){remove(subset.name);});
 	    update();
-	    hub.publish("subset_change", _.clone(self.subsets));
 	}
 
 	function createDSelect(name, dataset) {
