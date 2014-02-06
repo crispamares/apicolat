@@ -23,7 +23,8 @@ function () {
 	var x = d3.scale.linear().range([0, slider_width]);
 	var x_domain = d3.scale.linear()
 	    .domain([domain.min, domain.max])
-	    .range([0, slider_width]);
+	    .range([0, slider_width])
+	    .nice();
 
 	var brush = d3.svg.brush()
 	    .x(x)
@@ -65,7 +66,8 @@ function () {
 
 	this.setDomain = function(domain) {
 	    self.domain = domain;
-	    x_domain.domain([domain.min, domain.max]);
+	    x_domain.domain([domain.min, domain.max])
+		.nice();
 	    gAxis.call(axis.scale(x_domain));
 	};
 
