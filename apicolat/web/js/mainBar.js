@@ -40,6 +40,8 @@ function() {
 	    divGroupsDefinition.classed({show:true, hidden:false});
 	    divCompare.classed({show:false, hidden:true});
 	    divExport.classed({show:false, hidden:true});	    
+
+	    hub.publish('main-bar-change', {active: 'groups-definition'});
 	};
 	this.activeCompare = function() {
 	    var li = self.container.select('li.compare');
@@ -48,6 +50,8 @@ function() {
 	    divGroupsDefinition.classed({show:false, hidden:true});
 	    divCompare.classed({show:true, hidden:false});
 	    divExport.classed({show:false, hidden:true});
+
+	    hub.publish('main-bar-change', {active: 'compare'});
 	};
 	this.activeExport = function() {
 	    var li = self.container.select('li.export');
@@ -56,6 +60,8 @@ function() {
 	    divGroupsDefinition.classed({show:false, hidden:true});
 	    divCompare.classed({show:false, hidden:true});
 	    divExport.classed({show:true, hidden:false});
+
+	    hub.publish('main-bar-change', {active: 'export'});
 	};
 
 	
