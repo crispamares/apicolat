@@ -19,12 +19,65 @@ function () {
 	this.distributions = [];
 	this.useOnlyOne = false;
 
-	this.distributionOfResults = {	};
+	this.distributionOfResults = {};
 	this.compareTwoResults = {};
 
+	var template = 
+	  '<div class="row <%= testId %>">'
+	  + '<div class="col-md-4 col-sm-6">'
+            + '<p class="h4"> <%= text %> </p>'
+	  + '</div>'
+	  + '<div class="col-md-4 col-sm-6">'
+	    + '<table class="table">'
+              + '<thead>'
+                + '<tr>'
+                  + '<th></th>'
+                  + '<th>Kolmogorov-Smirnov</th>'
+                  + '<th>Wilcoxon</th>'
+                + '</tr>'
+              + '</thead>'
+	      + '<tbody>'
+                + '<tr>'
+                  + '<td> p-value </td>'
+                  + '<td> <%= ksPValue %> </td>'
+                  + '<td> <%= wsPValue %> </td>'
+                + '</tr>'
+	      + '</tbody>'
+	    + '</table>'
+          + '</div>'
+        + '</div>';
+
 	this.update = function() {
-	    self.container.html(JSON.stringify(self.distributionOfResults));
-	    self.container.append('div').html(JSON.stringify(self.compareTwoResults));
+	    	    
+	    var compareResultsData=[];
+	    compareResultsData.push(self.compareTwoResults['two-sided']);
+	    compareResultsData.push(self.compareTwoResults['greater']);
+	    compareResultsData.push(self.compareTwoResults['less']);
+
+	    var compareResults = self.container.selectAll('div.compare-result')
+		.data(compareResultsData);
+
+	    compareResults.enter()
+		.append('div')
+		.attr('class', 'compare-result');
+
+	    compareResults.html(function(d){
+			  d.text = self._getText(d.testId);
+			  return _.template(template, d);
+		      });
+
+//	    self.container.append('div').html(JSON.stringify(self.compareTwoResults));
+	};
+	
+	this._getText = function(testId) {
+	    var s1 =  self.compareChoices.subset1;
+	    var s2 =  self.compareChoices.subset2;
+	    var texts = {
+		"two-sided": 'Do ' + s1 + ' and '+ s2 +' come from the same distribution?:',
+		"greater": "Is " + s1 +" stochastically larger than " + s2 + " ?:",
+		"less": "Is " + s1 +" stochastically smaller than " + s2 + " ?:"
+	    };
+	    return texts[testId];
 	};
 
 	this.setData = function(dataset) {
@@ -32,13 +85,14 @@ function () {
 	};
 
 	this.setCompareChoices = function(compareChoices) {
-	    this.compareChoices = compareChoices;
+	    self.compareChoices = compareChoices;
 	};
 
 	this.refresh = function() {
-	    this._computeDistributions(this.dataset, this.compareChoices)
+	    this._computeDistributions(self.dataset, self.compareChoices)
 		.then(this._rpcCompareTwo)
-		.then(this.update);
+		.then(this.update)
+		.otherwise(showError);
 	};
 
 
@@ -46,11 +100,24 @@ function () {
 	    var d = distributions;
 	    var d1 = d[0].list;
 	    var d2 = (d.length > 1) ? d[1].list : d1;
-	    var promise = rpc.call("StatsSrv.compareTwo", [d1, d2])
-		.then(function(compareTwoResults) {
-			  self.compareTwoResults = compareTwoResults;
-		      });
-	    return promise;
+	    
+	    var collectResults = function(testId) {
+		return function(results) {
+		    self.compareTwoResults[testId] = 
+			{ksPValue: results.ks,
+			 wsPValue: results.wilcox,
+			 testId: testId};
+		};
+	    };
+
+	    var p1 = rpc.call("StatsSrv.compareTwo", [d1, d2, 'c', 'two.sided'])
+		.then(collectResults('two-sided'));
+	    var p2 = rpc.call("StatsSrv.compareTwo", [d1, d2, 'c', 'greater'])
+		.then(collectResults('greater'));
+	    var p3 = rpc.call("StatsSrv.compareTwo", [d1, d2, 'c', 'less'])
+		.then(collectResults('less'));
+
+	    return when.join(p1,p2,p3);
 	};
 
 	this._rpcDistributionOf = function(distributions) {
