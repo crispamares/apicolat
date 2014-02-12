@@ -13,8 +13,6 @@ function () {
     var FacetedDistributionsView = function(container, compareChoices, subsets, dataset) {
 	var self = this;
 	// Subscribe to 'r:'
-	// Subscribe to dynamics
-	// Setter Data from a table
 	this.container = d3.select(container);
 	this.compareChoices = compareChoices;
 	this.subsets = subsets;
@@ -42,7 +40,7 @@ function () {
 	    .width(boxWidth)
 	    .whiskers(iqr(1.5)); // width and height setted in update
 
-	x = d3.scale.ordinal(); // domain and rangeBound setted in update
+	var x = d3.scale.ordinal(); // domain and rangeBound setted in update
 
 	var y = d3.scale.linear()
 	    .rangeRound([height, 0]); // domain setted in update
@@ -84,7 +82,6 @@ function () {
 	    var distributions = _.flatten(_.forEach(self.distributions, function(dist, i){
 				     return _.map(dist, function(v){return v.subset = i;});}));
 	    var factedData = _.groupBy(distributions, 'facetAttr');
-	    paco = self.distributions;
 	    var nBoxGroups = d3.max(_.map(self.distributions, 'length'));
 					     
 	    var boxGroupWidth = nDistributions * (boxWidth + 2 * boxMargin);

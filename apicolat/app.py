@@ -8,7 +8,7 @@ Created on 11/12/2013
 import indyva
 from indyva.dataset.table import Table 
 from indyva.kernel import Kernel
-from indyva.facade.server import WSServer 
+from indyva.facade.server import WSServer, ZMQServer
 from data_adquisition import init_synapses_table
 from indyva.facade.front import Front
 from indyva.dynamics.dselect import DynSelect
@@ -18,7 +18,9 @@ def main():
     print 'Running apicolat'
     kernel = Kernel()
     ws_server = WSServer(port=8080)
+    zmq_server = ZMQServer(port=8085)
     kernel.add_server(ws_server)   
+    kernel.add_server(zmq_server)   
     
     synapses_table = init_synapses_table()
     definition_dselect = DynSelect('definition_dselect', synapses_table, setop='AND')

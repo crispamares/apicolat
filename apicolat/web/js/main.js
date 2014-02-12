@@ -25,6 +25,7 @@ requirejs(['jquery',
 	   'hub',
 	   'd3',
 	   'when/pipeline',
+	   'when/monitor/console',
 	   'treemap',
 	   'comboSelector',
 	   'mainBar',
@@ -33,7 +34,8 @@ requirejs(['jquery',
 	   'subsetMenu',
 	   'compareMenu',
 	   'box',
-	   'facetedDistributionsView'
+	   'facetedDistributionsView',
+	   'statsComparison'
 ], 
 
 function($, _, when, bootstrap, WsRpc, Hub, d3) {
@@ -142,6 +144,17 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
 		});
 	}
 	});
+    // ----------------------------------------
+    //     Comparison Stats 
+    // ----------------------------------------
+    var StatsComparison = require("statsComparison");
+    var statsComparison = new StatsComparison("#compare-stats", compareChoices, subsets, "ds:synapses");
+    hub.subscribe('compare', function(topic, msg) {
+		statsComparison.setCompareChoices(msg);
+		statsComparison.refresh();
+		});
+    
+
 
 
     // =============================================================
