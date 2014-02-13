@@ -14,7 +14,7 @@ function() {
 				  + '	  <ul class="nav navbar-nav">'
 				  + '	    <li class="active groups-definition"><a href="#">Define Groups</a></li>'
 				  + '	    <li class="compare"><a href="#">Compare</a></li>'
-				  + '	    <li class="export"><a href="#">Export</a></li>'
+//				  + '	    <li class="export"><a href="#">Export</a></li>'
 				  + '	  </ul>'
 				  + '	</nav>');
 	var html = template();

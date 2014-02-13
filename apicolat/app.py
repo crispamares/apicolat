@@ -13,6 +13,7 @@ from data_adquisition import init_synapses_table
 from indyva.facade.front import Front
 from indyva.dynamics.dselect import DynSelect
 from indyva.dynamics.dfilter import DynFilter
+import xlsx_exporter 
 
 def main():
     print 'Running apicolat'
@@ -29,6 +30,8 @@ def main():
     Front.instance().get_method('DynSelectSrv.expose_dselect')(definition_dselect)
     Front.instance().get_method('DynFilterSrv.expose_dfilter')(definition_dfilter)
     
+    xlsx_exporter.expose_methods()
+        
     kernel.run_forever()
     
 if __name__ == '__main__':

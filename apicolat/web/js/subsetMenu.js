@@ -29,6 +29,7 @@ function() {
 				  '	    <ul class="dropdown-menu" role="menu">' +
 				  '	      <li><a href="#" class="use-this">Use this</a></li>' +
 				  '	      <li><a href="#" class="rename">Rename</a></li>' +
+				  '	      <li><a href="#" class="export">Export</a></li>' +
 //				  '	      <li><a href="#" class="duplicate">Duplicate</a></li>' +
 				  '	      <li class="divider"></li>' +
 				  '	      <li><a href="#" class="remove">Remove</a></li>' +
@@ -60,6 +61,8 @@ function() {
 			      .on("click", function(){remove(d.name);});
 			  btn_group.select("a.rename")
 			      .on("click", function(){rename(d);});
+			  btn_group.select("a.export")
+			      .on("click", function(){exportDSelect(d.conditionSet, self.dataset, d.name);});
 
 		      });
 
@@ -209,6 +212,35 @@ function() {
 		      })
 		.otherwise(showError);
 	}
+
+	function exportDSelect(conditionSet, dataset, name) {
+	    var modalTemplate = 
+		'  <div class="modal-dialog">' +
+		'    <div class="modal-content">' +
+		'      <div class="modal-header">' +
+		'        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' +
+		'        <h4 class="modal-title">Successful export</h4>' +
+		'      </div>' +
+		'      <div class="modal-body">' +
+		'        <p class="h5"> Exported to <a href="http://<%= path %>" target="_blank"><%= path %></a></p>' +
+		'      </div>' +
+		'    </div><!-- /.modal-content -->' +
+		'  </div><!-- /.modal-dialog -->';
+	    var renameModal = d3.selectAll('#export-subset-modal')
+		.data([conditionSet]);
+	    renameModal.enter()
+		.append('div')
+		.attr('class', "modal")
+		.attr('id', 'export-subset-modal');
+
+	    rpc.call('export_dselect', [conditionSet, dataset, name])
+		.then(function(d){ 
+			  var path = window.location.host + '/' + d;
+			  renameModal.html(_.template(modalTemplate, {path:path}));
+			  $('#export-subset-modal').modal('show');
+		      })
+		.otherwise(showError);
+	};
 
 
     }
