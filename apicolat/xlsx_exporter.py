@@ -18,8 +18,11 @@ def export_dselect(dselect_name, dataset_name, name):
     dataset = Showcase.instance().get(dataset_name)
     
     download_name =  name.replace(" ", "_")+'.xlsx'
-    
-    data = dataset.find(**dselect.view_args).get_data('rows')
+
+    project = dselect.projection
+    project['centroid'] = False
+
+    data = dataset.find(dselect.query, project).get_data('rows')
     df = pd.DataFrame(data)
     df.to_excel(os.path.join( ASSETSPATH, download_name))
     
