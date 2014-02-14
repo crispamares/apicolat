@@ -23,7 +23,7 @@ function () {
 	this.compareTwoResults = {};
 
 	var template = 
-	  '<div class="row <%= testId %>">'
+	  '<div class="row">'
 	  + '<div class="col-md-4 col-sm-6">'
             + '<p class="h4"> <%= text %> </p>'
 	  + '</div>'
@@ -39,8 +39,8 @@ function () {
 	      + '<tbody>'
                 + '<tr>'
                   + '<td> p-value </td>'
-                  + '<td> <%= ksPValue %> </td>'
-                  + '<td> <%= wsPValue %> </td>'
+                  + '<td class="p-value ks-p" data_test="ks" data_hypothesis=<%= testId %> > <%= ksPValue %> </td>'
+                  + '<td class="p-value ws-p" data_test="ws" data_hypothesis=<%= testId %> > <%= wsPValue %> </td>'
                 + '</tr>'
 	      + '</tbody>'
 	    + '</table>'
@@ -66,7 +66,30 @@ function () {
 			  return _.template(template, d);
 		      });
 
-//	    self.container.append('div').html(JSON.stringify(self.compareTwoResults));
+	    self.container.selectAll("td.p-value")
+		.each(function(d){
+			  var td = d3.select(this);
+			  var pValue = parseFloat(td.text());
+			  var test = td.attr("data_test");
+			  var hypothesis = td.attr("data_hypothesis");
+			  var explanation = self._explainResult(pValue, test, hypothesis);
+			  td.classed("success",  explanation === "valid");
+			  td.classed("danger", explanation === "reject");
+		      });
+
+	};
+	
+	this._explainResult = function(pValue, test, hypothesis) {
+	    var explanation = "";
+	    if (test == "ws" || hypothesis == 'two-sided') {
+		if (pValue < 0.05) explanation = "valid";
+		else if (pValue >  0.95) explanation = "reject";		
+	    }
+	    else if (test == "ks") {
+		if (pValue < 0.05) explanation = "reject";
+		else if (pValue >  0.95) explanation = "valid";		
+	    }
+	    return explanation;
 	};
 	
 	this._getText = function(testId) {
