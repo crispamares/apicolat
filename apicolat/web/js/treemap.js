@@ -104,7 +104,9 @@ function () {
 	};
 
 	this.render_dselect = function() {
-	    leaves.classed("highlighted", function(d) { return self.included_spines.indexOf(d.name) >= 0; });
+	    if (leaves !== null) {
+		leaves.classed("highlighted", function(d) { return self.included_spines.indexOf(d.name) >= 0; });
+	    }
 	};
 
     };

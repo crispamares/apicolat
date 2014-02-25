@@ -22,7 +22,7 @@ function() {
 	    function(topic, msg) {
 		rpc.call('ConditionSrv.range', [self.condition])
 		    .then(function(){self.update();})
-		    .then(showError);
+		    .otherwise(showError);
 	    }, this);
 
 
