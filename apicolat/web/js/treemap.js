@@ -147,11 +147,13 @@ function () {
 	var self = this;
 	if (this.spinesDselect) {
 	    hub.unsubscribe(this.spinesDselect+':change', this.onDselectChange, this);
+	    hub.unsubscribe(this.spinesDselect+':remove', this.onDselectChange, this);
 	}
 	this.spinesDselect = dselect;
 	this.included_spines = null;
 	this._rpcIncludedSpines(dselect).then(this.render_dselect);
 	hub.subscribe(dselect+':change', this.onDselectChange, this);
+	hub.subscribe(dselect+':remove', this.onDselectChange, this);
     };
 
     treemapView.prototype.setSpinesCondition = function(condition) {

@@ -1,4 +1,4 @@
-define(['lodash', 'jquery', 'ws-rpc', 'hub', 'd3', 'when', 'rangeSlider'],
+define(['lodash', 'jquery', 'ws-rpc', 'hub', 'd3', 'when', 'rangeSlider', 'menuButton'],
 function() {
 
     var hub = require('hub').instance();
@@ -6,7 +6,7 @@ function() {
     var when = require('when');
 
     var RangeSlider = require("rangeSlider");
-
+    var MenuButton = require('menuButton');
 
     function RangeSelector(container, name, grammar) {
 	var self = this;
@@ -28,13 +28,33 @@ function() {
 
 	var template = _.template('<div class="panel panel-default" id="range-selector-<%-name%>">'
 			   + '  <div class="panel-heading">'
-			   + '    <h3 class="panel-title"> <%- name  %></h3>'
+			   + '    <div class="row">'
+			   + '      <div class="col-sm-10">'
+			   + '        <h3 class="panel-title"> <%- name  %></h3> '
+			   + '      </div>'
+			   + '      <div class="col-sm-1">'
+			   + '         <div class="menu"></div>'
+			   + '      </div>'
+			   + '    </div>'
 			   + '  </div>'
 			   + '  <div class="panel-body">'
 			   + '  </div>'
 			   + '</div>');
 	var html = template({items: this.items, name: this.name});
 	this.container.html(html);
+
+
+	var menuItems = [/*{"name": "disable", "type": "item", "text": "Enable/Disable", 
+			  "title":"Disabled conditions do not affect the selection", "class": "",
+			  "onclick": function(d){console.log('disable',d);}},
+			 {"type": "divider"},*/
+			 {"name": "remove", "type": "item", "text": "Remove", 
+			  "title":"Remove this condition", "class": "",
+			  "onclick": function(d){console.log('remove',d);
+						self.onRemove();}}
+                         ];
+	var menuButton = new MenuButton(this.container.select('div.menu').node(), menuItems, 'right');
+
 	
 	this.update();
     }

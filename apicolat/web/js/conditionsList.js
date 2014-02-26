@@ -16,6 +16,7 @@ function() {
 	this.gvConditions = [];
 
 	hub.subscribe(conditionSet+':change', this.onConditionSetChange, this);
+	hub.subscribe(conditionSet+':remove', this.onConditionSetChange, this);
 	
 	this._rpcGrammar(conditionSet);
 	this.update();
@@ -31,7 +32,7 @@ function() {
 	condition.enter()
 	    .append('div')
 	    .attr('class', 'condition')
-	    .each(function(d) {createSelector(this, d);});
+	    .each(function(d) {createSelector(this, d, self);});
 
 	condition.exit()
 	    .remove();
@@ -65,18 +66,25 @@ function() {
     };
 
     
-    function createSelector(container, gvCondition) {
+    function createSelector(container, gvCondition, self) {
+	var selector = null;
 	switch (gvCondition.type) {
 	    case('categorical'):
-		var categoricalSelector = 
+		selector = 
 		    new CategoricalSelector(container, gvCondition.attr, gvCondition);	    
+		
 		break;
 	    case('range'):
-		var rangeSlider = new RangeSelector(container, gvCondition.attr, gvCondition);
+		selector = new RangeSelector(container, gvCondition.attr, gvCondition);
 		break;
 	    default:
 		console.error("Condition Type:", gvCondition.type, "not implemented");
 	    }
+	if (selector !== null) {
+	    selector.onRemove = function(){
+		rpc.call(self.service+'.remove_condition', [self.conditionSet, 'c:'+gvCondition.name]);
+	    };
+	}
     }
 
 
