@@ -115,7 +115,7 @@ function() {
 		'      </div>' +
 		'      <div class="modal-footer">' +
 		'        <button type="button" class="btn btn-default cancel" data-dismiss="modal">Close</button>' +
-		'        <button type="button" class="btn btn-primary submit">Save changes</button>' +
+		'        <button type="button" class="btn btn-primary submit">Rename</button>' +
 		'      </div>' +
 		'    </div><!-- /.modal-content -->' +
 		'  </div><!-- /.modal-dialog -->';
