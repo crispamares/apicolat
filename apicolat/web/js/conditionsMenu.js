@@ -14,16 +14,19 @@ function() {
 	this.attributes = attributes || _.keys(schema.attributes);
 	this.service = service || 'DynSelectSrv';
 
-	var template = _.template('	    <form class="form-horizontal" >'
-				  + '	      <div class="form-group" >'
-				  + '           <div class="col-sm-9">'
-				  + '		   <select class="form-control"> </select>'
+	var template = _.template('	  <div class="col-sm-12">'
+				  + '       <div class="well well-sm well-white clearfix">'
+				  + '         <form class="form-inline pull-right" role="form">'
+				  + '	        <div class="form-group">'
+				  + '             <label> Filter by: </label>'
+				  + '		  <select class="form-control"> </select>'
 				  + '           </div>'
-				  + '	        <button type="button" class="col-sm-2 btn btn-default" >'
-				  + '		  <span class="glyphicon glyphicon-plus"></span> Add'
+				  + '	        <button type="button" class="btn btn-default" >'
+				  + '		  <span class="glyphicon glyphicon-plus"></span>'
 				  + '	        </button>'
-				  + '	      </div>'
-				  + '	    </form>');
+				  + '	      </form>'
+				  + '	    </div>'
+				  + '     </div>');
 	var html = template();
 	this.container.append(html);
 

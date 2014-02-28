@@ -31,7 +31,7 @@ function() {
 
 	condition.enter()
 	    .append('div')
-	    .attr('class', 'condition')
+	    .attr('class', 'condition col-sm-12')
 	    .each(function(d) {createSelector(this, d, self);});
 
 	condition.exit()
