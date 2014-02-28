@@ -46,7 +46,7 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
 
     var quantitative_attrs = ["feret", "area", "volume"];
 
-    rpc.call('restart', []).then(function() {
+    rpc.call('restart', []).then(function(){hub.clear();}).then(function() {
 
     // ----------------------------------------
     //     Main Bar
