@@ -6,7 +6,7 @@ function() {
     function ComboSelector(container, table, attributeType) {
 	this.container = $(container);
 	// TODO: autoextract options from table and attributeType
-	this.options = ["* count *"];
+	this.options = ["# count"];
     }
     
     ComboSelector.prototype.update =  function() {

@@ -75,8 +75,8 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
 	    function(topic, msg) { 
 		console.log('To draw', topic, msg);
 
-		treemap.use_count = (msg === '* count *');
-		msg = (msg === '* count *')? quantitative_attrs[0] : msg;
+		treemap.use_count = (msg === '# count');
+		msg = (msg === '# count')? quantitative_attrs[0] : msg;
 
 		drawTreemap(treemap, msg);});
 
