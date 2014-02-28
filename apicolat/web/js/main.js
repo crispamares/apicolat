@@ -46,6 +46,8 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
 
     var quantitative_attrs = ["feret", "area", "volume"];
 
+    rpc.call('restart', []).then(function() {
+
     // ----------------------------------------
     //     Main Bar
     // ----------------------------------------
@@ -157,7 +159,7 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     
 
 
-
+    });
     // =============================================================
 
     function createCoditionsMenu(dselect, attributes) {
