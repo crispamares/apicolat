@@ -235,7 +235,7 @@ function() {
 
 	    rpc.call('export_dselect', [conditionSet, dataset, name])
 		.then(function(d){ 
-			  var path = window.location.host + '/' + d;
+			  var path = window.location.hostname + window.location.pathname + d;
 			  renameModal.html(_.template(modalTemplate, {path:path}));
 			  $('#export-subset-modal').modal('show');
 		      })
