@@ -1,7 +1,7 @@
 define(
 ["d3"]
 ,
-(function(d3) {
+function(d3) {
 // Source: http://bl.ocks.org/mbostock/4061502
 // Inspired by http://informationandvisualization.de/blog/box-plot
 d3.box = function() {
@@ -301,4 +301,4 @@ function boxQuartiles(d) {
   ];
 }
 
-})());
+});

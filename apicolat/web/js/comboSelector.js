@@ -1,7 +1,5 @@
 define(['lodash', 'jquery', 'hub'],
-function() {
-
-    var hub = require('hub');
+function(lodash, jquery, hub) {
 
     function ComboSelector(container, table, attributeType) {
 	this.container = $(container);

@@ -1,12 +1,8 @@
 define(['lodash', 'jquery', 'ws-rpc', 'hub', 'd3', 'when', 'rangeSlider', 'menuButton'],
-function() {
+function(lodash, jquery, WsRpc, Hub, d3, when, RangeSlider, MenuButton) {
 
-    var hub = require('hub').instance();
-    var rpc = require('ws-rpc').instance();
-    var when = require('when');
-
-    var RangeSlider = require("rangeSlider");
-    var MenuButton = require('menuButton');
+    var hub = Hub.instance();
+    var rpc = WsRpc.instance();
 
     function RangeSelector(container, name, grammar) {
 	var self = this;

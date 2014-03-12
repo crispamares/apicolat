@@ -2,13 +2,12 @@
 define(
 ["when","ws-rpc", "d3", "hub",  "bootstrap", "jquery", "box"]
 ,
-function () {
-    var hub = require('hub').instance();
-    var rpc = require('ws-rpc').instance();
-    var when = require('when');
+function(when, WsRpc, d3, Hub) {
+
+    var hub = Hub.instance();
+    var rpc = WsRpc.instance();
+
     var pipeline = require("when/pipeline");
-    require('bootstrap');
-    require('box');
 
     var FacetedDistributionsView = function(container, compareChoices, subsets, dataset) {
 	var self = this;

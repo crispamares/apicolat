@@ -1,10 +1,9 @@
 define(['lodash', 'jquery', 'ws-rpc', 'hub', 'd3', 'when', 'menuButton'],
-function() {
 
-    var hub = require('hub').instance();
-    var rpc = require('ws-rpc').instance();
-    var when = require('when');
-    var MenuButton = require('menuButton');
+function(lodash, jquery, WsRpc, Hub, d3, when, MenuButton) {
+
+    var hub = Hub.instance();
+    var rpc = WsRpc.instance();
 
     /**
      * When the user clicks on the "Remove" menu item, then 

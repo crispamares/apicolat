@@ -1,5 +1,5 @@
 define(['lodash', 'jquery', 'd3'],
-function() {
+function(lodash, jquery, d3) {
 
     /**
      * @fn MenuButton

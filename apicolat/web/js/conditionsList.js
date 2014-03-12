@@ -1,11 +1,8 @@
 define(['lodash', 'jquery', 'ws-rpc', 'hub', 'd3', 'when', 'categoricalSelector', 'rangeSelector'],
-function() {
+function(lodash, jquery, WsRpc, Hub, d3, when, CategoricalSelector, RangeSelector) {
 
-    var hub = require('hub').instance();
-    var rpc = require('ws-rpc').instance();
-    var when = require('when');
-    var CategoricalSelector = require("categoricalSelector");
-    var RangeSelector = require("rangeSelector");
+    var hub = Hub.instance();
+    var rpc = WsRpc.instance();
 
     function ConditionsList(container, conditionSet, service) {
 	var self = this;

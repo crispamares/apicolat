@@ -2,7 +2,7 @@
 define(
 ["d3"]
 ,
-function () {
+function (d3) {
 
     var rangeSlider = function(container) {
 	this.container = container;

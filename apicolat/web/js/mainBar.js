@@ -1,8 +1,8 @@
 define(['lodash','ws-rpc', 'hub', 'd3'],
-function() {
+function(lodash, WsRpc, Hub, d3) {
 
-    var hub = require('hub').instance();
-    var rpc = require('ws-rpc').instance();
+    var hub = Hub.instance();
+    var rpc = WsRpc.instance();
 
     function MainBar(container) {
 	var self = this;

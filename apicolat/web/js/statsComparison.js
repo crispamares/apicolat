@@ -2,12 +2,13 @@
 define(
 ["when","ws-rpc", "d3", "hub",  "bootstrap", "jquery"]
 ,
-function () {
-    var hub = require('hub').instance();
-    var rpc = require('ws-rpc').instance();
-    var when = require('when');
+function(when, WsRpc, d3, Hub) {
+
+    var hub = Hub.instance();
+    var rpc = WsRpc.instance();
+
     var pipeline = require("when/pipeline");
-    require('bootstrap');
+
 
     var StatsComparison = function(container, compareChoices, subsets, dataset) {
 	var self = this;
