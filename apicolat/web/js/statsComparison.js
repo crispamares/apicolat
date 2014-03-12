@@ -25,22 +25,22 @@ function () {
 	var template = 
 	  '<div class="row">'
 	  + '<div class="col-md-4 col-sm-6">'
-            + '<p class="h4"> <%= text %> </p>'
+            + '<p class="h4"> <%= description %> </p>'
 	  + '</div>'
 	  + '<div class="col-md-4 col-sm-6">'
 	    + '<table class="table">'
               + '<thead>'
                 + '<tr>'
                   + '<th></th>'
-                  + '<th>Kolmogorov-Smirnov</th>'
-                  + '<th>Wilcoxon</th>'
+                  + '<th> <%= statisticalTest %> </th>'
+                  + '<th> Decision </th>'
                 + '</tr>'
               + '</thead>'
 	      + '<tbody>'
                 + '<tr>'
                   + '<td> p-value </td>'
-                  + '<td class="p-value ks-p" data_test="ks" data_hypothesis=<%= testId %> > <%= ksPValue %> </td>'
-                  + '<td class="p-value ws-p" data_test="ws" data_hypothesis=<%= testId %> > <%= wsPValue %> </td>'
+                  + '<td class="p-value <%= tdClass %>" data_hypothesis=<%= testId %> > <%= pValue %> </td>'
+                  + '<td class="decision"> <%= decision %> </td>'
                 + '</tr>'
 	      + '</tbody>'
 	    + '</table>'
@@ -62,36 +62,12 @@ function () {
 		.attr('class', 'compare-result');
 
 	    compareResults.html(function(d){
-			  d.text = self._getText(d.testId);
-			  return _.template(template, d);
-		      });
-
-	    self.container.selectAll("td.p-value")
-		.each(function(d){
-			  var td = d3.select(this);
-			  var pValue = parseFloat(td.text());
-			  var test = td.attr("data_test");
-			  var hypothesis = td.attr("data_hypothesis");
-			  var explanation = self._explainResult(pValue, test, hypothesis);
-			  td.classed("success",  explanation === "valid");
-			  td.classed("danger", explanation === "reject");
+				    d.tdClass = (d.rejected) ? 'success':'danger';
+				    return _.template(template, d);
 		      });
 
 	};
-	
-	this._explainResult = function(pValue, test, hypothesis) {
-	    var explanation = "";
-	    if (test == "ws" || hypothesis == 'two-sided') {
-		if (pValue < 0.05) explanation = "valid";
-		else if (pValue >  0.95) explanation = "reject";		
-	    }
-	    else if (test == "ks") {
-		if (pValue < 0.05) explanation = "reject";
-		else if (pValue >  0.95) explanation = "valid";		
-	    }
-	    return explanation;
-	};
-	
+		
 	this._getText = function(testId) {
 	    var s1 =  self.compareChoices.subset1;
 	    var s2 =  self.compareChoices.subset2;
@@ -127,17 +103,20 @@ function () {
 	    var collectResults = function(testId) {
 		return function(results) {
 		    self.compareTwoResults[testId] = 
-			{ksPValue: results.ks,
-			 wsPValue: results.wilcox,
-			 testId: testId};
+			{pValue: results.pvalue,
+			 decision: results.decision,
+			 testId: testId,
+			 statisticalTest: results.test,
+			 description: results.desc,
+			 rejected: results.rejected};
 		};
 	    };
 
-	    var p1 = rpc.call("StatsSrv.compareTwo", [d1, d2, 'c', 'two.sided'])
+	    var p1 = rpc.call("StatsSrv.compare", [[d1, d2], 'i', 'two.sided'])
 		.then(collectResults('two-sided'));
-	    var p2 = rpc.call("StatsSrv.compareTwo", [d1, d2, 'c', 'greater'])
+	    var p2 = rpc.call("StatsSrv.compare", [[d1, d2], 'i', 'greater'])
 		.then(collectResults('greater'));
-	    var p3 = rpc.call("StatsSrv.compareTwo", [d1, d2, 'c', 'less'])
+	    var p3 = rpc.call("StatsSrv.compare", [[d1, d2], 'i', 'less'])
 		.then(collectResults('less'));
 
 	    return when.join(p1,p2,p3);

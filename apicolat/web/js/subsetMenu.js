@@ -115,7 +115,7 @@ function() {
 		'      </div>' +
 		'      <div class="modal-footer">' +
 		'        <button type="button" class="btn btn-default cancel" data-dismiss="modal">Close</button>' +
-		'        <button type="button" class="btn btn-primary submit">Save changes</button>' +
+		'        <button type="button" class="btn btn-primary submit">Rename</button>' +
 		'      </div>' +
 		'    </div><!-- /.modal-content -->' +
 		'  </div><!-- /.modal-dialog -->';
@@ -235,7 +235,7 @@ function() {
 
 	    rpc.call('export_dselect', [conditionSet, dataset, name])
 		.then(function(d){ 
-			  var path = window.location.host + '/' + d;
+			  var path = window.location.hostname + window.location.pathname + d;
 			  renameModal.html(_.template(modalTemplate, {path:path}));
 			  $('#export-subset-modal').modal('show');
 		      })

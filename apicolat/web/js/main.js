@@ -28,6 +28,7 @@ requirejs(['jquery',
 	   'when/monitor/console',
 	   'treemap',
 	   'comboSelector',
+	   'menuButton',
 	   'mainBar',
 	   'conditionsMenu',
 	   'conditionsList',
@@ -44,6 +45,8 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     var hub = Hub.instance();
 
     var quantitative_attrs = ["feret", "area", "volume"];
+
+    rpc.call('restart', []).then(function(){hub.clear();}).then(function() {
 
     // ----------------------------------------
     //     Main Bar
@@ -74,8 +77,8 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
 	    function(topic, msg) { 
 		console.log('To draw', topic, msg);
 
-		treemap.use_count = (msg === '* count *');
-		msg = (msg === '* count *')? quantitative_attrs[0] : msg;
+		treemap.use_count = (msg === '# count');
+		msg = (msg === '# count')? quantitative_attrs[0] : msg;
 
 		drawTreemap(treemap, msg);});
 
@@ -156,7 +159,7 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     
 
 
-
+    });
     // =============================================================
 
     function createCoditionsMenu(dselect, attributes) {

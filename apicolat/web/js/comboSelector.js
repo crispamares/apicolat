@@ -6,7 +6,7 @@ function() {
     function ComboSelector(container, table, attributeType) {
 	this.container = $(container);
 	// TODO: autoextract options from table and attributeType
-	this.options = ["* count *"];
+	this.options = ["# count"];
     }
     
     ComboSelector.prototype.update =  function() {
@@ -14,7 +14,7 @@ function() {
 
 	var template = _.template('	      <form class="form-horizontal" role="form">'
 				  + '		<div class="form-group">'
-				  + '		  <label for="visible-property" class="col-sm-8 control-label">Visible Property</label>'
+				  + '		  <label for="visible-property" class="col-sm-8 control-label">Feature</label>'
 				  + '		  <div class="col-sm-4">'
 				  + '		    <select  class="form-control" id="visible-property">'
 				  + '<% _.forEach(options, function(option) {%>'

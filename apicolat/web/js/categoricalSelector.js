@@ -1,11 +1,16 @@
-define(['lodash', 'jquery', 'ws-rpc', 'hub', 'd3', 'when'],
+define(['lodash', 'jquery', 'ws-rpc', 'hub', 'd3', 'when', 'menuButton'],
 function() {
 
     var hub = require('hub').instance();
     var rpc = require('ws-rpc').instance();
     var when = require('when');
+    var MenuButton = require('menuButton');
 
-    function CategorialSelector(container, name, grammar) {
+    /**
+     * When the user clicks on the "Remove" menu item, then 
+     * CategoricalSelector.onRemove is call. Set your own function.
+     */
+    function CategoricalSelector(container, name, grammar) {
 	var self = this;
 	this.container = d3.select(container);
 	this.grammar = grammar;
@@ -30,7 +35,14 @@ function() {
 
 	var template = _.template('<div class="panel panel-default" id="categorical-selector-<%-name%>">'
 			   + '  <div class="panel-heading">'
-			   + '    <h3 class="panel-title"> <%- name  %></h3>'
+			   + '    <div class="row">'
+			   + '      <div class="col-sm-10">'
+			   + '        <h3 class="panel-title"> <%- name  %></h3> '
+			   + '      </div>'
+			   + '      <div class="col-sm-1">'
+			   + '         <div class="menu"></div>'
+			   + '      </div>'
+			   + '    </div>'
 			   + '  </div>'
 			   + '  <div class="panel-body">'
 			   + '     <form role="form">'
@@ -48,10 +60,20 @@ function() {
 	var html = template({items: this.items, name: this.name});
 	this.container.html(html);
 
+	var menuItems = [/*{"name": "disable", "type": "item", "text": "Enable/Disable", 
+			  "title":"Disabled conditions do not affect the selection", "class": "",
+			  "onclick": function(d){console.log('disable',d);}},
+			 {"type": "divider"},*/
+			 {"name": "remove", "type": "item", "text": "Remove", 
+			  "title":"Remove this condition", "class": "",
+			  "onclick": function(d){console.log('remove',d);
+						self.onRemove();}}
+                         ];
+	var menuButton = new MenuButton(this.container.select('div.menu').node(), menuItems, 'right');
 	this.update();
     }
     
-    CategorialSelector.prototype.update =  function() {
+    CategoricalSelector.prototype.update =  function() {
 	var self = this;
 //	console.log('updating', this.name, JSON.stringify(this.items));
 
@@ -79,7 +101,7 @@ function() {
 
     };
 
-    CategorialSelector.prototype._rpcIncludedCategories = function(condition) {
+    CategoricalSelector.prototype._rpcIncludedCategories = function(condition) {
 	var self = this;
 	var promise = rpc.call('ConditionSrv.included_categories', [condition])
 	    .then(function(included_categories) {
@@ -89,7 +111,7 @@ function() {
 	return promise;
     };
 
-    CategorialSelector.prototype._rpcExcludedCategories = function(condition) {
+    CategoricalSelector.prototype._rpcExcludedCategories = function(condition) {
 	var self = this;
 	var promise = rpc.call('ConditionSrv.excluded_categories', [condition])
 	    .then(function(excluded_categories) {
@@ -99,7 +121,7 @@ function() {
 	return promise;
     };
 
-    CategorialSelector.prototype._rpcToggleCategory = function(category) {
+    CategoricalSelector.prototype._rpcToggleCategory = function(category) {
 	var self = this;
 	var promise = rpc.call('ConditionSrv.toggle_category', [self.condition, category])
 	    .then(function(change) {
@@ -111,6 +133,6 @@ function() {
 	return promise;
     };
 
-    return CategorialSelector;
+    return CategoricalSelector;
 }
 );

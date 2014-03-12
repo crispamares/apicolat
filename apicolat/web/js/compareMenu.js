@@ -33,7 +33,7 @@ function() {
 	    + '        </div>'
 
 	    + '        <div class="form-group well well-sm well-white">'
-	    + '	    <span>Faceting by</span>'
+	    + '	    <span>Split by</span>'
 	    + '	    <select class="form-control facet-attr">'
 	    + '	    </select>'
 	    + '	    </div>'
