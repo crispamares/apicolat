@@ -36,7 +36,9 @@ requirejs(['jquery',
 	   'subsetMenu',
 	   'compareMenu',
 	   'box',
+	   'pointError',
 	   'facetedDistributionsView',
+	   'lineDistributionsView',
 	   'statsComparison'
 ], 
 
@@ -133,18 +135,18 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     var compareMenu = new CompareMenu("#compare-bar", getSchema(), subsets, "ds:synapses");
     var compareChoices = compareMenu.getChoices();
     // ----------------------------------------
-    //     FaceteDistributions View
+    //     LineDistributions View
     // ----------------------------------------
-    var FaceteDistributionsView = require("facetedDistributionsView");
-    var facetedDistributionsView = null;
+    var LineDistributionsView = require("lineDistributionsView");
+    var lineDistributionsView = null;
     hub.subscribe('main-bar-change', function(topic, msg) {
-	if (msg.active === 'compare' && facetedDistributionsView === null) {
-	    facetedDistributionsView = new FaceteDistributionsView("#compare-view", compareChoices, subsets, "ds:synapses");
+	if (msg.active === 'compare' && lineDistributionsView === null) {
+	    lineDistributionsView = new LineDistributionsView("#compare-view", compareChoices, subsets, "ds:synapses");
 
 	    hub.subscribe('compare', function(topic, msg) {
 		console.log('COMPAREEEEEEE');
-		facetedDistributionsView.setCompareChoices(msg);
-		facetedDistributionsView.refresh();
+		lineDistributionsView.setCompareChoices(msg);
+		lineDistributionsView.refresh();
 		});
 	}
 	});

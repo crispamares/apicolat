@@ -9,7 +9,7 @@ function(lodash, WsRpc, Hub, d3) {
 	this.container = d3.select(container);
 	var template = _.template('<nav class="navbar navbar-default" role="navigation">'
 				  + '	  <div class="navbar-header">'
-				  + '	    <a class="navbar-brand" href="#">Brand</a>'
+				  + '	    <a class="navbar-brand" href="#">Beta</a>'
 				  + '	  </div> '
 				  + '	  <ul class="nav navbar-nav">'
 				  + '	    <li class="active groups-definition"><a href="#">Define Groups</a></li>'
