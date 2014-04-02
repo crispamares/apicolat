@@ -32,6 +32,7 @@ function(when, WsRpc, d3, Hub) {
 	    .padding(4);
 
 	var svg = d3.select(container).append("svg")
+	    .classed("treemap-svg", true)
 	    .style("width", width + "px")
 	    .style("height", height + "px");
 

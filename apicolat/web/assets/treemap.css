@@ -1,19 +1,19 @@
-svg {
+.treemap-svg {
     shape-rendering: crispEdges;
 }
-.node {
+.treemap-svg .node {
     stroke: white;
     stroke-width:1px;
 }
-.node.leaf {
+.treemap-svg .node.leaf {
     fill: none;
 }
-.node.leaf.highlighted {
+.treemap-svg .node.leaf.highlighted {
     fill: black;
     stroke-width: 3px;
     fill-opacity: 0.1;
 }
-.node.leaf:hover {
+.treemap-svg .node.leaf:hover {
     fill: red;
     stroke-width: 3px;
     fill-opacity: 1;
