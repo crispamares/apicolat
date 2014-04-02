@@ -1,0 +1,23 @@
+
+.pointErrors line, .pointErrors circle, .pointErrors path {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1px;
+}
+
+.pointErrorGroup.subset1 line,
+.pointErrorGroup.subset1 circle, 
+.pointErrorGroup.subset1 path  {
+  stroke: rgb(228,26,28);
+}
+
+.pointErrorGroup.subset2 line,
+.pointErrorGroup.subset2 circle,
+.pointErrorGroup.subset2 path {
+  stroke: rgb(55,126,184);
+}
+
+.pointError .center {
+/*  stroke-dasharray: 3,3; */
+}
+

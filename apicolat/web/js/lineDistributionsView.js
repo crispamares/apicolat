@@ -27,7 +27,7 @@ function(when, WsRpc, d3, Hub) {
 	height = height - margin.top - margin.bottom;
 	
 	var pointErrorWidth = 15;
-	var pointErrorMargin = 25;
+	var pointErrorMargin = 10;
 	var pointErrorGroupMargin = 20;
 
 	var color = d3.scale.category10();
@@ -42,9 +42,6 @@ function(when, WsRpc, d3, Hub) {
 
 	var y = d3.scale.linear()
 	    .rangeRound([height, 0]); // domain setted in update
-
-	var xGroup = d3.scale.linear()
-	    .rangeRound([0, width]); // domain setted in update
 
 	var xAxis =  d3.svg.axis()
 	    .scale(x)
@@ -62,7 +59,7 @@ function(when, WsRpc, d3, Hub) {
 
 	var gXAxis = svg.append("g")
 	    .attr("class", "x axis")
-	    .attr("transform", "translate(" + margin.left + "," + (margin.top + height + 10) + ")");
+	    .attr("transform", "translate(" + margin.left + "," + (margin.top + height) + ")");
 
 	var gYAxis = svg.append("g")
 	    .attr("class", "y axis")
@@ -79,12 +76,12 @@ function(when, WsRpc, d3, Hub) {
 	var line = d3.svg.line()
 	    .x(function(d) { return x(d.facetAttr); })
 	    .y(function(d) { return y(d3.mean(d.list)); })
-	    .interpolate("basis");
+	    .interpolate("linear");
 
 	this.update = function() {
 	    console.log("UPDATEEEEE", self);	   
 	    var nDistributions = self.distributions.length;
-	    var distributions =  self.distributions;
+	    distributions =  self.distributions;
 /*	    distributions = _.flatten(_.forEach(self.distributions, function(dist, i){
 				     return _.map(dist, function(v){return v.subset = i;});}));
 	     factedData = _.groupBy(distributions, 'facetAttr');
@@ -109,11 +106,8 @@ function(when, WsRpc, d3, Hub) {
 	    gYAxis.transition().call(yAxis);
 
 	    x.domain(facets)
-		.rangeBands([0,width]);
+		.rangePoints([0,width], 1);
 	    gXAxis.transition().call(xAxis);
-
-	    xGroup.rangeRound([0, width])
-		.domain([0, nGroups]);
 
 	    // -----------------------------
 	    //     Update the pointErrorPlots
@@ -123,6 +117,9 @@ function(when, WsRpc, d3, Hub) {
 		.data(distributions);
 	    pointErrorGroup.enter().append('g')
 		.classed('pointErrorGroup', true);
+	    pointErrorGroup
+		.classed('subset1', function(d, i){return !self.useOnlyOne && i === 0;})
+		.classed('subset2', function(d, i){return !self.useOnlyOne && i === 1;});
 
 	    var pointError = pointErrorGroup.selectAll('g.pointError')
 		.data(function(d) { return d; });
@@ -130,20 +127,30 @@ function(when, WsRpc, d3, Hub) {
 	    pointError.enter().append('g')
 		.classed('pointError', true);
 
-	    //pointErrorGroup.attr("transform", function(d,i) {return "translate(" + (xGroup(i) + pointErrorGroupMargin) + ",0)";});
-
 	    pointError.attr("transform", function(d,i) {
 //			 var offset = pointErrorMargin + ((pointErrorGroupWidth/2) * d.subset);
-			 return "translate(" + x(d.facetAttr) + ",0)";})
-		.classed('subset1', function(d){return !self.useOnlyOne && d.subset === 0;})
-		.classed('subset2', function(d){return !self.useOnlyOne && d.subset === 1;})
+			 return "translate(" + (x(d.facetAttr) - pointErrorWidth/2) + ",0)";})
 		.datum(function(d){return d.list;})
 		.call(pointErrorPlot);
 	    
 	    pointError.exit().remove();
+
+	    //---------------------------------
+	    //     Update linking lines
+	    //---------------------------------
+	    var linkingLine = pointErrorGroup.selectAll('.linkingLine')
+		.data(function(d) { return [d]; });
+
+	    linkingLine.enter().append('path')
+		.classed('linkingLine', true);
+
+	    linkingLine.attr('d', line);
+
+	    linkingLine.exit().remove();
+
 	    pointErrorGroup.exit().remove();
 
-	    console.log(y.domain());
+	    d3.timer.flush();
 	};
 
 	this._getDomain = function() {
@@ -177,7 +184,11 @@ function(when, WsRpc, d3, Hub) {
 		this.useOnlyOne = true;
 		this._rpcGetSubsetData(dataset, c.attr, conditionSet1, c.facetAttr)
 		    .then(function(data){
-			      self.distributions = [_.map(data, function(v){v.dist = c.subset1; return v;})]; 
+			      var d = _.chain(data)
+				  .map(function(v){v.dist = c.subset1; return v;})
+				  .sortBy('facetAttr')
+				  .value();
+			      self.distributions = [d];
 			      self.update();});
 	    }
 	    else {
@@ -187,8 +198,14 @@ function(when, WsRpc, d3, Hub) {
 			 function(v){return self._rpcGetSubsetData(v[0],v[1],v[2],v[3]);})
 		    .then(function(a){
 			      var data = [];
-			      data[0] = _.map(a[0], function(v){v.dist = c.subset1; return v;});
-			      data[1] = _.map(a[1], function(v){v.dist = c.subset2; return v;});
+			      data[0] = _.chain(a[0])
+				      .map(function(v){v.dist = c.subset1; return v;})
+				      .sortBy('facetAttr')
+				      .value();
+			      data[1] = _.chain(a[1])
+				      .map(function(v){v.dist = c.subset2; return v;})
+				      .sortBy('facetAttr')
+				      .value();
 			      self.distributions = data; 
 			      self.update();});
 	    }
