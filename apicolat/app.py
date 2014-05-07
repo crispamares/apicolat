@@ -15,11 +15,12 @@ from indyva.dynamics.dselect import DynSelect
 from indyva.dynamics.dfilter import DynFilter
 import xlsx_exporter 
 
+
 class App(object):
-    def __init__(self):
+    def __init__(self, zmq_port=8085, ws_port=8080):
         self.kernel = Kernel()
-        ws_server = WSServer(port=8080)
-        zmq_server = ZMQServer(port=8085)
+        ws_server = WSServer(port=ws_port)
+        zmq_server = ZMQServer(port=zmq_port)
         self.kernel.add_server(ws_server)   
         self.kernel.add_server(zmq_server)   
 
@@ -50,7 +51,16 @@ class App(object):
         self.kernel.run_forever()
 
 def main():
-    App().run()
+
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--zmqport", type=int, default=8085,
+                        help="The port number of the ZMQ server (8085)")
+    parser.add_argument("--wsport", type=int, default=8080,
+                        help="The port number of the WebSocket server (8080)")
+
+    args = parser.parse_args()
+    App(args.zmqport, args.wsport).run()
 
 if __name__ == '__main__':
     main()
