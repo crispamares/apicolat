@@ -14,24 +14,8 @@ from indyva.facade.front import Front
 from indyva.dynamics.dselect import DynSelect
 from indyva.dynamics.dfilter import DynFilter
 import xlsx_exporter 
+from configuration import parseArgsAndConfig
 
-
-
-class CD(object):
-    ''' ConfigDefaults '''
-    ZMQSERVER = False
-    ZMQPORT = 18000
-    WSSERVER = False
-    WSPORT = 18081
-    WEBSERVER = False
-    WEBPORT = 18080
-
-    PORTMAXTRIES = 100    
-
-    USERANDOMPORTS = False
-    LOWERPORT = 10000
-    UPPERPORT = 20000
-    
 
 class MetaApp(object):
     def __init__(self):
@@ -45,31 +29,26 @@ class MetaApp(object):
         Also configures the ports that those servers are going to
         use.
 
-        :param config: Is a dict with the kernel configuration
+        :param config: Is an Namespace (object) with the kernel configuration
         '''
-        if config.get('zmq_server', CD.ZMQSERVER) == True:       
-            zmq_port = self._guess_port('zmq_port', config, CD.ZMQPORT)
-
+        if config.zmq_server:
+            zmq_port = self._guess_port(config, config.zmq_port)
             zmq_server = ZMQServer(port=zmq_port)
             self.kernel.add_server(zmq_server)
 
             print "* ZMQ Server listening on port: {0}".format(zmq_port)
 
-        if config.get('ws_server', CD.WSSERVER) == True:
-            ws_port = self._guess_port('ws_port', config,  CD.WSPORT)
-
+        if config.ws_server:
+            ws_port = self._guess_port(config, config.ws_port)
             ws_server = WSServer(port=ws_port)
             self.kernel.add_server(ws_server)      
 
             print "* WebSocket Server listening on port: {0}".format(ws_port)
 
-    def _guess_port(self, port_name, config, default=None):
-        if port_name in config:
-            port = config[port_name]
-        elif config.get('use_random_port') == True:
-            port_range = (config.get('lower_port', CD.LOWERPORT),
-                          config.get('upper_port', CD.UPPERPORT))
-            max_tries = config.get('port_max_tries', CD.PORTMAXTRIES)
+    def _guess_port(self, config, default=None):
+        if config.use_random_port:
+            port_range = (config.lower_port, config.upper_port)
+            max_tries = config.port_max_tries
             port = get_random_port(port_range=port_range, max_tries=max_tries)
         elif default is not None:
             port = default
@@ -83,11 +62,10 @@ class MetaApp(object):
     
 
 class App(MetaApp):
-    def __init__(self, zmq_port=8085, ws_port=8080):
+    def __init__(self):
         MetaApp.__init__(self)
 
-        config = {'zmq_server': True,# 'zmq_port': zmq_port, 
-                  'ws_server': True}#, 'ws_port': ws_port}
+        config = parseArgsAndConfig()
         self.config_services(config)
 
         self.synapses_table = init_synapses_table()
@@ -113,16 +91,7 @@ class App(MetaApp):
         
 
 def main():
-
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--zmqport", type=int, default=8085,
-                        help="The port number of the ZMQ server (8085)")
-    parser.add_argument("--wsport", type=int, default=8080,
-                        help="The port number of the WebSocket server (8080)")
-
-    args = parser.parse_args()
-    App(args.zmqport, args.wsport).run()
+    App().run()
 
 if __name__ == '__main__':
     main()

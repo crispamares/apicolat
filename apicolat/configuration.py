@@ -1,7 +1,7 @@
 import argparse
 import ConfigParser
 
-options = [
+default_options = [
     ("zmq_server", dict(default=False, action='store_true', help="Run the ZMQ Server")),
     ("zmq_port", dict(type=int, default=18000, help="The port number of the ZMQ server")),
     ("ws_server", dict(default=False, action='store_true', help="Run the WebSocket Server")),
@@ -14,7 +14,9 @@ options = [
     ("upper_port", dict(type=int, default=20000, help="The upper port of the range"))
 ]
 
-def parseArgsAndConfig(options, description=None):
+def parseArgsAndConfig(options=None, description=None):
+    if options is None:
+        options = default_options
 
     # Turn off help, so we print all options in response to -h
     config_parser = argparse.ArgumentParser(add_help=False)
@@ -33,7 +35,7 @@ def parseArgsAndConfig(options, description=None):
             
     # Don't surpress add_help here so it will handle -h
     parser = argparse.ArgumentParser(
-        description=self.description,
+        description=description,
         # Inherit options from config_parser
         parents=[config_parser],
         # Print default values in the help message
