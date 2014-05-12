@@ -10,8 +10,8 @@ default_options = [
     ("web_port", dict(type=int, default=18080, help="The port number of the Web server")),
     ("use_random_port", dict(default=False, action='store_true', help="Let the system find free ports inside the port range")),
     ("port_max_tries", dict(type=int, default=100, help="Maximum number of port finding attempts to make")),
-    ("lower_port", dict(type=int, default=10000, help="The lower port of the range")),
-    ("upper_port", dict(type=int, default=20000, help="The upper port of the range"))
+    ("min_port", dict(type=int, default=10000, help="The lower port of the range")),
+    ("max_port", dict(type=int, default=20000, help="The upper port of the range"))
 ]
 
 def parseArgsAndConfig(options=None, description=None):
