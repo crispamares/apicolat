@@ -26,10 +26,11 @@ web_port = 8001
 apicolat = {
     "cmd":  "python "+APICOLATDIR,
     "name": "apicolat",
-    "args":  "--zmq_port {0} --ws_port {1}".format(zmq_port, ws_port), 
+    "args":  "--zmq_server --zmq_port {0} --ws_server --ws_port {1}".format(zmq_port, ws_port), 
     "options": {
         "numprocesses": 1,
-        "working_dir": ROOT
+        "working_dir": ROOT,
+        "copy_env": True
         }
     }
 
@@ -38,7 +39,8 @@ web = {
     "name": "web",
     "options": {
         "numprocesses": 1,
-        "working_dir": WEBDIR
+        "working_dir": WEBDIR,
+        "copy_env": True
         }
     }
 
