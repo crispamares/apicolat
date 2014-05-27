@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 
-import os
+import os, sys
 from circus import get_arbiter
 from circus.client import CircusClient
 
@@ -21,7 +22,6 @@ WEBDIR = os.path.join(ROOT, 'apicolat', 'web')
 zmq_port = 8085 
 ws_port = 8080
 web_port = 8001
-
 
 apicolat = {
     "cmd":  "python "+APICOLATDIR,
@@ -51,10 +51,19 @@ def add_watcher(properties):
     return {'command': 'add', 'properties': properties}
 
 cc = CircusClient()
-cc.call(add_watcher(apicolat))
-cc.call(add_watcher(web))
+o1 = cc.call(add_watcher(apicolat))
+o2 = cc.call(add_watcher(web))
 
-print ("DONE")
+error_output = ''
+if o1['status'] == 'error':
+    error_output += o1['reason']
+if o2['status'] == 'error':
+    error_output += o2['reason']
+
+if error_output:
+    print(error_output, file=sys.stderr)
+
+print ("_*_ redirect: http://localhost:{0}".format(web_port))
 
 #arbiter = get_arbiter([apicolat, web])
 #try:
