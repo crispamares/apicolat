@@ -42,10 +42,11 @@ class MetaApp(object):
 
         if config.ws_server:
             ws_port = self._guess_port(config, config.ws_port)
-            ws_server = WSServer(port=ws_port)
+            ws_server = WSServer(port=ws_port, web_dir=config.web_dir)
             self.kernel.add_server(ws_server)      
 
             print "* WebSocket Server listening on port: {0}".format(ws_port)
+            print "* Serving web from: {0}".format(config.web_dir)
 
     def _guess_port(self, config, default=None):
         if config.use_random_port:
@@ -55,7 +56,7 @@ class MetaApp(object):
         elif default is not None:
             port = default
         else:
-            raise Exception("Is impossible to get a free port for '{0}'".format(port_name))
+            raise Exception("Is impossible to get a free port")
 
         return port
 
