@@ -90,7 +90,7 @@ function(lodash, jquery, WsRpc, Hub, d3, when, RangeSlider, MenuButton) {
 	rangeSlider.setDomain(gvCondition.domain);
 
 	rangeSlider.on('move', function(extent){
-		var params =  {condition_name: self.condition, 
+		var params =  {condition_oid: self.condition, 
 			       min:extent[0], 
 			       max:extent[1], 
 			       relative: true};
