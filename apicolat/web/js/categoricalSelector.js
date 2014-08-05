@@ -14,7 +14,7 @@ function(lodash, jquery, WsRpc, Hub, d3, when, MenuButton) {
 	this.container = d3.select(container);
 	this.grammar = grammar;
 	this.name = name;
-	this.condition = 'c:' + grammar.name;
+	this.condition = grammar.name;
 
 	this.items = {}; //{cat1: {name:'cat1',included:true}, cat2: {name:'cat2',included:false}};
 

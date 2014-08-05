@@ -79,7 +79,7 @@ function(lodash, jquery, WsRpc, Hub, d3, when, CategoricalSelector, RangeSelecto
 	    }
 	if (selector !== null) {
 	    selector.onRemove = function(){
-		rpc.call(self.service+'.remove_condition', [self.conditionSet, 'c:'+gvCondition.name]);
+		rpc.call(self.service+'.remove_condition', [self.conditionSet, gvCondition.name]);
 	    };
 	}
     }

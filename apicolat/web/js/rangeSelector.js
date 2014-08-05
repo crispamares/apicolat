@@ -9,7 +9,7 @@ function(lodash, jquery, WsRpc, Hub, d3, when, RangeSlider, MenuButton) {
 	this.container = d3.select(container);
 	this.grammar = grammar;
 	this.name = name;
-	this.condition = 'c:' + grammar.name;
+	this.condition = grammar.name;
 
 	this.range = this.grammar.range;
 	this.domain = this.grammar.domain;

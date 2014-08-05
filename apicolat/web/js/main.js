@@ -60,15 +60,15 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     // ----------------------------------------
     //     Dynamics
     // ----------------------------------------
-    var definition_dselect = "s:definition_dselect"; // Already created in the kernel
-    var definition_dfilter = "f:definition_dfilter"; // Already created in the kernel
+    var definition_dselect = "definition_dselect"; // Already created in the kernel
+    var definition_dfilter = "definition_dfilter"; // Already created in the kernel
 
     // ----------------------------------------
     //     Subset Menu
     // ----------------------------------------
     var subsets = [{name:'unnamed', active:true, conditionSet: definition_dselect}];
     var SubsetMenu = require("subsetMenu");
-    var subsetMenu = new SubsetMenu("#subset-add","#subset-list", subsets, "ds:synapses");
+    var subsetMenu = new SubsetMenu("#subset-add","#subset-list", subsets, "synapses");
 
 
     // ----------------------------------------
@@ -132,7 +132,7 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     //     Compare Menu
     // ----------------------------------------
     var CompareMenu = require("compareMenu");
-    var compareMenu = new CompareMenu("#compare-bar", getSchema(), subsets, "ds:synapses");
+    var compareMenu = new CompareMenu("#compare-bar", getSchema(), subsets, "synapses");
     var compareChoices = compareMenu.getChoices();
     // ----------------------------------------
     //     LineDistributions View
@@ -141,7 +141,7 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     var lineDistributionsView = null;
     hub.subscribe('main-bar-change', function(topic, msg) {
 	if (msg.active === 'compare' && lineDistributionsView === null) {
-	    lineDistributionsView = new LineDistributionsView("#compare-view", compareChoices, subsets, "ds:synapses");
+	    lineDistributionsView = new LineDistributionsView("#compare-view", compareChoices, subsets, "synapses");
 
 	    hub.subscribe('compare', function(topic, msg) {
 		console.log('COMPAREEEEEEE');
@@ -154,7 +154,7 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
     //     Comparison Stats 
     // ----------------------------------------
     var StatsComparison = require("statsComparison");
-    var statsComparison = new StatsComparison("#compare-stats", compareChoices, subsets, "ds:synapses");
+    var statsComparison = new StatsComparison("#compare-stats", compareChoices, subsets, "synapses");
     hub.subscribe('compare', function(topic, msg) {
 		statsComparison.setCompareChoices(msg);
 		statsComparison.refresh();
@@ -178,7 +178,7 @@ function($, _, when, bootstrap, WsRpc, Hub, d3) {
 	when.map( groupBySpine(column),
 		  function(pipeline) {
 		      console.log( JSON.stringify(pipeline));
-		      return rpc.call('TableSrv.aggregate', ["ds:synapses", pipeline]);})
+		      return rpc.call('TableSrv.aggregate', ["synapses", pipeline]);})
 	    .then(
 		function(views) {
 		    console.log('views', views);
