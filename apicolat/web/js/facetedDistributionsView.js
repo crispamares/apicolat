@@ -1,11 +1,10 @@
-
 define(
-["when","ws-rpc", "d3", "hub",  "bootstrap", "jquery", "box"]
+["when","d3", "context",  "bootstrap", "jquery", "box"]
 ,
-function(when, WsRpc, d3, Hub) {
-
-    var hub = Hub.instance();
-    var rpc = WsRpc.instance();
+function(when, d3, Context) {
+    var context = Context.instance();
+    var rpc = context.rpc;
+    var hub = context.hub;
 
     var pipeline = require("when/pipeline");
 

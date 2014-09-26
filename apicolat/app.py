@@ -6,14 +6,14 @@ Created on 11/12/2013
 '''
 
 import indyva
-from indyva.dataset.table import Table 
-from indyva.kernel import Kernel
+from indyva.dataset.table import Table
+from indyva.core.kernel import Kernel
 from indyva.facade.server import WSServer, ZMQServer
 from data_adquisition import init_synapses_table
 from indyva.facade.front import Front
 from indyva.dynamics.dselect import DynSelect
 from indyva.dynamics.dfilter import DynFilter
-import xlsx_exporter 
+import xlsx_exporter
 
 from configuration import parseArgsAndConfig
 from utils import get_random_port
@@ -42,7 +42,7 @@ class MetaApp(object):
         if config.ws_server:
             ws_port = self._guess_port(config, config.ws_port)
             ws_server = WSServer(port=ws_port, web_dir=config.web_dir)
-            self.kernel.add_server(ws_server)      
+            self.kernel.add_server(ws_server)
 
             print "* WebSocket Server listening on port: {0}".format(ws_port)
             print "* Serving web from: {0}".format(config.web_dir)
@@ -57,11 +57,11 @@ class MetaApp(object):
         else:
             raise Exception("Is impossible to get a free port")
 
-        return port    
+        return port
 
     def run(self):
         self.kernel.run_forever()
-    
+
 
 class App(MetaApp):
     def __init__(self):
@@ -76,7 +76,7 @@ class App(MetaApp):
         Front.instance().get_method('TableSrv.expose_table')(self.synapses_table)
         Front.instance().get_method('DynSelectSrv.expose_dselect')(self.definition_dselect)
         Front.instance().get_method('DynFilterSrv.expose_dfilter')(self.definition_dfilter)
-                
+
         xlsx_exporter.expose_methods()
         Front.instance().add_method(self.restart)
 
@@ -90,7 +90,7 @@ class App(MetaApp):
         Front.instance().get_method('DynFilterSrv.clear')()
         Front.instance().get_method('DynSelectSrv.expose_dselect')(self.definition_dselect)
         Front.instance().get_method('DynFilterSrv.expose_dfilter')(self.definition_dfilter)
-        
+
 
 def main():
     App().run()

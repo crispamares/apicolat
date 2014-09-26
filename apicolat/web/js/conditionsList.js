@@ -1,8 +1,9 @@
-define(['lodash', 'jquery', 'ws-rpc', 'hub', 'd3', 'when', 'categoricalSelector', 'rangeSelector'],
-function(lodash, jquery, WsRpc, Hub, d3, when, CategoricalSelector, RangeSelector) {
+define(['lodash', 'jquery', 'context', 'd3', 'when', 'categoricalSelector', 'rangeSelector'],
+function(lodash, jquery, Context, d3, when, CategoricalSelector, RangeSelector) {
 
-    var hub = Hub.instance();
-    var rpc = WsRpc.instance();
+    var context = Context.instance();
+    var rpc = context.rpc;
+    var hub = context.hub;
 
     function ConditionsList(container, conditionSet, service) {
 	var self = this;
@@ -38,9 +39,9 @@ function(lodash, jquery, WsRpc, Hub, d3, when, CategoricalSelector, RangeSelecto
 
     ConditionsList.prototype._rpcGrammar = function(conditionSet) {
 	var self = this;
-	var promise = rpc.call(this.service+'.grammar', [conditionSet]);
+	var promise = rpc.call(this.service+'.grammar_of_conditions', [conditionSet]);
 	promise.then(function(grammar){
-			 self.gvConditions = grammar.conditions;
+			 self.gvConditions = grammar;
 			 self.update(); // TODO: Change when sync rendering is used
 		     })
 	    .otherwise(showError);

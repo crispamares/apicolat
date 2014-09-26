@@ -1,8 +1,9 @@
-define(['lodash', 'jquery', 'ws-rpc', 'hub', 'd3', 'when', 'rangeSlider', 'menuButton'],
-function(lodash, jquery, WsRpc, Hub, d3, when, RangeSlider, MenuButton) {
+define(['lodash', 'jquery', 'context', 'd3', 'when', 'rangeSlider', 'menuButton'],
+function(lodash, jquery, Context, d3, when, RangeSlider, MenuButton) {
 
-    var hub = Hub.instance();
-    var rpc = WsRpc.instance();
+    var context = Context.instance();
+    var rpc = context.rpc;
+    var hub = context.hub;
 
     function RangeSelector(container, name, grammar) {
 	var self = this;

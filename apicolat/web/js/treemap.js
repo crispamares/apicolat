@@ -1,11 +1,12 @@
 
 define(
-["when","ws-rpc", "d3", "hub",  "bootstrap", "jquery"]
+["when","d3", "context",  "bootstrap", "jquery"]
 ,
-function(when, WsRpc, d3, Hub) {
+function(when, d3, Context) {
 
-    var hub = Hub.instance();
-    var rpc = WsRpc.instance();
+    var context = Context.instance();
+    var rpc = context.rpc;
+    var hub = context.hub;
 
     var treemapView = function(container) {
 	// Subscribe to 'r:'

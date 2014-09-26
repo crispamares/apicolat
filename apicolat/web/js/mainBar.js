@@ -1,8 +1,9 @@
-define(['lodash','ws-rpc', 'hub', 'd3'],
-function(lodash, WsRpc, Hub, d3) {
+define(['lodash','context', 'd3'],
+function(lodash, Context, d3) {
 
-    var hub = Hub.instance();
-    var rpc = WsRpc.instance();
+    var context = Context.instance();
+    var rpc = context.rpc;
+    var hub = context.hub;
 
     function MainBar(container) {
 	var self = this;

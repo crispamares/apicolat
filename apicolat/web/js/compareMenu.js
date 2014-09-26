@@ -1,8 +1,9 @@
-define(['lodash', 'jquery', 'ws-rpc', 'hub', 'd3', 'when'],
-function(lodash, jquery, WsRpc, Hub, d3, when) {
+define(['lodash', 'jquery', 'context', 'd3', 'when'],
+function(lodash, jquery, Context, d3, when) {
 
-    var hub = Hub.instance();
-    var rpc = WsRpc.instance();
+    var context = Context.instance();
+    var rpc = context.rpc;
+    var hub = context.hub;
 
     function CompareMenu(container, schema, subsets, dataset) {
 	var self = this;

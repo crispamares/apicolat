@@ -1,8 +1,8 @@
-define(['lodash', 'jquery', 'ws-rpc', 'hub', 'd3', 'when'],
-function(lodash, jquery, WsRpc, Hub, d3, when) {
-
-    var hub = Hub.instance();
-    var rpc = WsRpc.instance();
+define(['lodash', 'jquery', 'context', 'd3', 'when'],
+function(lodash, jquery, Context, d3, when) {
+    var context = Context.instance();
+    var rpc = context.rpc;
+    var hub = context.hub;
 
     function ConditionsMenu(container, conditionSet, schema, attributes, service) {
 	var self = this;

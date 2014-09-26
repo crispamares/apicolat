@@ -7,6 +7,7 @@ require.config({
 	d3: 'vendor/d3.v3.min',
 	vega: 'vendor/vega',
 	lodash: 'vendor/lodash.min',
+        context: 'lib/indyva-js/context',
         hub: 'lib/indyva-js/hub',
         'ws-rpc': 'lib/indyva-js/ws-rpc',
 	'reconnecting-websocket': 'lib/indyva-js/reconnecting-websocket'
@@ -22,8 +23,7 @@ requirejs(['jquery',
 	   'lodash',
 	   'when', 
 	   'bootstrap', 
-	   'ws-rpc',
-	   'hub',
+	   'context',
 	   'd3',
 	   'when/pipeline',
 	   'when/monitor/console',
@@ -42,10 +42,11 @@ requirejs(['jquery',
 	   'statsComparison'
 ], 
 
-function($, _, when, bootstrap, WsRpc, Hub, d3) {
+function($, _, when, bootstrap, Context, d3) {
     console.log('running');
-    var rpc = WsRpc.instance();
-    var hub = Hub.instance();
+    var context = Context.instance();
+    var rpc = context.rpc;
+    var hub = context.hub;
 
     var quantitative_attrs = ["feret", "area", "volume"];
 

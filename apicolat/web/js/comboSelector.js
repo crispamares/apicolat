@@ -1,5 +1,7 @@
-define(['lodash', 'jquery', 'hub'],
-function(lodash, jquery, hub) {
+define(['lodash', 'jquery', 'context'],
+function(lodash, jquery, Context) {
+    var context = Context.instance();
+    var hub = context.hub;
 
     function ComboSelector(container, table, attributeType) {
 	this.container = $(container);
@@ -29,7 +31,7 @@ function(lodash, jquery, hub) {
 	    .find('select')
 	    .on('change', function(e) {
 		    console.log (e);
-		    hub.instance().publish('comboChanged', e.target.value);
+		    hub.publish('comboChanged', e.target.value);
 		});
     };
     
