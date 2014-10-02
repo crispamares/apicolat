@@ -19,6 +19,16 @@ require.config({
 
 function showError(err) { console.error(err, err.stack); }
 
+requirejs(['context'],
+function(Context) {
+    var context = Context.instance();
+    var session = 's'+String(Math.round((Math.random()*100000)));
+    context.openSession(session);
+
+    window.onbeforeunload = function() {return "The session will be lost";};
+    window.onunload = function() {context.closeSession();};
+});
+
 requirejs(['jquery', 
 	   'lodash',
 	   'when', 
@@ -45,13 +55,16 @@ requirejs(['jquery',
 function($, _, when, bootstrap, Context, d3) {
     console.log('running');
     var context = Context.instance();
+    console.log('IN SESSION: ', context.session);
     var rpc = context.rpc;
     var hub = context.hub;
 
     var quantitative_attrs = ["feret", "area", "volume"];
 
-    rpc.call('restart', []).then(function(){hub.clear();}).then(function() {
+//    rpc.call('init', []).then(function(){hub.clear();}).then(function() {
+    rpc.call('init', []).then(function() {
 
+    
     // ----------------------------------------
     //     Main Bar
     // ----------------------------------------
