@@ -9,6 +9,7 @@ require.config({
 	lodash: 'vendor/lodash.min',
         context: 'lib/indyva-js/context',
         hub: 'lib/indyva-js/hub',
+	FileSaver: 'vendor/FileSaver.min',
         'ws-rpc': 'lib/indyva-js/ws-rpc',
 	'reconnecting-websocket': 'lib/indyva-js/reconnecting-websocket'
     },
@@ -17,7 +18,7 @@ require.config({
     }
 });
 
-function showError(err) { console.error(err, err.stack); }
+function showError(err) { console.error(gerr, err.stack); }
 
 requirejs(['context'],
 function(Context) {

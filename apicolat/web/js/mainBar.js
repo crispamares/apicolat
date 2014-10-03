@@ -1,5 +1,5 @@
-define(['lodash','context', 'd3'],
-function(lodash, Context, d3) {
+define(['lodash','context', 'd3', 'FileSaver'],
+function(lodash, Context, d3, saveAs) {
 
     var context = Context.instance();
     var rpc = context.rpc;
@@ -9,6 +9,7 @@ function(lodash, Context, d3) {
 	var self = this;
 	this.container = d3.select(container);
 	var template = _.template('<nav class="navbar navbar-default" role="navigation">'
+				  + '   <div class="container-fluid">'
 				  + '	  <div class="navbar-header">'
 				  + '	    <a class="navbar-brand" href="#">Beta</a>'
 				  + '	  </div> '
@@ -17,6 +18,16 @@ function(lodash, Context, d3) {
 				  + '	    <li class="compare"><a href="#">Compare</a></li>'
 //				  + '	    <li class="export"><a href="#">Export</a></li>'
 				  + '	  </ul>'
+				  + '     <ul class="nav navbar-nav navbar-right">'
+				  + '	      <li class="dropdown">'
+				  + '	      <a href="#" class="dropdown-toggle" data-toggle="dropdown"> Analysis <span class="caret"></span></a>'
+				  + '	      <ul class="dropdown-menu" role="menu">'
+				  + '		  <li><a href="#" class="menu-open-file">Open...</a><input style="display:none" type="file" class="open-file"></li>'
+				  + '		  <li><a href="#" class="menu-save-file">Save</a></li>'				  
+				  + '	      </ul>'
+				  + '	      </li>'
+				  + '	  </ul>'
+				  + '	  </div>'
 				  + '	</nav>');
 	var html = template();
 	this.container.html(html);
@@ -33,6 +44,32 @@ function(lodash, Context, d3) {
 
 	this.container.select('li.export')
 	    .on('click',function(){self.activeExport();});
+
+	this.container.select('a.menu-open-file')
+	    .on('click',function(){self.container.select("input.open-file")
+				   .node().click();});
+	this.container.select('a.menu-save-file')
+	    .on('click',function(){self.saveFile();});
+
+	self.container.select("input.open-file")
+	    .on('change', function(){self.loadFile(d3.event);});
+
+	this.loadFile = function(event) {
+	    var files = event.target.files;
+	    var reader = new FileReader();
+	    reader.readAsText(files[0]);
+
+	    reader.onload = function() {
+		console.log(this.result);
+	    };
+	    
+	};
+
+	this.saveFile = function() {
+	    var blob = new Blob(["Hello, world!"], {type: "text/plain;charset=utf-8"});
+	    saveAs(blob, "analysis.json");
+	};
+
 
 	this.activeGroupsDefinition = function() {
 	    var li = self.container.select('li.groups-definition');
