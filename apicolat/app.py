@@ -13,6 +13,9 @@ from indyva.dynamics.dselect import DynSelect
 from indyva.dynamics.dfilter import DynFilter
 import xlsx_exporter
 
+import logbook
+logbook.default_handler.level = logbook.DEBUG
+
 
 class App(MetaApp):
     def __init__(self):
@@ -24,12 +27,12 @@ class App(MetaApp):
         '''
         This method cleans dynamics and conditions
         '''
-        self.synapses_table = init_synapses_table()
-        self.definition_dselect = DynSelect('definition_dselect', self.synapses_table, setop='AND')
-        self.definition_dfilter = DynFilter('definition_dfilter', self.synapses_table)
-        Front.instance().get_method('TableSrv.expose_table')(self.synapses_table)
-        Front.instance().get_method('DynSelectSrv.expose_dselect')(self.definition_dselect)
-        Front.instance().get_method('DynFilterSrv.expose_dfilter')(self.definition_dfilter)
+        synapses_table = init_synapses_table()
+        definition_dselect = DynSelect('definition_dselect', synapses_table, setop='AND')
+        definition_dfilter = DynFilter('definition_dfilter', synapses_table)
+        Front.instance().get_method('TableSrv.expose_table')(synapses_table)
+        Front.instance().get_method('DynSelectSrv.expose_dselect')(definition_dselect)
+        Front.instance().get_method('DynFilterSrv.expose_dfilter')(definition_dfilter)
 
         xlsx_exporter.expose_methods()
 
