@@ -66,8 +66,19 @@ function(lodash, Context, d3, saveAs) {
 	};
 
 	this.saveFile = function() {
-	    var blob = new Blob(["Hello, world!"], {type: "text/plain;charset=utf-8"});
-	    saveAs(blob, "analysis.json");
+
+	    rpc.call("GrammarSrv.new_root", ['root'])
+		.then(function(){ rpc.call("GrammarSrv.add_dataset", ['root', 'synapses'])})
+		.then(function(){ return rpc.call("DynSelectSrv.get_conditions", ['definition_dselect'])})
+		.then(function(conditions){ rpc.call("GrammarSrv.add_condition", ['root', conditions]) })
+		.then(function(){ rpc.call("GrammarSrv.add_dynamic", ['root', 'definition_dselect'])})
+		.then(function(){ return rpc.call("GrammarSrv.grammar", ['root'])})
+		.then(function(grammar){ 
+		    var blob = new Blob([JSON.stringify(grammar)], {type: "text/plain;charset=utf-8"});
+		    saveAs(blob, "analysis.json");
+		})
+		.then(function() { rpc.call("GrammarSrv.del_root", ['root']) });
+
 	};
 
 
