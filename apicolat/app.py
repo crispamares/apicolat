@@ -25,23 +25,14 @@ class App(MetaApp):
 
     def init(self):
         '''
-        This method cleans dynamics and conditions
+        This method loads the data in a table
         '''
         synapses_table = init_synapses_table()
         definition_dselect = DynSelect('definition_dselect', synapses_table, setop='AND')
-        definition_dfilter = DynFilter('definition_dfilter', synapses_table)
         Front.instance().get_method('TableSrv.expose_table')(synapses_table)
         Front.instance().get_method('DynSelectSrv.expose_dselect')(definition_dselect)
-        Front.instance().get_method('DynFilterSrv.expose_dfilter')(definition_dfilter)
 
         xlsx_exporter.expose_methods()
-
-#        self.definition_dfilter.clear()
-#        self.definition_dselect.clear()
-#        Front.instance().get_method('DynSelectSrv.clear')()
-#        Front.instance().get_method('DynFilterSrv.clear')()
-#        Front.instance().get_method('DynSelectSrv.expose_dselect')(self.definition_dselect)
-#        Front.instance().get_method('DynFilterSrv.expose_dfilter')(self.definition_dfilter)
 
 
 def main():

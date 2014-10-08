@@ -5,10 +5,12 @@ function(lodash, jquery, Context, d3, when) {
     var rpc = context.rpc;
     var hub = context.hub;
 
-    function SubsetMenu(addContainer, listContainer, subsets, dataset) {
+    function SubsetMenu(addContainer, listContainer, subsetsName, dataset) {
 	var self = this;
 	this.listContainer = d3.select(listContainer);
-	this.subsets = subsets;
+	this.subsetsName = subsetsName;
+	this.subsets = null;
+	this.subsets_v = null;
 	this.dataset = dataset;
 
 	d3.select(addContainer)
@@ -36,9 +38,10 @@ function(lodash, jquery, Context, d3, when) {
 				  '	    </ul>'
 				  );
 
-	update();
+	rpc.call("SharedObjectSrv.pull", [this.subsetsName])
+	    .then(onChange);
 
-
+	hub.subscribe(subsetsName+":change", function(topic, msg) { onChange(msg.result);});
 
 	function update() {
 	    var buttons = self.listContainer.selectAll('div.btn-group')
@@ -50,6 +53,15 @@ function(lodash, jquery, Context, d3, when) {
 		.each(function(d){ 
 			  var btn_group = d3.select(this);
 			  btn_group.html(subsets_template(d));
+		      });
+
+	    buttons
+		.each(function(d){ 
+			  var btn_group = d3.select(this);
+			  btn_group.select("button")
+			      .text(d.name);
+			  btn_group.selectAll('button')
+			      .classed({"btn-default": !d.active, "btn-primary": d.active});
 
 			  btn_group.select("button")
 			      .on("click", function(){activate(d.name);});
@@ -60,19 +72,10 @@ function(lodash, jquery, Context, d3, when) {
 			  btn_group.select("a.remove")
 			      .on("click", function(){remove(d.name);});
 			  btn_group.select("a.rename")
-			      .on("click", function(){rename(d);});
+			      .on("click", function(){rename(d.name);});
 			  btn_group.select("a.export")
 			      .on("click", function(){exportDSelect(d.conditionSet, self.dataset, d.name);});
 
-		      });
-
-	    buttons
-		.each(function(d){ 
-			  var btn_group = d3.select(this);
-			  btn_group.select("button")
-			      .text(d.name);
-			  btn_group.selectAll('button')
-			      .classed({"btn-default": !d.active, "btn-primary": d.active});
 		      });
 
 	    buttons.select("a.remove")
@@ -95,12 +98,13 @@ function(lodash, jquery, Context, d3, when) {
 	    if (hasChanged) {
 		hub.publish("active_subset_change", _.clone(activated));		
 	    }
-
-	    update();
+	    rpcPush(self.subsets, self.subsets_v);
+//	    update();
 	}
 
-	function rename(subset) {
+	function rename(name) {
 	    var deferred = when.defer();
+	    var subset = _.find(self.subsets, {name:name});
 
 	    // TODO show the modal
 	    var modalTemplate = 
@@ -152,9 +156,15 @@ function(lodash, jquery, Context, d3, when) {
 			   )
 			{
 			    subset.name = newName;
-			    deferred.resolve(newName);			    
-			    $('#rename-subset-modal').modal('hide');
-			    update();	
+			    rpcPush(self.subsets, self.subsets_v)
+				.then(function(){
+				    deferred.resolve(newName);
+				    $('#rename-subset-modal').modal('hide');
+				})
+				.otherwise(function(){
+				    console.error("No possible to push changes of subsets");
+				    deferred.reject();
+				});
 			}
 			
 		    });
@@ -166,7 +176,7 @@ function(lodash, jquery, Context, d3, when) {
 	    $('#rename-subset-modal').on('hide.bs.modal', function(){deferred.reject();});
 
 	    //This behavior may be overwritten
-	    deferred.promise.then(function() {hub.publish("subset_change", _.clone(self.subsets));} );
+//	    deferred.promise.then(function() {hub.publish("subset_change", _.clone(self.subsets));} );
 	    return deferred.promise;
 	}
 
@@ -176,7 +186,7 @@ function(lodash, jquery, Context, d3, when) {
 	    copy.name = subset.name + "_copy";
 	    copy.active = false;
 	    self.subsets.push(copy);
-	    update();
+	    rpcPush(self.subsets, self.subsets_v);
 	}
 
 	function remove(name) {
@@ -184,22 +194,19 @@ function(lodash, jquery, Context, d3, when) {
 	    
 	    var subset = _.find(self.subsets, {name:name});
 	    self.subsets = _.without(self.subsets, subset);
+	    rpcPush(self.subsets, self.subsets_v);
 	    if (subset.active) {
 		activate(self.subsets[0].name);
 	    }
-	    else {
-		update();		
-	    }
-
-	    hub.publish("subset_change", _.clone(self.subsets));
 	}
 
 	function createSubset() {
 	    var subset = {name:'The new one'};
 	    self.subsets.push(subset);
-	    rename(subset)
-		.then(function(name){createDSelect(subset.name, self.dataset);
-			hub.publish("subset_change", _.clone(self.subsets));})
+	    rename(subset.name)
+		.then(function(name){
+		    createDSelect(subset.name, self.dataset);
+		})
 		.otherwise(function(){remove(subset.name);});
 	    update();
 	}
@@ -209,8 +216,8 @@ function(lodash, jquery, Context, d3, when) {
 		.then(function(fullName){
 			  var subset = _.find(self.subsets, {name:name});
 			  subset.conditionSet = fullName;
-		      })
-		.otherwise(showError);
+			  rpcPush(self.subsets, self.subsets_v);
+		      });
 	}
 
 	function exportDSelect(conditionSet, dataset, name) {
@@ -242,6 +249,38 @@ function(lodash, jquery, Context, d3, when) {
 		.otherwise(showError);
 	};
 
+
+	function onChange(so) {
+	    self.subsets = so[0];
+	    self.subsets_v = so[1];
+
+	    hub.publish("subset_change", _.clone(self.subsets));
+	    update();
+	}
+
+	function rpcPush(subsets, subsets_v) {
+	    var deferred = when.defer();
+
+	    rpc.call("SharedObjectSrv.push", ["subsets", subsets, subsets_v])
+		.then(function(res){
+		    var conflict = res[0],
+			newVersion = res[1];
+		    if (conflict) {
+			rpc.call("SharedObjectSrv.pull", ["subsets"])
+			    .then(function(so) {
+				self.subsets = so[0];
+				self.subsets_v = so[1];
+
+				deferred.reject();
+			    });
+		    }
+		    else {			
+			deferred.resolve(subsets);
+		    }
+		});
+
+	    return deferred.promise;
+	}
 
     }
     

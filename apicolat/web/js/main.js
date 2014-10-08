@@ -18,7 +18,7 @@ require.config({
     }
 });
 
-function showError(err) { console.error(gerr, err.stack); }
+function showError(err) { console.error(err, err.stack); }
 
 requirejs(['context'],
 function(Context) {
@@ -62,8 +62,34 @@ function($, _, when, bootstrap, Context, d3) {
 
     var quantitative_attrs = ["feret", "area", "volume"];
 
+    var definition_dselect = null;
+    var subsets = null;
+    var subsets_v = null;
+    var subsetsName = null;
+
 //    rpc.call('init', []).then(function(){hub.clear();}).then(function() {
-    rpc.call('init', []).then(function() {
+    rpc.call('init', [])
+    .then(function(){
+    // ========================================
+    //     Indyva Objects Creation
+    // ========================================    
+
+	definition_dselect = "definition_dselect"; // Already created in the kernel
+	subsetsName = "subsets";
+
+	var subsetsData = [{name:'new_subset', active:true, conditionSet: definition_dselect}];	
+	var promise = rpc.call("SharedObjectSrv.new_shared_object", [subsetsName, subsetsData])
+	    .then(function(name){return rpc.call("SharedObjectSrv.pull", [name]);})
+	    .then(function(so){ 
+		subsets = so[0];
+		subsets_v = so[1];
+	    });
+	return promise;
+    })
+    .then(function() {
+    // ========================================
+    //     GUI Creation
+    // ========================================    
 
     
     // ----------------------------------------
@@ -75,16 +101,12 @@ function($, _, when, bootstrap, Context, d3) {
     // ----------------------------------------
     //     Dynamics
     // ----------------------------------------
-    var definition_dselect = "definition_dselect"; // Already created in the kernel
-    var definition_dfilter = "definition_dfilter"; // Already created in the kernel
 
     // ----------------------------------------
     //     Subset Menu
     // ----------------------------------------
-    var subsets = [{name:'unnamed', active:true, conditionSet: definition_dselect}];
     var SubsetMenu = require("subsetMenu");
-    var subsetMenu = new SubsetMenu("#subset-add","#subset-list", subsets, "synapses");
-
+    var subsetMenu = new SubsetMenu("#subset-add","#subset-list", subsetsName, "synapses");
 
     // ----------------------------------------
     //     Treemap
@@ -156,13 +178,18 @@ function($, _, when, bootstrap, Context, d3) {
     var lineDistributionsView = null;
     hub.subscribe('main-bar-change', function(topic, msg) {
 	if (msg.active === 'compare' && lineDistributionsView === null) {
-	    lineDistributionsView = new LineDistributionsView("#compare-view", compareChoices, subsets, "synapses");
+	    lineDistributionsView = new LineDistributionsView("#compare-view", compareChoices, subsetMenu.subsets, "synapses");
 
 	    hub.subscribe('compare', function(topic, msg) {
 		console.log('COMPAREEEEEEE');
 		lineDistributionsView.setCompareChoices(msg);
 		lineDistributionsView.refresh();
 		});
+
+	    hub.subscribe('subset_change', function(topic, msg){
+		lineDistributionsView.subsets = msg;
+	    });
+
 	}
 	});
     // ----------------------------------------
@@ -175,6 +202,9 @@ function($, _, when, bootstrap, Context, d3) {
 		statsComparison.refresh();
 		});
     
+    hub.subscribe('subset_change', function(topic, msg){
+	statsComparison.subsets = msg;
+    });
 
 
     });

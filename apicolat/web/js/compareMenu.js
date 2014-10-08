@@ -52,14 +52,14 @@ function(lodash, jquery, Context, d3, when) {
 	    optionAttr.exit().remove();
 
 	    var optionSubset1 = self.container.select('select.subset1').selectAll('option')
-		    .data(subsets, function(d){return d.name;});
+		    .data(self.subsets, function(d){return d.name;});
 	    optionSubset1.enter()
 		.append('option');
 	    optionSubset1.text(function(d){return d.name;});
 	    optionSubset1.exit().remove();
 	    
 	    var optionSubset2 = self.container.select('select.subset2').selectAll('option')
-		    .data(subsets, function(d){return d.name;});
+		    .data(self.subsets, function(d){return d.name;});
 	    optionSubset2.enter()
 		.append('option');
 	    optionSubset2.text(function(d){return d.name;});
