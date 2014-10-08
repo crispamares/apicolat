@@ -90,7 +90,6 @@ function($, _, when, bootstrap, Context, d3) {
     // ========================================
     //     GUI Creation
     // ========================================    
-
     
     // ----------------------------------------
     //     Main Bar
@@ -107,6 +106,11 @@ function($, _, when, bootstrap, Context, d3) {
     // ----------------------------------------
     var SubsetMenu = require("subsetMenu");
     var subsetMenu = new SubsetMenu("#subset-add","#subset-list", subsetsName, "synapses");
+
+    hub.subscribe("analysis_load", function(){
+	subsetMenu.pull(subsetsName)
+	    .done(subsetMenu.publishActive);
+    });
 
     // ----------------------------------------
     //     Treemap

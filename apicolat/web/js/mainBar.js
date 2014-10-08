@@ -1,5 +1,5 @@
-define(['lodash','context', 'd3', 'FileSaver'],
-function(lodash, Context, d3, saveAs) {
+define(['lodash','context', 'd3', 'FileSaver', 'when'],
+function(lodash, Context, d3, saveAs, when) {
 
     var context = Context.instance();
     var rpc = context.rpc;
@@ -58,13 +58,16 @@ function(lodash, Context, d3, saveAs) {
 	    var files = event.target.files;
 	    var reader = new FileReader();
 	    reader.readAsText(files[0]);
+	    event.target.value = ""; // So same file rise onChange
 
 	    reader.onload = function() {
 		var grammar = JSON.parse(this.result);
 		    
-	    rpc.call("DynSelectSrv.clear", []);
+	    when.join(rpc.call("DynSelectSrv.clear", []), rpc.call("SharedObjectSrv.clear", []))
+		.then(function(){ return rpc.call("GrammarSrv.build", [grammar, ['synapses']]); })
+		.done(function(){ 
+		    hub.publish("analysis_load", null);} );
 
-	    rpc.call("GrammarSrv.build", [grammar, ['synapses']]);
 	    };
 	    
 	};
@@ -72,16 +75,22 @@ function(lodash, Context, d3, saveAs) {
 	this.saveFile = function() {
 
 	    rpc.call("GrammarSrv.new_root", ['root'])
-		.then(function(){ rpc.call("GrammarSrv.add_dataset", ['root', 'synapses']);})
-		.then(function(){ return rpc.call("DynSelectSrv.get_conditions", ['definition_dselect']);})
-		.then(function(conditions){ rpc.call("GrammarSrv.add_condition", ['root', conditions]);})
-		.then(function(){ rpc.call("GrammarSrv.add_dynamic", ['root', 'definition_dselect']);})
+		.then(function(){ rpc.call("GrammarSrv.add_dataset", ['root', ['synapses', 'subsets']]);})
+		.then(function(){ return rpc.call("SharedObjectSrv.pull", ['subsets']);})
+		.then(function(subsets){ 
+		    return when.map(subsets[0], 
+			function(subset) {
+			    return rpc.call("DynSelectSrv.get_conditions", [subset.conditionSet])
+				.then(function(conditions){ rpc.call("GrammarSrv.add_condition", ['root', conditions]);})
+				.then(function(){ rpc.call("GrammarSrv.add_dynamic", ['root', subset.conditionSet]);});
+			});
+		})
 		.then(function(){ return rpc.call("GrammarSrv.grammar", ['root']);})
 		.then(function(grammar){ 
 		    var blob = new Blob([JSON.stringify(grammar)], {type: "text/plain;charset=utf-8"});
 		    saveAs(blob, "analysis.json");
 		})
-		.then(function() { rpc.call("GrammarSrv.del_root", ['root']);});
+		.done(function() { rpc.call("GrammarSrv.del_root", ['root']);});
 
 	};
 

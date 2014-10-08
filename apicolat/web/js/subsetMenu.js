@@ -102,6 +102,15 @@ function(lodash, jquery, Context, d3, when) {
 //	    update();
 	}
 
+
+	this.publishActive = function publishActive() {
+	    _.forEach(self.subsets, function(subset) {
+			  if (subset.active) {
+			      hub.publish("active_subset_change", _.clone(subset));
+			  }
+		      });
+	};
+
 	function rename(name) {
 	    var deferred = when.defer();
 	    var subset = _.find(self.subsets, {name:name});
@@ -249,6 +258,13 @@ function(lodash, jquery, Context, d3, when) {
 		.otherwise(showError);
 	};
 
+
+
+
+	this.pull = function pull(name) {
+	    return rpc.call("SharedObjectSrv.pull", [name])
+		.then(onChange);
+	};
 
 	function onChange(so) {
 	    self.subsets = so[0];
