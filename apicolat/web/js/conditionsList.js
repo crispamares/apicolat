@@ -57,9 +57,11 @@ function(lodash, jquery, Context, d3, when, CategoricalSelector, RangeSelector) 
 
     ConditionsList.prototype.setConditionSet = function(conditionSet) {
 	hub.unsubscribe(this.conditionSet+':change', this.onConditionSetChange, this);
+	hub.unsubscribe(this.conditionSet+':remove', this.onConditionSetChange, this);
 
 	this.conditionSet = conditionSet;
 	hub.subscribe(conditionSet+':change', this.onConditionSetChange, this);
+	hub.subscribe(conditionSet+':remove', this.onConditionSetChange, this);
 	this._rpcGrammar(conditionSet);
     };
 
