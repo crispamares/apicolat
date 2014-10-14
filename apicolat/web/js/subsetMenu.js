@@ -251,7 +251,7 @@ function(lodash, jquery, Context, d3, when) {
 
 	    rpc.call('export_dselect', [conditionSet, dataset, name])
 		.then(function(d){ 
-			  var path = window.location.hostname + window.location.pathname + d;
+			  var path = window.location.host + window.location.pathname + d;
 			  renameModal.html(_.template(modalTemplate, {path:path}));
 			  $('#export-subset-modal').modal('show');
 		      })
