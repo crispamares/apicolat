@@ -22,7 +22,8 @@ function showError(err) { console.error(err, err.stack); }
 
 requirejs(['context'],
 function(Context) {
-    var context = Context.instance();
+    var context = new Context(window.location.hostname, 'ws', 19000);
+    context.install();
     var session = 's'+String(Math.round((Math.random()*100000)));
     context.openSession(session);
 
