@@ -12,6 +12,7 @@ from __init__ import ROOT
 from indyva.dataset.table import Table
 from indyva.dataset.schemas import TableSchema, AttributeSchema
 
+
 def create_synapses_schema():
     schema = TableSchema({},index='synapse_id')
     schema.add_attribute('synapse_id', 
@@ -31,10 +32,14 @@ def create_synapses_schema():
 
     return schema
 
-def init_synapses_table():
-    with open(os.path.join(os.path.dirname(ROOT), 'data', 'synapses.json')) as f:
+
+def init_table(dataset, schema_desc):
+    with open(os.path.join(os.path.dirname(ROOT), 'data', dataset + '.json')) as f:
         rows = json.load(f)
-    table = Table(name='synapses', schema=create_synapses_schema())
+    with open(os.path.join(os.path.dirname(ROOT), 'data', schema_desc + '.json')) as f:
+        schema = json.load(f)
+
+    table = Table(name=dataset, schema=schema)
     for d in rows:
         table.insert(d)
     return table

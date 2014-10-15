@@ -7,10 +7,9 @@ Created on 11/12/2013
 
 
 from indyva.app import App as MetaApp
-from data_adquisition import init_synapses_table
+from data_adquisition import init_table
 from indyva.facade.front import ContextFreeFront, Front
 from indyva.dynamics.dselect import DynSelect
-from indyva.dynamics.dfilter import DynFilter
 import xlsx_exporter
 
 import logbook
@@ -27,9 +26,9 @@ class App(MetaApp):
         '''
         This method loads the data in a table
         '''
-        synapses_table = init_synapses_table()
-        definition_dselect = DynSelect('definition_dselect', synapses_table, setop='AND')
-        Front.instance().get_method('TableSrv.expose_table')(synapses_table)
+        table = init_table('synapses', 'schema')
+        definition_dselect = DynSelect('definition_dselect', table, setop='AND')
+        Front.instance().get_method('TableSrv.expose_table')(table)
         Front.instance().get_method('DynSelectSrv.expose_dselect')(definition_dselect)
 
         xlsx_exporter.expose_methods()
