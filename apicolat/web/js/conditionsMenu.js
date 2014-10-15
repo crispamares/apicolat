@@ -10,7 +10,7 @@ function(lodash, jquery, Context, d3, when) {
 	this.conditionSet = conditionSet;
 	this.schema = schema;
 
-	this.attributes = attributes || _.keys(schema.attributes);
+	this.attributes = attributes || _(schema.attributes).keys().sort().value();
 	this.service = service || 'DynSelectSrv';
 
 	var template = _.template('	  <div class="col-sm-12">'

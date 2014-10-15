@@ -5,9 +5,11 @@ function(lodash, Context, d3, saveAs, when) {
     var rpc = context.rpc;
     var hub = context.hub;
 
-    function MainBar(container) {
+    function MainBar(container, table, subsets) {
 	var self = this;
 	this.container = d3.select(container);
+	this.table = table;
+	this.subsets = subsets;
 	var template = _.template('<nav class="navbar navbar-default" role="navigation">'
 				  + '   <div class="container-fluid">'
 				  + '	  <div class="navbar-header">'
@@ -64,7 +66,7 @@ function(lodash, Context, d3, saveAs, when) {
 		var grammar = JSON.parse(this.result);
 		    
 	    when.join(rpc.call("DynSelectSrv.clear", []), rpc.call("SharedObjectSrv.clear", []))
-		.then(function(){ return rpc.call("GrammarSrv.build", [grammar, ['synapses']]); })
+		.then(function(){ return rpc.call("GrammarSrv.build", [grammar, [self.table]]); })
 		.done(function(){ 
 		    hub.publish("analysis_load", null);} );
 
@@ -75,8 +77,8 @@ function(lodash, Context, d3, saveAs, when) {
 	this.saveFile = function() {
 
 	    rpc.call("GrammarSrv.new_root", ['root'])
-		.then(function(){ rpc.call("GrammarSrv.add_dataset", ['root', ['synapses', 'subsets']]);})
-		.then(function(){ return rpc.call("SharedObjectSrv.pull", ['subsets']);})
+		.then(function(){ rpc.call("GrammarSrv.add_dataset", ['root', [self.table, self.subsets]]);})
+		.then(function(){ return rpc.call("SharedObjectSrv.pull", [self.subsets]);})
 		.then(function(subsets){ 
 		    return when.map(subsets[0], 
 			function(subset) {
@@ -88,7 +90,7 @@ function(lodash, Context, d3, saveAs, when) {
 		.then(function(){ return rpc.call("GrammarSrv.grammar", ['root']);})
 		.then(function(grammar){ 
 		    var blob = new Blob([JSON.stringify(grammar)], {type: "text/plain;charset=utf-8"});
-		    saveAs(blob, "analysis.json");
+		    saveAs(blob, self.table+"-analysis.json");
 		})
 		.done(function() { rpc.call("GrammarSrv.del_root", ['root']);});
 

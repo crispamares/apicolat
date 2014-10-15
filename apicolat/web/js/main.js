@@ -61,20 +61,31 @@ function($, _, when, bootstrap, Context, d3) {
     var rpc = context.rpc;
     var hub = context.hub;
 
-    var quantitative_attrs = ["feret", "area", "volume"];
+//  var quantitative_attrs = ["feret", "area", "volume"];
+    var quantitative_attrs = null;
 
+    var table = null;
+    var schema = null;
     var definition_dselect = null;
     var subsets = null;
     var subsets_v = null;
     var subsetsName = null;
 
-//    rpc.call('init', []).then(function(){hub.clear();}).then(function() {
     rpc.call('init', [])
-    .then(function(){
+    .then(function(names){
+	table = names["table"];
+	return rpc.call("TableSrv.schema", [table]);
+    }) 
+    .then(function(_schema){
     // ========================================
     //     Indyva Objects Creation
     // ========================================    
+	schema = _schema;
+	schema.attributes = _.mapValues(schema.attributes, function(v,k){v.name = k; return v;});
 
+	po = schema.attributes;
+
+	quantitative_attrs = getQuantitativeAttrs(schema);
 	definition_dselect = "definition_dselect"; // Already created in the kernel
 	subsetsName = "subsets";
 
@@ -96,7 +107,7 @@ function($, _, when, bootstrap, Context, d3) {
     //     Main Bar
     // ----------------------------------------
     var MainBar = require("mainBar");
-    var mainBar = new MainBar("#main-bar>div");
+    var mainBar = new MainBar("#main-bar>div", table, subsetsName);
 
     // ----------------------------------------
     //     Dynamics
@@ -106,7 +117,7 @@ function($, _, when, bootstrap, Context, d3) {
     //     Subset Menu
     // ----------------------------------------
     var SubsetMenu = require("subsetMenu");
-    var subsetMenu = new SubsetMenu("#subset-add","#subset-list", subsetsName, "synapses");
+    var subsetMenu = new SubsetMenu("#subset-add","#subset-list", subsetsName, table);
 
     hub.subscribe("analysis_load", function(){
 	subsetMenu.pull(subsetsName)
@@ -142,10 +153,11 @@ function($, _, when, bootstrap, Context, d3) {
     // ----------------------------------------
     //     CategoricalMenu and List
     // ----------------------------------------    
-    var conditionsMenu = createCoditionsMenu(definition_dselect);
-    var ConditionsList = require("conditionsList");
-    var conditionsList = new ConditionsList('#conditions-list', definition_dselect);    
+    var ConditionsMenu = require("conditionsMenu");
+    var conditionsMenu = new ConditionsMenu('#conditions-menu', definition_dselect, schema);
 
+    var ConditionsList = require("conditionsList");
+    var conditionsList = new ConditionsList('#conditions-list', definition_dselect);
 
     hub.subscribe('active_subset_change', changeDselect);
     hub.subscribe('subset_change', changeSubsets);
@@ -174,7 +186,7 @@ function($, _, when, bootstrap, Context, d3) {
     //     Compare Menu
     // ----------------------------------------
     var CompareMenu = require("compareMenu");
-    var compareMenu = new CompareMenu("#compare-bar", getSchema(), subsets, "synapses");
+    var compareMenu = new CompareMenu("#compare-bar", schema, subsets, table);
     var compareChoices = compareMenu.getChoices();
     // ----------------------------------------
     //     LineDistributions View
@@ -183,7 +195,7 @@ function($, _, when, bootstrap, Context, d3) {
     var lineDistributionsView = null;
     hub.subscribe('main-bar-change', function(topic, msg) {
 	if (msg.active === 'compare' && lineDistributionsView === null) {
-	    lineDistributionsView = new LineDistributionsView("#compare-view", compareChoices, subsetMenu.subsets, "synapses");
+	    lineDistributionsView = new LineDistributionsView("#compare-view", compareChoices, subsetMenu.subsets, table);
 
 	    hub.subscribe('compare', function(topic, msg) {
 		console.log('COMPAREEEEEEE');
@@ -201,7 +213,7 @@ function($, _, when, bootstrap, Context, d3) {
     //     Comparison Stats 
     // ----------------------------------------
     var StatsComparison = require("statsComparison");
-    var statsComparison = new StatsComparison("#compare-stats", compareChoices, subsets, "synapses");
+    var statsComparison = new StatsComparison("#compare-stats", compareChoices, subsets, table);
     hub.subscribe('compare', function(topic, msg) {
 		statsComparison.setCompareChoices(msg);
 		statsComparison.refresh();
@@ -215,20 +227,11 @@ function($, _, when, bootstrap, Context, d3) {
     });
     // =============================================================
 
-    function createCoditionsMenu(dselect, attributes) {
-	var ConditionsMenu = require("conditionsMenu");
-	
-	var schema = getSchema();
-	var conditionsMenu = new ConditionsMenu('#conditions-menu', dselect, schema);
-	return conditionsMenu;
-    }
-
-
     function drawTreemap(view, column) {
 	when.map( groupBySpine(column),
 		  function(pipeline) {
 		      console.log( JSON.stringify(pipeline));
-		      return rpc.call('TableSrv.aggregate', ["synapses", pipeline]);})
+		      return rpc.call('TableSrv.aggregate', [table, pipeline]);})
 	    .then(
 		function(views) {
 		    console.log('views', views);
@@ -271,14 +274,10 @@ function($, _, when, bootstrap, Context, d3) {
 
 });
 
-
-
-    function getSchema() {
-	//TODO: Add schema property to table_service
-	var schema = {"dataset_type": "TABLE", "index": "synapse_id", "attributes": {"synapse_id": {"attribute_type": "CATEGORICAL", "spatial": false, "key": true, "shape": [], "continuous": false, "multivaluated": false}, "dendrite_type": {"attribute_type": "CATEGORICAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "cell": {"attribute_type": "CATEGORICAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "section": {"attribute_type": "ORDINAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "section10um": {"attribute_type": "CATEGORICAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "source": {"attribute_type": "CATEGORICAL", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "area": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "volume": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "feret": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "dist_section": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [], "continuous": false, "multivaluated": false}, "centroid": {"attribute_type": "QUANTITATIVE", "spatial": false, "key": false, "shape": [3], "continuous": false, "multivaluated": false}}};
-	schema.attributes = _.mapValues(schema.attributes, function(v,k){v.name = k; return v;});
-	return schema;
+    function getQuantitativeAttrs(schema) {
+	var attrs = _.pick(schema.attributes, function(value, key) {
+	    return value.attribute_type === "QUANTITATIVE" && ! value.shape.length;
+	});
+	return _(attrs).keys().sort().value();
     }
-
-
 

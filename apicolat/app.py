@@ -26,12 +26,15 @@ class App(MetaApp):
         '''
         This method loads the data in a table
         '''
-        table = init_table('synapses', 'schema')
+        table_name = 'synapses'
+        table = init_table(table_name, 'schema')
         definition_dselect = DynSelect('definition_dselect', table, setop='AND')
         Front.instance().get_method('TableSrv.expose_table')(table)
         Front.instance().get_method('DynSelectSrv.expose_dselect')(definition_dselect)
 
         xlsx_exporter.expose_methods()
+
+        return {'table':table_name}
 
 
 def main():
