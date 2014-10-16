@@ -1,0 +1,7 @@
+{
+    "app": "apicolat",
+    "dataset": {
+	"name": "synapses",
+	"url": ["synapses.json"]
+    }
+}
