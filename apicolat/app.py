@@ -26,7 +26,7 @@ class App(MetaApp):
         '''
         This method loads the data in a table
         '''
-        table_name = 'synapses'
+        table_name = 'spines'
         table = init_table(table_name, 'schema')
         definition_dselect = DynSelect('definition_dselect', table, setop='AND')
         Front.instance().get_method('TableSrv.expose_table')(table)

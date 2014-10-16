@@ -253,7 +253,7 @@ function($, _, when, bootstrap, Context, d3) {
     // =============================================================
 
     function drawTreemap(view, column) {
-	when.map( groupBySpine(column),
+	when.map( groupBy(column),
 		  function(pipeline) {
 		      console.log( JSON.stringify(pipeline));
 		      return rpc.call('TableSrv.aggregate', [table, pipeline]);})
@@ -265,10 +265,10 @@ function($, _, when, bootstrap, Context, d3) {
 	    .then(
 		function (sizes) {
 		    var data = {
-			name: "feret",
+			name: "sizes",
 			children: [
 			    {name: "apical", children: sizes[0] },
-			    {name: "colateral", children: sizes[1] }
+			    {name: "basal", children: sizes[1] }
 			]};
 		    view.setData(data);
 		    console.log(data);
@@ -277,24 +277,24 @@ function($, _, when, bootstrap, Context, d3) {
 	    .otherwise(showError);    
     }
 
-    function groupBySpine(column) {
+    function groupBy(column) {
 	column = column || 'feret';
 
-	var project1 = {$project: {dendrite_type:1, cell: 1, synapse_id:1}};
+	var project1 = {$project: {dendrite_type:1, dendrite_id: 1, spine_id:1}};
 	project1.$project[column] = 1;
 
-	var group = {$group : {_id: "$cell", 
-			       children: {$addToSet: {name: "$synapse_id", size:'$'+column}} }};
+	var group = {$group : {_id: "$dendrite_id", 
+			       children: {$addToSet: {name: "$spine_id", size:'$'+column}} }};
 
 	var apical_pipeline = [{$match: {dendrite_type:"apical"}} ,
 			       project1,
 			       group,
 			       {$project : { name: "$_id", children:1 , _id: 0}}];
 
-	var colateral_pipeline = apical_pipeline.slice();
-	colateral_pipeline[0] = {$match: {dendrite_type:"colateral"}};
+	var basal_pipeline = apical_pipeline.slice();
+	basal_pipeline[0] = {$match: {dendrite_type:"basal"}};
 
-	return [ apical_pipeline, colateral_pipeline];
+	return [ apical_pipeline, basal_pipeline];
     }
 
 });
