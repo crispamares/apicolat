@@ -83,8 +83,6 @@ function($, _, when, bootstrap, Context, d3) {
 	schema = _schema;
 	schema.attributes = _.mapValues(schema.attributes, function(v,k){v.name = k; return v;});
 
-	po = schema.attributes;
-
 	quantitative_attrs = getQuantitativeAttrs(schema);
 	definition_dselect = "definition_dselect"; // Already created in the kernel
 	subsetsName = "subsets";
