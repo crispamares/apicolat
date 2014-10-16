@@ -45,6 +45,13 @@ function(lodash, jquery, Context, d3, when) {
 	    .selectAll('option').data(self.attributes, _.identity);
 	option.enter()
 	    .append('option')
+	    .classed('hidden', function(d){
+		    var attr = self.schema.attributes[d];
+		    console.log(attr);
+		    return (attr.shape.length > 0 
+			    || _.indexOf(['CATEGORICAL', 'QUANTITATIVE'], 
+				      attr.attribute_type) === -1);
+	    })
 	    .text(_.identity);
 
 	option.exit()
