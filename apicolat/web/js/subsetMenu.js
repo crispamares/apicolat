@@ -13,6 +13,8 @@ function(lodash, jquery, Context, d3, when) {
 	this.subsets_v = null;
 	this.dataset = dataset;
 
+	this.counter = 0;
+
 	d3.select(addContainer)
 	  .append('button')
 	    .attr('class', "btn btn-default")
@@ -29,7 +31,7 @@ function(lodash, jquery, Context, d3, when) {
 				  '           <span class="caret"></span>' +
 				  '	    </button>' +
 				  '	    <ul class="dropdown-menu" role="menu">' +
-				  '	      <li><a href="#" class="use-this">Use this</a></li>' +
+//				  '	      <li><a href="#" class="use-this">Use this</a></li>' +
 				  '	      <li><a href="#" class="rename">Rename</a></li>' +
 				  '	      <li><a href="#" class="export">Export</a></li>' +
 //				  '	      <li><a href="#" class="duplicate">Duplicate</a></li>' +
@@ -98,8 +100,7 @@ function(lodash, jquery, Context, d3, when) {
 	    if (hasChanged) {
 		hub.publish("active_subset_change", _.clone(activated));		
 	    }
-	    rpcPush(self.subsets, self.subsets_v);
-//	    update();
+	    return rpcPush(self.subsets, self.subsets_v);
 	}
 
 
@@ -195,7 +196,7 @@ function(lodash, jquery, Context, d3, when) {
 	    copy.name = subset.name + "_copy";
 	    copy.active = false;
 	    self.subsets.push(copy);
-	    rpcPush(self.subsets, self.subsets_v);
+	    return rpcPush(self.subsets, self.subsets_v);
 	}
 
 	function remove(name) {
@@ -210,22 +211,19 @@ function(lodash, jquery, Context, d3, when) {
 	}
 
 	function createSubset() {
-	    var subset = {name:'The new one'};
+	    var subset = {name:'new_subset-'+(++self.counter)};
 	    self.subsets.push(subset);
-	    rename(subset.name)
-		.then(function(name){
-		    createDSelect(subset.name, self.dataset);
-		})
-		.otherwise(function(){remove(subset.name);});
-	    update();
+	    createDSelect(subset.name, self.dataset)
+		.then(function(){activate(subset.name);})
+		.done(update);
 	}
 
 	function createDSelect(name, dataset) {
-	    rpc.call('DynSelectSrv.new_dselect', [name, dataset, 'AND'])
+	    return rpc.call('DynSelectSrv.new_dselect', [name, dataset, 'AND'])
 		.then(function(fullName){
 			  var subset = _.find(self.subsets, {name:name});
 			  subset.conditionSet = fullName;
-			  rpcPush(self.subsets, self.subsets_v);
+			  return rpcPush(self.subsets, self.subsets_v);
 		      });
 	}
 
@@ -281,6 +279,7 @@ function(lodash, jquery, Context, d3, when) {
 		.then(function(res){
 		    var conflict = res[0],
 			newVersion = res[1];
+		    self.subsets_v = newVersion;
 		    if (conflict) {
 			rpc.call("SharedObjectSrv.pull", ["subsets"])
 			    .then(function(so) {
