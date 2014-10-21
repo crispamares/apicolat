@@ -77,8 +77,12 @@ function(lodash, Context, d3, when) {
 	function drawKdePlot(cell, dataset, attr, conditionSet) {
 	    
 	    return rpc.call('kde_plot', [dataset, attr, conditionSet])
-		.then(function(svg) {
-		    d3.select(cell).html(svg);
+		.then(function(png) {
+		    d3.select(cell).html('');
+		    var img = d3.select(cell).selectAll('img')
+			.data([0])
+			.enter().append('img');
+		    img.attr('src', 'data:image/png;base64,'+png);
 		});
 
 	}
