@@ -77,9 +77,9 @@ function(lodash, jquery, Context, d3, when, MenuButton) {
 	var self = this;
 //	console.log('updating', this.name, JSON.stringify(this.items));
 
-
+	var data_items = _(this.items).values().sortBy('name').value();
 	var label = this.container.select("#categorical-selector-"+this.name)
-	    .select('form').selectAll('label').data(_.values(this.items), function(d){return d.name;});
+	    .select('form').selectAll('label').data(data_items, function(d){return d.name;});
 	label.enter()
 	    .append('label')
 	    .attr("class", "checkbox-inline")
