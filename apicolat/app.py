@@ -11,7 +11,7 @@ from data_adquisition import init_table
 from indyva.facade.front import ContextFreeFront, Front
 from indyva.dynamics.dselect import DynSelect
 import xlsx_exporter
-
+import dist_vis
 import logbook
 logbook.default_handler.level = logbook.DEBUG
 
@@ -33,8 +33,9 @@ class App(MetaApp):
         Front.instance().get_method('DynSelectSrv.expose_dselect')(definition_dselect)
 
         xlsx_exporter.expose_methods()
+        dist_vis.expose_methods()
 
-        return {'table':table_name}
+        return {'table': table_name}
 
 
 def main():

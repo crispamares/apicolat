@@ -18,7 +18,7 @@ function(lodash, Context, d3, saveAs, when) {
 				  + '	  <ul class="nav navbar-nav">'
 				  + '	    <li class="active groups-definition"><a href="#">Define Groups</a></li>'
 				  + '	    <li class="compare"><a href="#">Compare</a></li>'
-//				  + '	    <li class="export"><a href="#">Export</a></li>'
+				  + '	    <li class="dist-compare"><a href="#">DistCompare</a></li>'
 				  + '	  </ul>'
 				  + '     <ul class="nav navbar-nav navbar-right">'
 				  + '	      <li class="dropdown">'
@@ -36,7 +36,7 @@ function(lodash, Context, d3, saveAs, when) {
 
 	var divGroupsDefinition = d3.select('#groups-definition');
 	var divCompare = d3.select('#compare');
-	var divExport = d3.select('#export');
+	var divDistCompare = d3.select('#dist-compare');
 
 	this.container.select('li.groups-definition')
 	    .on('click',function(){self.activeGroupsDefinition();});
@@ -44,8 +44,8 @@ function(lodash, Context, d3, saveAs, when) {
 	this.container.select('li.compare')
 	    .on('click',function(){self.activeCompare();});
 
-	this.container.select('li.export')
-	    .on('click',function(){self.activeExport();});
+	this.container.select('li.dist-compare')
+	    .on('click',function(){self.activeDistCompare();});
 
 	this.container.select('a.menu-open-file')
 	    .on('click',function(){self.container.select("input.open-file")
@@ -103,7 +103,7 @@ function(lodash, Context, d3, saveAs, when) {
 	    li.classed('active', true);
 	    divGroupsDefinition.classed({show:true, hidden:false});
 	    divCompare.classed({show:false, hidden:true});
-	    divExport.classed({show:false, hidden:true});	    
+	    divDistCompare.classed({show:false, hidden:true});	    
 
 	    hub.publish('main-bar-change', {active: 'groups-definition'});
 	};
@@ -113,19 +113,19 @@ function(lodash, Context, d3, saveAs, when) {
 	    li.classed('active', true);
 	    divGroupsDefinition.classed({show:false, hidden:true});
 	    divCompare.classed({show:true, hidden:false});
-	    divExport.classed({show:false, hidden:true});
+	    divDistCompare.classed({show:false, hidden:true});
 
 	    hub.publish('main-bar-change', {active: 'compare'});
 	};
-	this.activeExport = function() {
-	    var li = self.container.select('li.export');
+	this.activeDistCompare = function() {
+	    var li = self.container.select('li.dist-compare');
 	    self.container.selectAll('li').classed('active', false);
 	    li.classed('active', true);
 	    divGroupsDefinition.classed({show:false, hidden:true});
 	    divCompare.classed({show:false, hidden:true});
-	    divExport.classed({show:true, hidden:false});
+	    divDistCompare.classed({show:true, hidden:false});
 
-	    hub.publish('main-bar-change', {active: 'export'});
+	    hub.publish('main-bar-change', {active: 'dist-compare'});
 	};
 
 	

@@ -51,7 +51,8 @@ requirejs(['jquery',
 	   'pointError',
 	   'facetedDistributionsView',
 	   'lineDistributionsView',
-	   'statsComparison'
+	   'statsComparison',
+	   'distCompareView'
 ], 
 
 function($, _, when, bootstrap, Context, d3) {
@@ -179,7 +180,7 @@ function($, _, when, bootstrap, Context, d3) {
     /**
      * Only in development
      */
-//    mainBar.activeCompare();
+    mainBar.activeDistCompare();
     // ----------------------------------------
     //     Compare Menu
     // ----------------------------------------
@@ -216,9 +217,19 @@ function($, _, when, bootstrap, Context, d3) {
 		statsComparison.setCompareChoices(msg);
 		statsComparison.refresh();
 		});
-    
+
+    var DistCompareView = require("distCompareView");
+    var distCompareView = new DistCompareView("#dist-compare-view", schema, subsets, table);
+
     hub.subscribe('subset_change', function(topic, msg){
 	statsComparison.subsets = msg;
+	distCompareView.subsets = msg;
+    });
+
+    hub.subscribe('main-bar-change', function(topic, msg) {
+	if (msg.active === 'dist-compare') {
+	    distCompareView.update();
+	}
     });
 
 
