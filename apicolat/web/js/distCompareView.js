@@ -16,9 +16,9 @@ function(lodash, Context, d3, when) {
 	this.categorical_attrs = _.filter(schema.attributes, {attribute_type:'CATEGORICAL'});
 
 
-      var template = '' +
+	var template = '' +
 	      '<div class="table-responsive">' +
-		'<table class="table table-hover">' +
+		'<table class="table table-bordered">' +
 		  '<thead>' +
 		  '</thead>' +
 		  '<tbody>' +
@@ -55,11 +55,18 @@ function(lodash, Context, d3, when) {
 	    var tbody_td =  tbody_tr.selectAll('td')
 		.data(function(d){return d.attrs;}, function(d){return d.name;});
 	    tbody_td.enter().append('td');
-	    tbody_td.text(function(d){return d.name;})
-		.each(function(d) {
-		    if (! d.isAttr) return;
-		    
-		    drawKdePlot(this, self.dataset, d.name, d.subset.conditionSet);
+	    tbody_td.each(function(d) {
+		    var cell = this;
+		    if (! d.isAttr) {
+			this.textContent = d.name;
+		    }
+		    else {
+			this.innerHTML = '<span class="glyphicon glyphicon-time"></span>';
+			drawKdePlot(this, self.dataset, d.name, d.subset.conditionSet)
+			    .otherwise(function(){
+				cell.innerHTML = '<span class="glyphicon glyphicon-ban-circle"></span>';
+			    });
+		    }
 		});
 	    tbody_td.exit().remove();
 
@@ -78,11 +85,15 @@ function(lodash, Context, d3, when) {
 	    
 	    return rpc.call('kde_plot', [dataset, attr, conditionSet])
 		.then(function(png) {
-		    d3.select(cell).html('');
+		    d3.select(cell).html(null);
 		    var img = d3.select(cell).selectAll('img')
 			.data([0])
 			.enter().append('img');
-		    img.attr('src', 'data:image/png;base64,'+png);
+		    img.attr('src', 'data:image/png;base64,'+png)
+			.attr('class', "img-responsive");
+		    d3.select(cell)
+			.on('mouseover', function(){img.classed("img-responsive", false);})
+			.on('mouseout', function(){img.classed("img-responsive", true);});
 		});
 
 	}
@@ -115,7 +126,7 @@ function(lodash, Context, d3, when) {
 		.then(function(tableview) {
 		    return rpc.call('TableSrv.get_data', [tableview, "c_list"]);
 		});	
-	};
+	}
 
 
     }
