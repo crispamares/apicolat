@@ -180,7 +180,7 @@ function($, _, when, bootstrap, Context, d3) {
     /**
      * Only in development
      */
-    mainBar.activeDistCompare();
+	//    mainBar.activeDistCompare();
     // ----------------------------------------
     //     Compare Menu
     // ----------------------------------------
