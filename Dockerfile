@@ -7,17 +7,14 @@ RUN apt-get update && apt-get install -y \
     python-dev \
     libzmq3-dev \ 
     r-base \
-    libblas-dev \
-    liblapack-dev \
-    gfortran \
-    libpng12-dev \
-    libfreetype6-dev \
-    libx11-dev 
+    python-pandas \
+    python-scipy \
+    python-matplotlib
     
 
-RUN pip install gevent pymongo pyzmq pandas Werkzeug \
+RUN pip install gevent pymongo pyzmq Werkzeug \
     gevent-websocket circus Logbook xlrd XlsxWriter \
-    scipy matplotlib seaborn
+    seaborn
 
 RUN rm -rf /var/lib/apt/lists/*
 

@@ -1,10 +1,15 @@
 from indyva.facade.front import Front
 from indyva.facade.showcase import Showcase
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 import seaborn as sns
 import StringIO
 import numpy as np
 import base64
-import matplotlib.pyplot as plt
+
+
+
 
 sns.set_palette("deep", desat=.6)
 sns.set_context(rc={"figure.figsize": (4, 2)})
