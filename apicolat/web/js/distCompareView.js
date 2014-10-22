@@ -1,5 +1,5 @@
-define(['lodash', 'context', 'd3', 'when', 'pointError'],
-function(lodash, Context, d3, when) {
+define(['lodash', 'context', 'd3', 'when', 'pointError', 'statsComparison'],
+function(lodash, Context, d3, when, PointError, StatsComparison) {
 
     var context = Context.instance();
     var rpc = context.rpc;
@@ -42,20 +42,24 @@ function(lodash, Context, d3, when) {
 	    var table_data = _(self.subsets).map(
 		function(subset) {
 		    var attrs = _.map(self.quantitative_attrs, function(attr) {
-			return {name: attr.name, subset:subset, isAttr: true};
+			return {name: attr.name, subset:subset, isAttr: true, isSelected: false};
 		    });
 		    return {'subset':subset.name, 'attrs': [{name:subset.name, isAttr:false}].concat(attrs)};
 		}).value();
 	    
 	    var tbody_tr = self.container.select('tbody').selectAll('tr')
 		.data(table_data, function(d){return d.subset;});
-	    tbody_tr.enter().append('tr');
 	    tbody_tr.exit().remove();	    
+	    tbody_tr.enter().append('tr');
+
 
 	    var tbody_td =  tbody_tr.selectAll('td')
 		.data(function(d){return d.attrs;}, function(d){return d.name;});
+	    tbody_td.exit().remove();
 	    tbody_td.enter().append('td');
-	    tbody_td.each(function(d) {
+	    tbody_td
+		.classed("selected", false)
+		.each(function(d) {
 		    var cell = this;
 		    if (! d.isAttr) {
 			this.textContent = d.name;
@@ -66,11 +70,93 @@ function(lodash, Context, d3, when) {
 			    .otherwise(function(){
 				cell.innerHTML = '<span class="glyphicon glyphicon-ban-circle"></span>';
 			    });
+			d3.select(this).on('click', null);
+			d3.select(this)
+			    .on('click', function(d){
+				var attr_td = tbody_td.filter(function(d){return d.isAttr;});
+				toggleSelection(this, d, attr_td);
+			});
 		    }
-		});
-	    tbody_td.exit().remove();
+	    });
 
 	};
+
+	function toggleSelection(cell, cell_d, attr_td) {
+	    var selected = cell.classList.toggle("selected");
+	    attr_td.classed("selected", function(d){return (cell_d !== d)? 
+						 false 
+						 : this.classList.contains("selected");});
+	    attr_td.selectAll('div.stats').remove();
+	    if (selected) {
+		return computeStatTest(cell_d, attr_td);
+	    }
+	    return null;
+	}
+
+	function computeStatTest(cell_d, attr_td) {
+	    var subset = cell_d.subset;
+	    var attr = cell_d.name;
+
+	    attr_td.filter(function(d){
+		    return d.name === attr && d.subset !== subset;})
+		.each(function(d){
+		    compareSubsets(attr, subset.name, d.subset.name, this);
+		});
+	}
+
+	function compareSubsets(attr, subset_name, subset2_name, cell) {
+//	    var container = d3.select().append("div").node();
+	    var container = document.createElement("div");
+	    var compareChoices = {
+		attr: attr,
+		subset1: subset_name,
+		subset2: subset2_name
+	    };
+	    var statsComparison = new StatsComparison(container, 
+						      compareChoices, 
+						      self.subsets, 
+						      self.dataset);
+
+
+	    var modalTemplate = 
+		'  <div class="modal-dialog">' +
+		'    <div class="modal-content">' +
+		'      <div class="modal-header">' +
+		'        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' +
+		'        <h4 class="modal-title">Statistical Test Results</h4>' +
+		'      </div>' +
+		'      <div class="modal-body">' +
+		'        <%= statsResults %>' +
+		'      </div>' +
+		'    </div><!-- /.modal-content -->' +
+		'  </div><!-- /.modal-dialog -->';
+	    
+	    statsComparison.refresh()
+		.then(function(){
+		    console.log('res', statsComparison.compareTwoResults);
+
+		    var stats_div = d3.select(cell).selectAll("div.stats")
+			    .data([statsComparison.compareTwoResults]);
+		    stats_div.enter().append('div').attr("class", "stats");
+		    stats_div.text(composeStatsAbstarct(subset_name, 
+							subset2_name, 
+							statsComparison.compareTwoResults));
+	    });
+	}
+
+	function composeStatsAbstarct(subset1, subset2, compareTwoResults) {
+	    var text = '';
+	    if (compareTwoResults.greater.rejected) {
+		text += subset2 + " > " + subset1;
+	    }
+	    if (compareTwoResults.less.rejected) {
+		text += subset2 + " < " + subset1;
+	    }
+	    if (! compareTwoResults['two-sided'].rejected) {
+		text += subset2 + " ~ " + subset1;
+	    }
+	    return text;
+	}
 
 	this.setSubsets =  function(subsets) {
 	    self.subsets = subsets;
@@ -97,7 +183,6 @@ function(lodash, Context, d3, when) {
 		});
 
 	}
-
 
 	function drawCell(cell, dataset, attr, conditionSet) {
 	    var pointErrorPlot = d3.pointError()
@@ -131,7 +216,6 @@ function(lodash, Context, d3, when) {
 
     }
     
-
     return DistCompareView;
 }
 );
