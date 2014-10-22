@@ -29,8 +29,7 @@ def kde_plot(dataset_name, attr, dselect_name):
     plt.figure(figsize=(6, 3))
 
     data = np.array(dataset.find(dselect.query, {attr: True}).get_data("c_list")[attr])
-    figure = sns.kdeplot(data, shade=True).figure
-    sns.rugplot(data)
+    figure = sns.distplot(data, kde=True, rug=True, hist=True, bins=20).figure
 
     plt.xlim(x_range)
 
