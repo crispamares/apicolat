@@ -38,6 +38,9 @@ function(lodash, Context, d3, saveAs, when) {
 	var divCompare = d3.select('#compare');
 	var divDistCompare = d3.select('#dist-compare');
 
+	this.container.select('a.navbar-brand')
+	    .on('click',function(){self.activeGroupsDefinition();});
+
 	this.container.select('li.groups-definition')
 	    .on('click',function(){self.activeGroupsDefinition();});
 
