@@ -64,7 +64,7 @@ function(when, d3, Context) {
 		.attr('class', 'compare-result');
 
 	    compareResults.html(function(d){
-				    d.tdClass = (d.rejected) ? 'success':'danger';
+				    d.tdClass = (d.rejected) ? 'danger':'success';
 				    return _.template(template, d);
 		      });
 
@@ -90,10 +90,9 @@ function(when, d3, Context) {
 	};
 
 	this.refresh = function() {
-	    this._computeDistributions(self.dataset, self.compareChoices)
+	    return this._computeDistributions(self.dataset, self.compareChoices)
 		.then(this._rpcCompareTwo)
-		.then(this.update)
-		.otherwise(showError);
+		.then(this.update);
 	};
 
 
@@ -145,7 +144,7 @@ function(when, d3, Context) {
 
 	    if (compareChoices.subset1 === compareChoices.subset2) {
 		self.useOnlyOne = true;
-		self._rpcGetSubsetData(dataset, c.attr, conditionSet1, c.facetAttr)
+		self._rpcGetSubsetData(dataset, c.attr, conditionSet1)
 		    .then(function(data){
 			      self.distributions = [{list: data[c.attr], dist: c.subset1}]; 
 			      deferred.resolve(self.distributions);
@@ -153,9 +152,9 @@ function(when, d3, Context) {
 	    }
 	    else {
 		self.useOnlyOne = false;
-		when.map([[dataset, c.attr, conditionSet1, c.facetAttr],
-			  [dataset, c.attr, conditionSet2, c.facetAttr]],
-			 function(v){return self._rpcGetSubsetData(v[0],v[1],v[2],v[3]);})
+		when.map([[dataset, c.attr, conditionSet1],
+			  [dataset, c.attr, conditionSet2]],
+			 function(v){return self._rpcGetSubsetData(v[0],v[1],v[2]);})
 		    .then(function(a){
 			      self.distributions = [{list: a[0][c.attr], dist: c.subset1},
 						    {list: a[1][c.attr], dist: c.subset2}]; 
@@ -166,7 +165,7 @@ function(when, d3, Context) {
 	    return deferred.promise;
 	};
 
-	this._rpcGetSubsetData = function(dataset, attr, conditionSet, facetAttr) {
+	this._rpcGetSubsetData = function(dataset, attr, conditionSet) {
 	    var tasks = [
 		function (conditionSet) {	return rpc.call('DynSelectSrv.query', conditionSet);},
 		function (query) {
