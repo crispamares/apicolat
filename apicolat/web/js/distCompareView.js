@@ -31,10 +31,10 @@ function(lodash, Context, d3, when, PointError, StatsComparison) {
 	    '    <div class="modal-content">' +
 	    '      <div class="modal-header">' +
 	    '        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' +
-	    '        <h4 class="modal-title">Statistical Test Results</h4>' +
+	    '        <h4 class="modal-title"><%= title %></h4>' +
 	    '      </div>' +
 	    '      <div class="modal-body">' +
-	    '        <%=statsResults%>' +
+	    '        <%= statsResults %>' +
 	    '      </div>' +
 	    '    </div>' +
 	    '  </div>';
@@ -42,7 +42,7 @@ function(lodash, Context, d3, when, PointError, StatsComparison) {
 	self.container.append('div')
 	    .attr("id", "stats-info-modal")
 	    .attr("class", "modal")
-	    .html(_.template(this.modalTemplate, {statsResults:"POOOO"}));
+	    .html(_.template(this.modalTemplate, {statsResults:"", title:""}));
 
 	this.update = function() {
 
@@ -53,7 +53,28 @@ function(lodash, Context, d3, when, PointError, StatsComparison) {
 	    var thead_th =  thead_tr.selectAll('th')
 		.data([{name:'#'}].concat(self.quantitative_attrs), function(d){return d.name;});
 	    thead_th.enter().append('th');
-	    thead_th.text(function(d){return d.name;});
+	    thead_th.html(function(d){return '<span>'+d.name+'</span>';})
+		.each(function(d) {
+		    if (d.name === '#') return;
+		    var button = d3.select(this).append('button')
+			.attr("class", "btn btn-link btn-sm");
+		    button.append('span')
+			.attr("class", "glyphicon glyphicon-stats");
+		    button.on('click', function() {
+			var dselects = _.pluck(self.subsets, 'conditionSet');
+			var subsetNames = _.pluck(self.subsets, 'name');
+			var node = document.createElement("div");
+			drawBoxPlot(node, self.dataset, d.name, dselects, subsetNames)
+			    .then(function(png){
+				var img = placeImg(node, png);
+				$("#stats-info-modal")
+				    .html(_.template(self.modalTemplate, {statsResults:node.innerHTML,
+									  title:d.name+" distribution"}))
+				    .modal();
+			    });
+			d3.event.stopPropagation();
+		    });
+		});
 	    thead_th.exit().remove();
 	
 	    var table_data = _(self.subsets).map(
@@ -84,7 +105,7 @@ function(lodash, Context, d3, when, PointError, StatsComparison) {
 		    }
 		    else {
 			this.innerHTML = '<span class="glyphicon glyphicon-time"></span>';
-			drawKdePlot(this, self.dataset, d.name, d.subset.conditionSet)
+			drawDistPlot(this, self.dataset, d.name, d.subset.conditionSet)
 			    .otherwise(function(){
 				cell.innerHTML = '<span class="glyphicon glyphicon-ban-circle"></span>';
 			    });
@@ -144,17 +165,18 @@ function(lodash, Context, d3, when, PointError, StatsComparison) {
 			    .data([statsComparison.compareTwoResults]);
 		    stats_div.enter().append('div').attr("class", "stats btn btn-default");
 		    stats_div
-			.append('span')
-			.attr("class", "glyphicon glyphicon-info-sign")
-			.text(composeStatsAbstarct(subset_name, 
-							subset2_name, 
-							statsComparison.compareTwoResults))
 			.on("click", function() {
 			    $("#stats-info-modal")
-				.html(_.template(self.modalTemplate, {statsResults:container.innerHTML}))
+				.html(_.template(self.modalTemplate, {statsResults:container.innerHTML,
+								      title:"Statistical Test Results"}))
 				.modal();
 			    d3.event.stopPropagation();
-			});
+			})
+			.append('span')
+			.attr("class", "glyphicon glyphicon-info-sign")
+			.text(composeStatsAbstarct(subset_name,
+							subset2_name, 
+							statsComparison.compareTwoResults));
 
 
 	    });
@@ -182,22 +204,25 @@ function(lodash, Context, d3, when, PointError, StatsComparison) {
 	this.container.append('div').html(template);
 	this.update();
 
-
-	function drawKdePlot(cell, dataset, attr, conditionSet) {
+	function drawDistPlot(cell, dataset, attr, conditionSet) {
 	    
-	    return rpc.call('kde_plot', [dataset, attr, conditionSet])
+	    return rpc.call('dist_plot', [dataset, attr, conditionSet])
 		.then(function(png) {
 		    d3.select(cell).html(null);
-		    var img = d3.select(cell).selectAll('img')
-			.data([0])
-			.enter().append('img');
-		    img.attr('src', 'data:image/png;base64,'+png)
-			.attr('class', "img-responsive");
+		    var img = placeImg(cell, png);
+		    img.attr('class', "img-responsive");
 		    d3.select(cell)
 			.on('mouseover', function(){img.classed("img-responsive", false);})
 			.on('mouseout', function(){img.classed("img-responsive", true);});
 		});
+	}
 
+	function placeImg(container, png) {
+	    var img = d3.select(container).selectAll('img')
+		    .data([0])
+		    .enter().append('img');
+	    img.attr('src', 'data:image/png;base64,'+png);
+	    return img;
 	}
 
 	function drawCell(cell, dataset, attr, conditionSet) {
@@ -229,6 +254,21 @@ function(lodash, Context, d3, when, PointError, StatsComparison) {
 		});	
 	}
 
+	function drawBoxPlot(container, dataset, attr, dselects, subsetNames) {
+	    
+	    return rpc.call('box_plot', [dataset, attr, dselects, subsetNames])
+		.then(function(png) {
+		    d3.select(container).html(null);
+		    var img = d3.select(container).selectAll('img')
+			.data([0])
+			.enter().append('img');
+		    img.attr('src', 'data:image/png;base64,'+png);
+		    d3.select(container)
+			.on('mouseover', function(){img.classed("img-responsive", false);})
+			.on('mouseout', function(){img.classed("img-responsive", true);});
+		});
+
+	}
 
     }
     

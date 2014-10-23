@@ -7,12 +7,11 @@ import seaborn as sns
 import StringIO
 import numpy as np
 import base64
-
-
+import pandas as pd
 
 
 sns.set_palette("deep", desat=.6)
-sns.set_context(rc={"figure.figsize": (4, 2)})
+sns.set_context(rc={"figure.figsize": (8, 4)})
 
 
 def get_range(dataset, attr):
@@ -20,7 +19,36 @@ def get_range(dataset, attr):
     return [data.min(), data.max()]
 
 
-def kde_plot(dataset_name, attr, dselect_name):
+def encode_figure(figure):
+    imgdata = StringIO.StringIO()
+    figure.savefig(imgdata, format='png')
+    imgdata.seek(0)  # rewind the data
+    png = imgdata.read()
+
+    plt.close(figure)
+
+    return base64.b64encode(png)
+
+
+def box_plot(dataset_name, attr, dselect_names, subset_names):
+    showcase = Showcase.instance()
+    dataset = showcase.get(dataset_name)
+
+    dselects = [showcase.get(s) for s in dselect_names]
+
+    datasets = [dataset.find(s.query, {attr: True}).get_data("c_list")[attr]
+                for s in dselects]
+
+    data = np.array(datasets)
+
+    figure, ax = plt.subplots()
+    sns.boxplot(data, names=subset_names, widths=.2, saturation=0.6, alpha=0.8)
+    sns.despine(left=True)
+
+    return encode_figure(figure)
+
+
+def dist_plot(dataset_name, attr, dselect_name):
     dselect = Showcase.instance().get(dselect_name)
     dataset = Showcase.instance().get(dataset_name)
 
@@ -33,15 +61,9 @@ def kde_plot(dataset_name, attr, dselect_name):
 
     plt.xlim(x_range)
 
-    imgdata = StringIO.StringIO()
-    figure.savefig(imgdata, format='png')
-    imgdata.seek(0)  # rewind the data
-    png = imgdata.read()
-
-    plt.close(figure)
-
-    return base64.b64encode(png)
+    return encode_figure(figure)
 
 
 def expose_methods():
-    Front.instance().add_method(kde_plot)
+    Front.instance().add_method(dist_plot)
+    Front.instance().add_method(box_plot)
