@@ -267,6 +267,7 @@ function(lodash, jquery, Context, d3, when) {
 	function onChange(so) {
 	    self.subsets = so[0];
 	    self.subsets_v = so[1];
+	    self.counter = Math.max(self.counter, self.subsets.length -1);
 
 	    hub.publish("subset_change", _.clone(self.subsets));
 	    update();
