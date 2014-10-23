@@ -26,6 +26,23 @@ function(lodash, Context, d3, when, PointError, StatsComparison) {
 		'</table>' +
 	      '</div>';
 
+	this.modalTemplate = 
+	    '  <div class="modal-dialog modal-lg">' +
+	    '    <div class="modal-content">' +
+	    '      <div class="modal-header">' +
+	    '        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' +
+	    '        <h4 class="modal-title">Statistical Test Results</h4>' +
+	    '      </div>' +
+	    '      <div class="modal-body">' +
+	    '        <%=statsResults%>' +
+	    '      </div>' +
+	    '    </div>' +
+	    '  </div>';
+	
+	self.container.append('div')
+	    .attr("id", "stats-info-modal")
+	    .attr("class", "modal")
+	    .html(_.template(this.modalTemplate, {statsResults:"POOOO"}));
 
 	this.update = function() {
 
@@ -56,7 +73,8 @@ function(lodash, Context, d3, when, PointError, StatsComparison) {
 	    var tbody_td =  tbody_tr.selectAll('td')
 		.data(function(d){return d.attrs;}, function(d){return d.name;});
 	    tbody_td.exit().remove();
-	    tbody_td.enter().append('td');
+	    tbody_td.enter().append('td')
+		.classed("attr", function(d){return d.isAttr;});
 	    tbody_td
 		.classed("selected", false)
 		.each(function(d) {
@@ -118,34 +136,32 @@ function(lodash, Context, d3, when, PointError, StatsComparison) {
 						      self.dataset);
 
 
-	    var modalTemplate = 
-		'  <div class="modal-dialog">' +
-		'    <div class="modal-content">' +
-		'      <div class="modal-header">' +
-		'        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' +
-		'        <h4 class="modal-title">Statistical Test Results</h4>' +
-		'      </div>' +
-		'      <div class="modal-body">' +
-		'        <%= statsResults %>' +
-		'      </div>' +
-		'    </div><!-- /.modal-content -->' +
-		'  </div><!-- /.modal-dialog -->';
-	    
 	    statsComparison.refresh()
 		.then(function(){
 		    console.log('res', statsComparison.compareTwoResults);
 
 		    var stats_div = d3.select(cell).selectAll("div.stats")
 			    .data([statsComparison.compareTwoResults]);
-		    stats_div.enter().append('div').attr("class", "stats");
-		    stats_div.text(composeStatsAbstarct(subset_name, 
+		    stats_div.enter().append('div').attr("class", "stats btn btn-default");
+		    stats_div
+			.append('span')
+			.attr("class", "glyphicon glyphicon-info-sign")
+			.text(composeStatsAbstarct(subset_name, 
 							subset2_name, 
-							statsComparison.compareTwoResults));
+							statsComparison.compareTwoResults))
+			.on("click", function() {
+			    $("#stats-info-modal")
+				.html(_.template(self.modalTemplate, {statsResults:container.innerHTML}))
+				.modal();
+			    d3.event.stopPropagation();
+			});
+
+
 	    });
 	}
 
 	function composeStatsAbstarct(subset1, subset2, compareTwoResults) {
-	    var text = '';
+	    var text = ' ';
 	    if (compareTwoResults.greater.rejected) {
 		text += subset2 + " > " + subset1;
 	    }
@@ -163,7 +179,7 @@ function(lodash, Context, d3, when, PointError, StatsComparison) {
 	    self.update();
 	};
 	
-	this.container.html(template);
+	this.container.append('div').html(template);
 	this.update();
 
 

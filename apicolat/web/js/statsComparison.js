@@ -26,10 +26,10 @@ function(when, d3, Context) {
 
 	var template = 
 	  '<div class="row">'
-	  + '<div class="col-md-4 col-sm-6">'
+	  + '<div class="col-sm-6">'
             + '<p class="h4"> <%= description %> </p>'
 	  + '</div>'
-	  + '<div class="col-md-4 col-sm-6">'
+	  + '<div class="col-sm-6">'
 	    + '<table class="table">'
               + '<thead>'
                 + '<tr>'
