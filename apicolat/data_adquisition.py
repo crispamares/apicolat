@@ -41,10 +41,13 @@ def create_spines_schema():
 
 
 def create_spines_table():
+    '''
+    Ignores spines from m16_1_13 because has no distance_to_soma.
+    '''
     client = pymongo.MongoClient()
     db = client['spinesIP']
     table = Table(name='spines', schema=create_spines_schema())
-    for d in db['spines'].find({},{'_id':False}):
+    for d in db['spines'].find({'dendrite_id': {'$ne': 'm16_1_13'}},{'_id':False}):
         table.insert(d)
     return table
 
