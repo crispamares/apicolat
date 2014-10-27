@@ -10,7 +10,7 @@
    ], 
    "continuous": false
   }, 
-  "angle": {
+  "distance_to_soma": {
    "attribute_type": "QUANTITATIVE", 
    "spatial": false, 
    "key": false, 
