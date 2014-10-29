@@ -40,19 +40,10 @@ def create_spines_schema():
     return schema
 
 
-def create_spines_table():
+def init_table(dataset, schema_desc):
     '''
     Ignores spines from m16_1_13 because has no distance_to_soma.
     '''
-    client = pymongo.MongoClient()
-    db = client['spinesIP']
-    table = Table(name='spines', schema=create_spines_schema())
-    for d in db['spines'].find({'dendrite_id': {'$ne': 'm16_1_13'}},{'_id':False}):
-        table.insert(d)
-    return table
-
-
-def init_table(dataset, schema_desc):
     with open(os.path.join(os.path.dirname(ROOT), 'data', dataset + '.json')) as f:
         rows = json.load(f)
     with open(os.path.join(os.path.dirname(ROOT), 'data', schema_desc + '.json')) as f:
@@ -60,6 +51,8 @@ def init_table(dataset, schema_desc):
 
     table = Table(name=dataset, schema=schema)
     for d in rows:
+        if d["dendrite_id"] == "m16_1_13":
+            continue
         d.pop("_id", None)
         table.insert(d)
     return table
