@@ -48,6 +48,26 @@ def box_plot(dataset_name, attr, dselect_names, subset_names):
     return encode_figure(figure)
 
 
+def aggregated_dist_plot(dataset_name, attr, dselect_names, subset_names):
+    showcase = Showcase.instance()
+    dataset = showcase.get(dataset_name)
+    x_range = get_range(dataset, attr)
+
+    dselects = [showcase.get(s) for s in dselect_names]
+
+    datasets = [dataset.find(s.query, {attr: True}).get_data("c_list")[attr]
+                for s in dselects]
+
+    figure = plt.figure()
+    for i, data in enumerate(datasets):
+        sns.kdeplot(np.array(data), label=subset_names[i])
+
+    plt.xlim(x_range)
+
+    return encode_figure(figure)
+
+
+
 def dist_plot(dataset_name, attr, dselect_name):
     dselect = Showcase.instance().get(dselect_name)
     dataset = Showcase.instance().get(dataset_name)
@@ -67,3 +87,4 @@ def dist_plot(dataset_name, attr, dselect_name):
 def expose_methods():
     Front.instance().add_method(dist_plot)
     Front.instance().add_method(box_plot)
+    Front.instance().add_method(aggregated_dist_plot)

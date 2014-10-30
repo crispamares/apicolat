@@ -26,7 +26,7 @@ function(lodash, Context, d3, when, PointError, StatsComparison) {
 		'</table>' +
 	      '</div>';
 
-	this.modalTemplate = 
+	this.statsInfoModalTemplate = 
 	    '  <div class="modal-dialog modal-lg">' +
 	    '    <div class="modal-content">' +
 	    '      <div class="modal-header">' +
@@ -38,11 +38,36 @@ function(lodash, Context, d3, when, PointError, StatsComparison) {
 	    '      </div>' +
 	    '    </div>' +
 	    '  </div>';
+
+	this.plotsModalTemplate = 
+	    '  <div class="modal-dialog modal-lg">' +
+	    '    <div class="modal-content">' +
+	    '      <div class="modal-header">' +
+	    '        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' +
+	    '        <h4 class="modal-title"><%= title %></h4>' +
+	    '      </div>' +
+	    '      <div class="modal-body">' +
+	    '        <ul class="nav nav-tabs" role="tablist">' +
+	    '          <li role="presentation" class="active boxplot"><a href="#modal-box-plot" role="tab" data-toggle="tab">Box Plot</a></li>' +
+	    '          <li role="presentation" class="kdeplot"><a href="#modal-kde-plot" role="tab" data-toggle="tab">KDE Plot</a></li>' +
+	    '        </ul>' +
+	    '        <div class="tab-content">' +
+	    '          <div role="tabpanel" class="tab-pane active" id="modal-box-plot"><%= boxplot %></div>' +
+	    '          <div role="tabpanel" class="tab-pane" id="modal-kde-plot"><%= kdeplot %></div>' +
+	    '        </div>	    ' +
+	    '      </div>' +
+	    '    </div>' +
+	    '  </div>';
 	
 	self.container.append('div')
 	    .attr("id", "stats-info-modal")
 	    .attr("class", "modal")
-	    .html(_.template(this.modalTemplate, {statsResults:"", title:""}));
+	    .html(_.template(this.statsInfoModalTemplate, {statsResults:"", title:""}));
+
+	self.container.append('div')
+	    .attr("id", "plots-modal")
+	    .attr("class", "modal")
+	    .html(_.template(this.plotsModalTemplate, {boxplot:"", kdeplot:"", title:""}));
 
 	this.update = function() {
 
@@ -63,15 +88,7 @@ function(lodash, Context, d3, when, PointError, StatsComparison) {
 		    button.on('click', function() {
 			var dselects = _.pluck(self.subsets, 'conditionSet');
 			var subsetNames = _.pluck(self.subsets, 'name');
-			var node = document.createElement("div");
-			drawBoxPlot(node, self.dataset, d.name, dselects, subsetNames)
-			    .then(function(png){
-				var img = placeImg(node, png);
-				$("#stats-info-modal")
-				    .html(_.template(self.modalTemplate, {statsResults:node.innerHTML,
-									  title:d.name+" distribution"}))
-				    .modal();
-			    });
+			drawModal('#plots-modal', self.plotsModalTemplate, self.dataset, d.name, dselects, subsetNames);
 			d3.event.stopPropagation();
 		    });
 		});
@@ -167,8 +184,8 @@ function(lodash, Context, d3, when, PointError, StatsComparison) {
 		    stats_div
 			.on("click", function() {
 			    $("#stats-info-modal")
-				.html(_.template(self.modalTemplate, {statsResults:container.innerHTML,
-								      title:"Statistical Test Results"}))
+				.html(_.template(self.statsInfoModalTemplate, {statsResults:container.innerHTML,
+									       title:"Statistical Test Results"}))
 				.modal();
 			    d3.event.stopPropagation();
 			})
@@ -254,20 +271,36 @@ function(lodash, Context, d3, when, PointError, StatsComparison) {
 		});	
 	}
 
-	function drawBoxPlot(container, dataset, attr, dselects, subsetNames) {
-	    
-	    return rpc.call('box_plot', [dataset, attr, dselects, subsetNames])
-		.then(function(png) {
-		    d3.select(container).html(null);
-		    var img = d3.select(container).selectAll('img')
-			.data([0])
-			.enter().append('img');
-		    img.attr('src', 'data:image/png;base64,'+png);
-		    d3.select(container)
-			.on('mouseover', function(){img.classed("img-responsive", false);})
-			.on('mouseout', function(){img.classed("img-responsive", true);});
-		});
 
+	function drawModal(modalContainerID, modalTemplate, dataset, attr, dselects, subsetNames) {
+	    var boxNode = document.createElement("div");
+	    var kdeNode = document.createElement("div");
+	    return drawBoxPlot(self.dataset, attr, dselects, subsetNames)
+		.then(function(png){placeImg(boxNode, png);})
+		.then(function(){
+		    return drawAggredatedKdePlot(self.dataset, attr, dselects, subsetNames);
+		})
+		.then(function(png){placeImg(kdeNode, png);})
+		.then(function() {
+		    $(modalContainerID)
+			.html(_.template(modalTemplate,  {boxplot:boxNode.innerHTML, 
+							  kdeplot:kdeNode.innerHTML,
+							  title:attr+" distribution"}))
+			.modal();
+		});
+	}
+
+
+	function drawBoxPlot(container, dataset, attr, dselects, subsetNames) {
+	    return _drawComparativePlot('box_plot', container, dataset, attr, dselects, subsetNames);
+	}
+
+	function drawAggredatedKdePlot(container, dataset, attr, dselects, subsetNames) {
+	    return _drawComparativePlot('aggregated_dist_plot', container, dataset, attr, dselects, subsetNames);
+	}
+
+	function _drawComparativePlot(remoteCall, dataset, attr, dselects, subsetNames) {
+	    return rpc.call(remoteCall, [dataset, attr, dselects, subsetNames]);
 	}
 
     }
