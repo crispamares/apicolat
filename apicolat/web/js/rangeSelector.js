@@ -72,16 +72,16 @@ function(lodash, jquery, Context, d3, when, RangeSlider, MenuButton) {
 
     };
 
-    RangeSelector.prototype._rpcSetRange = function(condition, range) {
-	var self = this;
-	var promise = rpc.call('ConditionSrv.set_range', [condition])
-	    .then(function(change) {
-		      console.log(change);
-		  })
-	    .otherwise(showError);
-	return promise;
+    
+    function rpcSetRange(condition, extent) {
+	var params =  {condition_oid: condition, 
+		       min: extent[0], 
+		       max: extent[1], 
+		       relative: true};
+	return rpc.call('ConditionSrv.set_range', params);
     };
 
+    var throttledRpcSetRange= _.throttle(rpcSetRange, 100);
 
     RangeSelector.prototype._createRangeSlicer = function(container, gvCondition) {
 	var self = this;
@@ -91,14 +91,11 @@ function(lodash, jquery, Context, d3, when, RangeSlider, MenuButton) {
 	rangeSlider.setDomain(gvCondition.domain);
 
 	rangeSlider.on('move', function(extent){
-		var params =  {condition_oid: self.condition, 
-			       min:extent[0], 
-			       max:extent[1], 
-			       relative: true};
-		rpc.call('ConditionSrv.set_range', params)
-			       .otherwise(showError);
-		       });
+		throttledRpcSetRange(self.condition, extent);
+	});
     };
+
+    
 
     return RangeSelector;
 }
