@@ -62,6 +62,7 @@ def aggregated_dist_plot(dataset_name, attr, dselect_names, subset_names):
     for i, data in enumerate(datasets):
         sns.kdeplot(np.array(data), label=subset_names[i])
 
+    plt.setp(figure.axes, yticks=[])
     plt.xlim(x_range)
 
     return encode_figure(figure)
@@ -79,6 +80,7 @@ def dist_plot(dataset_name, attr, dselect_name):
     data = np.array(dataset.find(dselect.query, {attr: True}).get_data("c_list")[attr])
     figure = sns.distplot(data, kde=True, rug=True, hist=True, bins=20).figure
 
+    plt.setp(figure.axes, yticks=[])
     plt.xlim(x_range)
 
     return encode_figure(figure)
