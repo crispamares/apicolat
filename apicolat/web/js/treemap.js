@@ -69,8 +69,7 @@ function(when, d3, Context) {
 		     );
 
 	    parents.enter().append("rect")
-		.attr("class", "node parent")
-		.attr("fill", function(d, i) { return color(d.value);});
+		.attr("class", "node parent");
 
 	    leaves.enter().append("rect")
 		.attr("class", "node leaf")
@@ -91,6 +90,7 @@ function(when, d3, Context) {
 		.attr("opacity",1);
 		
 	    parents
+		.attr("fill", function(d, i) { return color(d.value);})
 	      .transition()
 		.duration(350)
 		.attr("x", function(d) { return d.x + "px"; })
