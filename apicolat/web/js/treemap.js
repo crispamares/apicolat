@@ -26,7 +26,8 @@ function(when, d3, Context) {
 	, aspectRatio = .5
 	, height = width * aspectRatio;
 
-	var color = d3.scale.category20c();
+	var color = d3.scale.linear()
+	    .range([d3.rgb('#e0ecf4'), d3.rgb('#8856a7')]);
 
 	var treemap = d3.layout.treemap()
 	    .size([width, height])
@@ -44,10 +45,14 @@ function(when, d3, Context) {
 	var parents = null;
 
 
-	this.render = function() {
+	this.render = function() {	    
 
 	    treemap.value(function(d) { return (self.use_count)? 1 : d.size; });
 	    var treemap_data = treemap.nodes(this.data);
+	    var leaves_data = treemap_data.filter(function(d){return ! Boolean(d.children);});
+	    var parents_data = treemap_data.filter(function(d){return Boolean(d.children);})
+
+	    color.domain(d3.extent(parents_data, function(d){return (d.depth === 2)? d.value : null;}));
 
 	    function recursive_name(node) {
 		var name = node.name;
@@ -58,16 +63,14 @@ function(when, d3, Context) {
 	    }
 	    
 	    leaves = leaf_layer.selectAll(".leaf")
-		.data(treemap_data.filter(function(d){return ! Boolean(d.children);}),
-		    function(d){return d.name;});
+		.data(leaves_data, function(d){return d.name;});
 	    parents = parent_layer.selectAll(".parent")
-		.data(treemap_data.filter(function(d){return Boolean(d.children);}),
-		    function(d){return recursive_name(d);}
+		.data(parents_data, function(d){return recursive_name(d);}
 		     );
 
 	    parents.enter().append("rect")
 		.attr("class", "node parent")
-		.attr("fill", function(d, i) { return color(i);});
+		.attr("fill", function(d, i) { return color(d.value);});
 
 	    leaves.enter().append("rect")
 		.attr("class", "node leaf")
@@ -115,8 +118,7 @@ function(when, d3, Context) {
     treemapView.prototype.update = function() {
 	if (this.view){
 	    console.log('update', this.view.width());
-	    this.view = 
-	    this.view.update();
+	    this.view = this.view.update();
 	}
 	else
 	    this.render();
