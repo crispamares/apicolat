@@ -45,7 +45,7 @@ function(lodash, jquery, Context, d3, when, MenuButton) {
 			   + '    </div>'
 			   + '  </div>'
 			   + '  <div class="panel-body">'
-			   + '     <form role="form">'
+			   + '     <form class="form-inline" role="form">'
 /*			   + '        <% _.forEach(items, function(item) {%>'
 			   + '        <div class="checkbox">'
 			   + '          <label>'
@@ -79,18 +79,21 @@ function(lodash, jquery, Context, d3, when, MenuButton) {
 
 	var data_items = _(this.items).values().sortBy('name').value();
 	var label = this.container.select("#categorical-selector-"+this.name)
-	    .select('form').selectAll('label').data(data_items, function(d){return d.name;});
+	    .select('form').selectAll('div').data(data_items, function(d){return d.name;});
 	label.enter()
-	    .append('label')
+	    .append('div')
 	    .attr("class", "checkbox-inline")
-	    .text(function(d){return d.name;})
-	    .call(function(checkbox) {
-		      checkbox.append('input')
-			  .attr("value", function(d){return d.name;})
-			  .attr("type", "checkbox")
-			  .on("change", function(d) {
-				  self._rpcToggleCategory(d.name);
-			      });
+	    .append('label')
+	    .each(function(d) {
+		    var checkbox = d3.select(this);
+		    checkbox.append('input')
+			.attr("value", function(d){return d.name;})
+			.attr("type", "checkbox")
+			.on("change", function(d) {
+			    self._rpcToggleCategory(d.name);
+			});
+		    $(this).append(d.name);
+
 		  });
 
 	label.selectAll('input').property('checked', function(d){ return self.items[d.name].included;});
