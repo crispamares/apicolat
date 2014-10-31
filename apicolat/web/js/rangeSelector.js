@@ -77,7 +77,7 @@ function(lodash, jquery, Context, d3, when, RangeSlider, MenuButton) {
 	var params =  {condition_oid: condition, 
 		       min: extent[0], 
 		       max: extent[1], 
-		       relative: true};
+		       relative: false};
 	return rpc.call('ConditionSrv.set_range', params);
     };
 
@@ -86,9 +86,10 @@ function(lodash, jquery, Context, d3, when, RangeSlider, MenuButton) {
     RangeSelector.prototype._createRangeSlicer = function(container, gvCondition) {
 	var self = this;
 	var rangeSlider = new RangeSlider(container);
-	var extent =  [gvCondition.range['relative_min'], gvCondition.range['relative_max']];
-	rangeSlider.setExtent(extent);
 	rangeSlider.setDomain(gvCondition.domain);
+	var extent =  [gvCondition.range['min'], gvCondition.range['max']];
+	rangeSlider.setExtent(extent);
+
 
 	rangeSlider.on('move', function(extent){
 		throttledRpcSetRange(self.condition, extent);

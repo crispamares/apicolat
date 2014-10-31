@@ -1,7 +1,7 @@
 define(
-["d3"]
+["d3", "editableText"]
 ,
-function (d3) {
+function (d3, EditableText) {
 
     var rangeSlider = function(container) {
 	this.container = container;
@@ -12,15 +12,14 @@ function (d3) {
 
 	var domain = {min:0, max:1};
 
-	var margin = {top: 0, left: 10, bottom: 20, right: 10}
+	var margin = {top: 5, left: 10, bottom: 20, right: 10}
 	, width = parseInt(d3.select(container).style('width'))
-	, height = 40;
+	, height = 45;
 
 	var slider_width = width - margin.left - margin.right;
 	var slider_height = height - margin.top - margin.bottom;
 
-	var x = d3.scale.linear().range([0, slider_width]);
-	var x_domain = d3.scale.linear()
+	var x = d3.scale.linear()
 	    .domain([domain.min, domain.max])
 	    .range([0, slider_width])
 	    .nice();
@@ -32,9 +31,35 @@ function (d3) {
 	    .on("brushend", brushend);
 
 	var axis =  d3.svg.axis()
-	    .scale(x_domain)
+	    .scale(x)
 	    .ticks(5)
 	    .orient("bottom");
+
+	var extentDiv = d3.select(container)
+	    .append('div')
+	    .style("padding-left", margin.left + "px")
+	    .style("padding-right", margin.right + "px");
+
+	var leftExtent = extentDiv.append('span')
+	    .text('..');
+	var leftEditable = new EditableText(leftExtent.node());
+	leftEditable.on('accept', function(val){ 
+		var extent =  brush.extent();
+		extent[0] = parseFloat(val);
+		self.setExtent(extent);
+	    }
+	);
+	
+	var rightExtent = extentDiv.append('span')
+	    .text('..')
+	    .style("float", "right");
+	var rightEditable = new EditableText(rightExtent.node());
+	rightEditable.on('accept', function(val){ 
+		var extent =  brush.extent();
+		extent[1] = parseFloat(val);
+		self.setExtent(extent);
+	    }
+	);
 
 	var svg = d3.select(container).append("svg")
 	    .attr("class", "slider")
@@ -43,7 +68,7 @@ function (d3) {
 
 	var gAxis = svg.append("g")
 	    .attr("class", "x axis")
-	    .attr("transform", "translate(" + margin.left + "," + slider_height + ")")
+	    .attr("transform", "translate(" + margin.left + "," + (slider_height + margin.top)  + ")")
 	    .call(axis);
 
 	var slider = svg.append('g')
@@ -57,17 +82,17 @@ function (d3) {
 	    .style("visibility", "visible");
 	slider.selectAll(".background")
 	    .style("visibility", "visible");
-
 	
 	this.setExtent = function(extent) {
 	    slider.call(brush.extent(extent));
+	    brushmove();
 	};
 
 	this.setDomain = function(domain) {
 	    self.domain = domain;
-	    x_domain.domain([domain.min, domain.max])
-		.nice();
-	    gAxis.call(axis.scale(x_domain));
+	    x.domain([domain.min, domain.max]).nice();
+	    brush.x(x);
+	    gAxis.call(axis.scale(x));
 	};
 
 	this.on = function(event, callback) {
@@ -93,9 +118,11 @@ function (d3) {
 	}
 
 	function brushmove() {
+	    // ############# CONTINUE HERE 
+	    leftEditable.setValue(brush.extent()[0].toFixed(2));
+	    rightEditable.setValue(brush.extent()[1].toFixed(2));
+
 	    if (onmove) onmove(brush.extent());
-	    //var s = brush.extent();
-	    //circle.classed("selected", function(d) { return s[0] <= d && d <= s[1]; });
 	}
 
 	function brushend() {

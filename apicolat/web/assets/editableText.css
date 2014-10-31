@@ -1,0 +1,58 @@
+.editableform {
+    margin-bottom: 0; /* overwrites bootstrap margin */
+}
+
+.editableform .control-group {
+    margin-bottom: 0; /* overwrites bootstrap margin */
+    white-space: nowrap; /* prevent wrapping buttons on new line */
+    line-height: 20px; /* overwriting bootstrap line-height. See #133 */
+}
+
+/* 
+  BS3 width:1005 for inputs breaks editable form in popup 
+  See: https://github.com/vitalets/x-editable/issues/393
+*/
+.editableform .form-control {
+    width: auto;
+}
+
+.editable-buttons {
+   display: inline-block; /* should be inline to take effect of parent's white-space: nowrap */
+   vertical-align: top;
+   margin-left: 7px;
+   /* inline-block emulation for IE7*/
+   zoom: 1; 
+   *display: inline;
+}
+
+.editable-buttons.editable-buttons-bottom {
+   display: block; 
+   margin-top: 7px;
+   margin-left: 0;
+}
+
+.editable-input {
+    vertical-align: top; 
+    display: inline-block; /* should be inline to take effect of parent's white-space: nowrap */
+    width: auto; /* bootstrap-responsive has width: 100% that breakes layout */
+    white-space: normal; /* reset white-space decalred in parent*/
+   /* display-inline emulation for IE7*/
+   zoom: 1; 
+   *display: inline;   
+}
+
+.editable-buttons .editable-cancel {
+   margin-left: 7px; 
+}
+
+.editable-container.editable-popup {
+    max-width: none !important; /* without this rule poshytip/tooltip does not stretch */
+}  
+
+.editable-container.popover {
+    width: auto; /* without this rule popover does not stretch */
+}
+
+.editable-link {
+    cursor: pointer;
+}
