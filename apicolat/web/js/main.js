@@ -41,6 +41,7 @@ requirejs(['jquery',
 	   'when/monitor/console',
 	   'treemap',
 	   'comboSelector',
+	   'treemapStatusBar',
 	   'menuButton',
 	   'mainBar',
 	   'conditionsMenu',
@@ -71,11 +72,16 @@ function($, _, when, bootstrap, Context, d3) {
     var subsets = null;
     var subsets_v = null;
     var subsetsName = null;
+    var totalItems = null;
 
     rpc.call('init', [])
     .then(function(names){
 	table = names["table"];
-	return rpc.call("TableSrv.schema", [table]);
+	var promise = rpc.call("TableSrv.row_count", [table])
+		.then(function(rowCount){totalItems = rowCount;})
+		.then(function() {return rpc.call("TableSrv.schema", [table]);});
+
+	return promise;
     }) 
     .then(function(_schema){
     // ========================================
@@ -123,6 +129,23 @@ function($, _, when, bootstrap, Context, d3) {
 	    .done(subsetMenu.publishActive);
     });
 
+
+    // ----------------------------------------
+    //     ComboSelector
+    // ----------------------------------------
+    var ComboSelector = require("comboSelector");
+    var menu = new ComboSelector('#overview-menu');
+    menu.options = quantitative_attrs.concat(menu.options);
+    menu.update();
+
+    // ----------------------------------------
+    //     TreemapStatusBar
+    // ----------------------------------------
+    var hierarchy = ['dendrite_type', 'dendrite_id', 'spine'];
+    var TreemapStatusBar = require("treemapStatusBar");
+    var treemapStatusBar = new TreemapStatusBar('#overview-status', hierarchy, totalItems);
+    treemapStatusBar.setDselect(definition_dselect);
+
     // ----------------------------------------
     //     Treemap
     // ----------------------------------------
@@ -139,14 +162,6 @@ function($, _, when, bootstrap, Context, d3) {
 
     drawTreemap(treemap, quantitative_attrs[0]);
     treemap.setDselect(definition_dselect);
-
-    // ----------------------------------------
-    //     ComboSelector
-    // ----------------------------------------
-    var ComboSelector = require("comboSelector");
-    var menu = new ComboSelector('#overview-menu');
-    menu.options = quantitative_attrs.concat(menu.options);
-    menu.update();
 
 
     // ----------------------------------------

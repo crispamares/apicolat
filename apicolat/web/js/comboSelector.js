@@ -12,16 +12,13 @@ function(lodash, jquery, Context) {
     ComboSelector.prototype.update =  function() {
 	
 
-	var template = _.template('	      <form class="form-horizontal" role="form">'
-				  + '		<div class="form-group">'
-				  + '		  <label for="visible-property" class="col-sm-8 control-label">Feature</label>'
-				  + '		  <div class="col-sm-4">'
+	var template = _.template('	      <form class="form-inline" role="form">'
+				  + '		  <label for="visible-property" class="col-sm-8 control-label"> Showing: '
 				  + '		    <select  class="form-control" id="visible-property">'
-				  + '<% _.forEach(options, function(option) {%>'
-				  + '<option> <%- option  %> </option> <% }) %>'
-				  + '</select>'
-				  + '		  </div>'
-				  + '		</div>'
+				  + '                  <% _.forEach(options, function(option) {%>'
+				  + '                  <option> <%- option  %> </option> <% }) %>'
+				  + '                  </select>'
+				  + '             </label>'
 				  + '	      </form>');
 
 	var html = template({options: this.options});
