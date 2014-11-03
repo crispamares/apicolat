@@ -141,7 +141,7 @@ function($, _, when, bootstrap, Context, d3) {
     // ----------------------------------------
     //     TreemapStatusBar
     // ----------------------------------------
-    var hierarchy = ['dendrite_type', 'dendrite_id', 'spine'];
+    var hierarchy = ['dendrite_type', 'dendrite_id', 'synapse'];
     var TreemapStatusBar = require("treemapStatusBar");
     var treemapStatusBar = new TreemapStatusBar('#overview-status', hierarchy, totalItems);
     treemapStatusBar.setDselect(definition_dselect);
