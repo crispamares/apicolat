@@ -17,8 +17,8 @@ function(_, $, Context) {
 
     TreemapStatusBar.prototype.update =  function() {
 
-	var template = _.template('<span> ( <strong><%- includedCount %></strong> / <%- totalItems %> ) - </span>' +
-				  '<span> <%- levels.join(" > ") %> </span>'
+	var template = _.template('<span> <%- (includedCount/totalItems * 100).toFixed(0) %>% ( <strong><%- includedCount %></strong> / <%- totalItems %> ) - </span>' +
+				  '<span> <%- levels.join(" / ") %> </span>'
 				  );
 
 	var html = template({levels: this.hierarchy, 'includedCount': this.includedCount, 'totalItems': this.totalItems});
