@@ -1,84 +1,200 @@
 {
- "dataset_type": "TABLE", 
- "index": "synapse_id", 
+ "index": "Spine Id", 
  "attributes": {
-  "synapse_id": {
+  "Spine Orientation Angle": {
+   "attribute_type": "QUANTITATIVE", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": true
+  }, 
+  "Spine Area": {
+   "attribute_type": "QUANTITATIVE", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": true
+  }, 
+  "Spine Neck Min Diameter": {
+   "attribute_type": "QUANTITATIVE", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": true
+  }, 
+  "Spine Volume": {
+   "attribute_type": "QUANTITATIVE", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": true
+  }, 
+  "Spine Straightness": {
+   "attribute_type": "QUANTITATIVE", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": true
+  }, 
+  "Spine Neck Length": {
+   "attribute_type": "QUANTITATIVE", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": true
+  }, 
+  "Spine Resistance": {
+   "attribute_type": "QUANTITATIVE", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": true
+  }, 
+  "Spine Branchings": {
+   "attribute_type": "CATEGORICAL", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": false
+  }, 
+  "Spine Neck Mean Diameter": {
+   "attribute_type": "QUANTITATIVE", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": true
+  }, 
+  "Spine Terminal Pt Diameter": {
+   "attribute_type": "QUANTITATIVE", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": true
+  }, 
+  "Spine Time": {
+   "attribute_type": "CATEGORICAL", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": false
+  }, 
+  "Spine Branch Level": {
+   "attribute_type": "CATEGORICAL", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": false
+  }, 
+  "Spine Length": {
+   "attribute_type": "QUANTITATIVE", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": true
+  }, 
+  "Spine Min Diameter": {
+   "attribute_type": "QUANTITATIVE", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": true
+  }, 
+  "Spine Terminal Pt Volume": {
+   "attribute_type": "QUANTITATIVE", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": true
+  }, 
+  "Spine Neck Volume": {
+   "attribute_type": "QUANTITATIVE", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": true
+  }, 
+  "Spine Neck Max Diameter": {
+   "attribute_type": "QUANTITATIVE", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": true
+  }, 
+  "Spine Mean Diameter": {
+   "attribute_type": "QUANTITATIVE", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": true
+  }, 
+  "Spine Terminal Pt Distance": {
+   "attribute_type": "QUANTITATIVE", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": true
+  }, 
+  "Spine Attachment Pt Diameter": {
+   "attribute_type": "QUANTITATIVE", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": true
+  }, 
+  "Spine Max Diameter": {
+   "attribute_type": "QUANTITATIVE", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": true
+  }, 
+  "Spine Attachment Pt Distance": {
+   "attribute_type": "QUANTITATIVE", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": true
+  }, 
+  "Spine Position Z": {
+   "attribute_type": "QUANTITATIVE", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": true
+  }, 
+  "Spine Position X": {
+   "attribute_type": "QUANTITATIVE", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": true
+  }, 
+  "Spine Position Y": {
+   "attribute_type": "QUANTITATIVE", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": true
+  }, 
+  "Spine Id": {
    "attribute_type": "CATEGORICAL", 
    "spatial": false, 
    "key": true, 
    "shape": [], 
    "continuous": false
   }, 
-  "dendrite_type": {
+  "Spine Time Index": {
    "attribute_type": "CATEGORICAL", 
    "spatial": false, 
    "key": false, 
    "shape": [], 
    "continuous": false
   }, 
-  "cell": {
+  "Spine Branch Depth": {
    "attribute_type": "CATEGORICAL", 
    "spatial": false, 
    "key": false, 
    "shape": [], 
-   "continuous": false
-  }, 
-  "section": {
-   "attribute_type": "ORDINAL", 
-   "spatial": false, 
-   "key": false, 
-   "shape": [], 
-   "continuous": false
-  }, 
-  "section10um": {
-   "attribute_type": "CATEGORICAL", 
-   "spatial": false, 
-   "key": false, 
-   "shape": [], 
-   "continuous": false
-  }, 
-  "source": {
-   "attribute_type": "CATEGORICAL", 
-   "spatial": false, 
-   "key": false, 
-   "shape": [], 
-   "continuous": false
-  }, 
-  "area": {
-   "attribute_type": "QUANTITATIVE", 
-   "spatial": false, 
-   "key": false, 
-   "shape": [], 
-   "continuous": false
-  }, 
-  "volume": {
-   "attribute_type": "QUANTITATIVE", 
-   "spatial": false, 
-   "key": false, 
-   "shape": [], 
-   "continuous": false
-  }, 
-  "feret": {
-   "attribute_type": "QUANTITATIVE", 
-   "spatial": false, 
-   "key": false, 
-   "shape": [], 
-   "continuous": false
-  }, 
-  "dist_section": {
-   "attribute_type": "QUANTITATIVE", 
-   "spatial": false, 
-   "key": false, 
-   "shape": [], 
-   "continuous": false
-  }, 
-  "centroid": {
-   "attribute_type": "QUANTITATIVE", 
-   "spatial": false, 
-   "key": false, 
-   "shape": [
-    3
-   ], 
    "continuous": false
   }
  }

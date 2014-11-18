@@ -5,51 +5,23 @@ Created on 13/12/2013
 @author: jmorales
 '''
 
-import json
 import os
 
 from __init__ import ROOT
-from indyva.dataset.table import Table
-from indyva.dataset.schemas import TableSchema, AttributeSchema
+from indyva.IO.table_io import read_csv
 
 
-def create_synapses_schema():
-    schema = TableSchema({},index='synapse_id')
-    schema.add_attribute('synapse_id', 
-                         dict(attribute_type= 'CATEGORICAL',
-                              key=True))
-    schema.add_attribute('dendrite_type','CATEGORICAL')
-    schema.add_attribute('cell','CATEGORICAL')
-    schema.add_attribute('section', 'ORDINAL')
-    schema.add_attribute('section10um', 'CATEGORICAL')
-    schema.add_attribute('source','CATEGORICAL')
-    schema.add_attribute('area', 'QUANTITATIVE')
-    schema.add_attribute('volume', 'QUANTITATIVE')
-    schema.add_attribute('feret', 'QUANTITATIVE')
-    schema.add_attribute('dist_section', 'QUANTITATIVE')
-    VECTOR3D = AttributeSchema('QUANTITATIVE', shape = (3,) )
-    schema.add_attribute('centroid', VECTOR3D)
+def init_table(dataset, schema_desc=None):
+    filepath = os.path.join(os.path.dirname(ROOT), 'data', dataset + '.csv')
 
-    return schema
+    schema = None
+    if schema_desc:
+        schema = os.path.join(os.path.dirname(ROOT), 'data', schema_desc + '.json')
 
-
-def init_table(dataset, schema_desc):
-    with open(os.path.join(os.path.dirname(ROOT), 'data', dataset + '.json')) as f:
-        rows = json.load(f)
-    with open(os.path.join(os.path.dirname(ROOT), 'data', schema_desc + '.json')) as f:
-        schema = json.load(f)
-
-    table = Table(name=dataset, schema=schema)
-    for d in rows:
-        table.insert(d)
+    table = read_csv(table_name=dataset, filepath=filepath, schema=schema, skipinitialspace=True)
     return table
 
 
 if __name__ == '__main__':
-    import time
-    
-    t0 = time.clock()
-    table = init_synapses_table()
-    t1 = time.clock()
-    print table.row_count(), 'rows'
-    print 'Done in ', t1-t0, 'seconds'
+    table = init_table("m16_cing_1_9apical", "schema")
+    print table.schema
