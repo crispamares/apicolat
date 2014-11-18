@@ -179,6 +179,7 @@ function($, _, when, bootstrap, Context, d3) {
     function changeDselect(topic, msg) {
 	if (msg.active !== null) {
 	    treemap.setDselect(msg.conditionSet);
+	    treemapStatusBar.setDselect(msg.conditionSet);
 	    conditionsMenu.setConditionSet(msg.conditionSet);
 	    conditionsList.setConditionSet(msg.conditionSet);
 	}
