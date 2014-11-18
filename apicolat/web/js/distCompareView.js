@@ -8,6 +8,7 @@ function(lodash, Context, d3, when, PointError, StatsComparison) {
     function DistCompareView(container, schema, subsets, dataset) {
 	var self = this;
 	this.container = d3.select(container);
+	this.tableContainer = null;
 	this.schema = schema;
 	this.subsets = subsets;
 	this.dataset = dataset;
@@ -71,12 +72,11 @@ function(lodash, Context, d3, when, PointError, StatsComparison) {
 
 	this.update = function() {
 
-	    var thead_tr = self.container.select('thead').selectAll('tr')
+	    var thead_tr = self.tableContainer.select('thead').selectAll('tr')
 		.data([0]);
 	    thead_tr.enter().append('tr');
-
-	    var thead_th =  thead_tr.selectAll('th')
-		.data([{name:'#'}].concat(self.quantitative_attrs), function(d){return d.name;});
+	    var thead_th = thead_tr.selectAll('th')
+		.data([{"name":'#'}].concat(self.quantitative_attrs), function(d){return d.name;});
 	    thead_th.enter().append('th');
 	    thead_th.html(function(d){return '<span>'+d.name+'</span>';})
 		.each(function(d) {
@@ -102,7 +102,7 @@ function(lodash, Context, d3, when, PointError, StatsComparison) {
 		    return {'subset':subset.name, 'attrs': [{name:subset.name, isAttr:false}].concat(attrs)};
 		}).value();
 	    
-	    var tbody_tr = self.container.select('tbody').selectAll('tr')
+	    var tbody_tr = self.tableContainer.select('tbody').selectAll('tr')
 		.data(table_data, function(d){return d.subset;});
 	    tbody_tr.exit().remove();	    
 	    tbody_tr.enter().append('tr');
@@ -218,7 +218,7 @@ function(lodash, Context, d3, when, PointError, StatsComparison) {
 	    self.update();
 	};
 	
-	this.container.append('div').html(template);
+	this.tableContainer = this.container.append('div').html(template);
 	this.update();
 
 	function drawDistPlot(cell, dataset, attr, conditionSet) {
