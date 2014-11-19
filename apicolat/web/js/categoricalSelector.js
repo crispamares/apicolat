@@ -33,7 +33,7 @@ function(lodash, jquery, Context, d3, when, MenuButton) {
 	    });
 
 
-	var template = _.template('<div class="panel panel-default" id="categorical-selector-<%-name%>">'
+	var template = _.template('<div class="panel panel-default categorical-selector">'
 			   + '  <div class="panel-heading">'
 			   + '    <div class="row">'
 			   + '      <div class="col-sm-10">'
@@ -44,16 +44,9 @@ function(lodash, jquery, Context, d3, when, MenuButton) {
 			   + '      </div>'
 			   + '    </div>'
 			   + '  </div>'
-			   + '  <div class="panel-body">'
-			   + '     <form class="form-inline" role="form">'
-/*			   + '        <% _.forEach(items, function(item) {%>'
-			   + '        <div class="checkbox">'
-			   + '          <label>'
-			   + '            <input type="checkbox" value="<%- item.name %>" <% if (item.included){print("checked")} %> >'
-			   + '            <%- item.name  %>'
-			   + '          </label>'
-			   + '        </div> <% }) %>'
-*/			   + '     </form>'
+			   + '  <div class="panel-body" style="overflow-y: auto; max-height: 400px;">'
+			   + '     <form>'
+			   + '     </form>'
 			   + '    </div>'			   
 			   + '  </div>'
 			   + '</div>');
@@ -78,11 +71,11 @@ function(lodash, jquery, Context, d3, when, MenuButton) {
 //	console.log('updating', this.name, JSON.stringify(this.items));
 
 	var data_items = _(this.items).values().sortBy('name').value();
-	var label = this.container.select("#categorical-selector-"+this.name)
+	var label = this.container.select(".categorical-selector")
 	    .select('form').selectAll('div').data(data_items, function(d){return d.name;});
 	label.enter()
 	    .append('div')
-	    .attr("class", "checkbox-inline")
+	    .attr("class", "checkbox-incolumn")
 	    .append('label')
 	    .each(function(d) {
 		    var checkbox = d3.select(this);

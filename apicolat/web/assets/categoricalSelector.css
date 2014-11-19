@@ -1,0 +1,8 @@
+.checkbox-incolumn {
+    display: inline-block;
+    width: 50%;
+}
+
+.checkbox-incolumn input{
+    margin: 2px 4px 0 0;
+}
