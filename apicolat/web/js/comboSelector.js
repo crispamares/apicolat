@@ -18,7 +18,7 @@ function(lodash, jquery, Context) {
 
     ComboSelector.prototype.updateCombo =  function() {
 
-	var template = _.template('<div class="col-sm-5">'
+	var template = _.template('<div class="col-sm-7">'
 				  + '      <form class="form-inline form-group form-group-sm" role="form">'
 				  + '		  <label for="visible-property" class="control-label"> Showing: '
 				  + '		    <select  class="form-control" id="visible-property">'
