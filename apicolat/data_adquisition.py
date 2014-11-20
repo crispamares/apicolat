@@ -23,5 +23,5 @@ def init_table(dataset, schema_desc=None):
 
 
 if __name__ == '__main__':
-    table = init_table("m16_cing_1_9apical", "schema")
+    table = init_table("m16_cing_1_9apical")
     print table.schema

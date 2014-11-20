@@ -15,6 +15,13 @@
    "shape": [], 
    "continuous": true
   }, 
+  "Dendritic Compartment": {
+   "attribute_type": "CATEGORICAL", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": false
+  }, 
   "Spine Neck Min Diameter": {
    "attribute_type": "QUANTITATIVE", 
    "spatial": false, 
@@ -36,12 +43,12 @@
    "shape": [], 
    "continuous": true
   }, 
-  "Spine Neck Length": {
-   "attribute_type": "QUANTITATIVE", 
+  "Dendrite Id": {
+   "attribute_type": "CATEGORICAL", 
    "spatial": false, 
    "key": false, 
    "shape": [], 
-   "continuous": true
+   "continuous": false
   }, 
   "Spine Resistance": {
    "attribute_type": "QUANTITATIVE", 
@@ -100,6 +107,13 @@
    "continuous": true
   }, 
   "Spine Terminal Pt Volume": {
+   "attribute_type": "QUANTITATIVE", 
+   "spatial": false, 
+   "key": false, 
+   "shape": [], 
+   "continuous": true
+  }, 
+  "Spine Neck Length": {
    "attribute_type": "QUANTITATIVE", 
    "spatial": false, 
    "key": false, 
