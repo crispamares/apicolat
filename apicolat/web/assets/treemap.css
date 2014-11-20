@@ -9,9 +9,12 @@
     fill: none;
 }
 .treemap-svg .node.leaf.highlighted {
-    fill: black;
+/*    fill: black;  */
     stroke-width: 3px;
-    fill-opacity: 0.1;
+/*    fill-opacity: 0.1;  */
+}
+.treemap-svg .node.leaf.blurred {
+    fill: lightgray;
 }
 .treemap-svg .node.leaf:hover {
     fill: red;

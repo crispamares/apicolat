@@ -74,11 +74,11 @@ function(when, d3, Context) {
 	    leaves.enter().append("rect")
 		.attr("class", "node leaf")
 		.attr("title", function(d,i){return d.name;})
-		.on("click", function(d) {
-			if (self.spinesCondition) {
-			    rpc.call('ConditionSrv.toggle_category', [self.spinesCondition, d.name]);
-			}
-		    })
+//		.on("click", function(d) {
+//			if (self.spinesCondition) {
+//			    rpc.call('ConditionSrv.toggle_category', [self.spinesCondition, d.name]);
+//			}
+//		    })
 		.each(function(){$(this).tooltip({'container': 'body',
 						  'placement': 'right'
 						 });
@@ -109,7 +109,8 @@ function(when, d3, Context) {
 
 	this.render_dselect = function() {
 	    if (leaves !== null) {
-		leaves.classed("highlighted", function(d) { return self.included_spines.indexOf(d.name) >= 0; });
+		var included = d3.set(self.included_spines);
+		leaves.classed("blurred", function(d) { return ! included.has(d.name); });
 	    }
 	};
 
