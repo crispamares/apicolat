@@ -50,8 +50,8 @@ function(lodash, jquery, Context, d3, when) {
 		.data(self.subsets, function(d){return d.name;});
 	    
 	    buttons.enter()
-		.append('div')
-		.classed('btn-group', true)
+		.insert('div', addContainer)
+		.classed('btn-group tab', true)
 		.each(function(d){ 
 			  var btn_group = d3.select(this);
 			  btn_group.html(subsets_template(d));

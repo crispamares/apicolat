@@ -1,4 +1,12 @@
-.well.well-white {background-color: white;}
+.well.well-white {
+    background-color: white;
+    border: 1px solid rgb(66, 139, 202);
+}
+
+.panel {
+    border: 1px solid rgb(66, 139, 202);
+}
+
 
 .axis path, .axis line {
     fill: none;
