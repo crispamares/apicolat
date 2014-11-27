@@ -23,7 +23,7 @@ function(lodash, jquery, Context, d3, when) {
 				  + '             <div class="col-xs-8 row">'
 				  + '		  <select class="form-control"> </select>'
 				  + '             </div>'
-				  + '             <div class="col-xs-2 row">'
+				  + '             <div class="">'
 				  + '	            <button type="button" class="btn btn-default" >'
 				  + '		      <span class="glyphicon glyphicon-plus"></span>'
 				  + '	            </button>'
