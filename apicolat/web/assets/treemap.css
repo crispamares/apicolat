@@ -2,7 +2,7 @@
     shape-rendering: crispEdges;
 }
 .treemap-svg .node {
-    stroke: white;
+    stroke: #eeeeee;
     stroke-width:1px;
 }
 .treemap-svg .node.leaf {
@@ -14,7 +14,7 @@
 /*    fill-opacity: 0.1;  */
 }
 .treemap-svg .node.leaf.blurred {
-    fill: lightgray;
+    fill: white;
 }
 .treemap-svg .node.leaf:hover {
     fill: red;

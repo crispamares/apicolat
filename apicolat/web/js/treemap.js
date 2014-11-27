@@ -27,7 +27,7 @@ function(when, d3, Context) {
 	, height = width * aspectRatio;
 
 	var color = d3.scale.linear()
-	    .range([d3.rgb('#e0ecf4'), d3.rgb('#8856a7')]);
+	    .range([d3.rgb('#cac7e1'), d3.rgb('#6c0da7')]);
 
 	var treemap = d3.layout.treemap()
 	    .size([width, height])

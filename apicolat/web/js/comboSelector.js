@@ -49,7 +49,7 @@ function(lodash, jquery, Context) {
 //		    height: "25px", 
 		    color: "white", 
 		    display: "inline-block",
-		    background: "linear-gradient(to right, #e0ecf4, #8856a7)"});
+		    background: "linear-gradient(to right, #cac7e1, #6c0da7)"});
 
 	this.container.append(scaleBar);
 	
