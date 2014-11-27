@@ -17,8 +17,8 @@ function(lodash, Context, d3, saveAs, when) {
 				  + '	  </div> '
 				  + '	  <ul class="nav navbar-nav">'
 				  + '	    <li class="active groups-definition"><a href="#">Define Subsets</a></li>'
-//				  + '	    <li class="compare"><a href="#">Compare</a></li>'
-				  + '	    <li class="dist-compare"><a href="#">Compare</a></li>'
+				  + '	    <li class="multi-dist-compare"><a href="#">Compare M:N</a></li>'
+				  + '	    <li class="dist-compare"><a href="#">Compare 1:1</a></li>'
 				  + '	  </ul>'
 				  + '     <ul class="nav navbar-nav navbar-right">'
 				  + '	      <li class="dropdown">'
@@ -35,8 +35,8 @@ function(lodash, Context, d3, saveAs, when) {
 	this.container.html(html);
 
 	var divGroupsDefinition = d3.select('#groups-definition');
-	var divCompare = d3.select('#compare');
 	var divDistCompare = d3.select('#dist-compare');
+	var divMultiDistCompare = d3.select('#multi-dist-compare');
 
 	this.container.select('a.navbar-brand')
 	    .on('click',function(){self.activeGroupsDefinition();});
@@ -44,11 +44,11 @@ function(lodash, Context, d3, saveAs, when) {
 	this.container.select('li.groups-definition')
 	    .on('click',function(){self.activeGroupsDefinition();});
 
-	this.container.select('li.compare')
-	    .on('click',function(){self.activeCompare();});
-
 	this.container.select('li.dist-compare')
 	    .on('click',function(){self.activeDistCompare();});
+
+	this.container.select('li.multi-dist-compare')
+	    .on('click',function(){self.activeMultiDistCompare();});
 
 	this.container.select('a.menu-open-file')
 	    .on('click',function(){self.container.select("input.open-file")
@@ -105,30 +105,40 @@ function(lodash, Context, d3, saveAs, when) {
 	    self.container.selectAll('li').classed('active', false);
 	    li.classed('active', true);
 	    divGroupsDefinition.classed({show:true, hidden:false});
-	    divCompare.classed({show:false, hidden:true});
 	    divDistCompare.classed({show:false, hidden:true});	    
+	    divMultiDistCompare.classed({show:false, hidden:true});
 
 	    hub.publish('main-bar-change', {active: 'groups-definition'});
 	};
-	this.activeCompare = function() {
-	    var li = self.container.select('li.compare');
-	    self.container.selectAll('li').classed('active', false);
-	    li.classed('active', true);
-	    divGroupsDefinition.classed({show:false, hidden:true});
-	    divCompare.classed({show:true, hidden:false});
-	    divDistCompare.classed({show:false, hidden:true});
-
-	    hub.publish('main-bar-change', {active: 'compare'});
-	};
+//	this.activeCompare = function() {
+//	    var li = self.container.select('li.compare');
+//	    self.container.selectAll('li').classed('active', false);
+//	    li.classed('active', true);
+//	    divGroupsDefinition.classed({show:false, hidden:true});
+//	    divCompare.classed({show:true, hidden:false});
+//	    divDistCompare.classed({show:false, hidden:true});
+//
+//	    hub.publish('main-bar-change', {active: 'compare'});
+//	};
 	this.activeDistCompare = function() {
 	    var li = self.container.select('li.dist-compare');
 	    self.container.selectAll('li').classed('active', false);
 	    li.classed('active', true);
 	    divGroupsDefinition.classed({show:false, hidden:true});
-	    divCompare.classed({show:false, hidden:true});
 	    divDistCompare.classed({show:true, hidden:false});
+	    divMultiDistCompare.classed({show:false, hidden:true});
 
 	    hub.publish('main-bar-change', {active: 'dist-compare'});
+	};
+	this.activeMultiDistCompare = function() {
+	    var li = self.container.select('li.multi-dist-compare');
+	    self.container.selectAll('li').classed('active', false);
+	    li.classed('active', true);
+	    divGroupsDefinition.classed({show:false, hidden:true});
+	    divDistCompare.classed({show:false, hidden:true});
+	    divMultiDistCompare.classed({show:true, hidden:false});
+
+	    hub.publish('main-bar-change', {active: 'multi-dist-compare'});
 	};
 
 	

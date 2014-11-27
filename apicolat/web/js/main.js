@@ -48,13 +48,15 @@ requirejs(['jquery',
 	   'conditionsMenu',
 	   'conditionsList',
 	   'subsetMenu',
-	   'compareMenu',
-	   'box',
-	   'pointError',
-	   'facetedDistributionsView',
-	   'lineDistributionsView',
+//	   'compareMenu',
+//	   'box',
+//	   'pointError',
+//	   'facetedDistributionsView',
+//	   'lineDistributionsView',
+	   'compareTools',
 	   'statsComparison',
-	   'distCompareView'
+	   'distCompareView',
+	   'multiDistCompareView'
 ], 
 
 function($, _, when, bootstrap, Context, d3) {
@@ -175,7 +177,6 @@ function($, _, when, bootstrap, Context, d3) {
     var conditionsList = new ConditionsList('#conditions-list', definition_dselect);
 
     hub.subscribe('active_subset_change', changeDselect);
-    hub.subscribe('subset_change', changeSubsets);
 
     function changeDselect(topic, msg) {
 	if (msg.active !== null) {
@@ -189,58 +190,21 @@ function($, _, when, bootstrap, Context, d3) {
 	}
     }
 
-    function changeSubsets(topic, msg){
-	compareMenu.setSubsets(msg);
-    }
 
 
     /**
      * Only in development
      */
 	//    mainBar.activeDistCompare();
-    // ----------------------------------------
-    //     Compare Menu
-    // ----------------------------------------
-    var CompareMenu = require("compareMenu");
-    var compareMenu = new CompareMenu("#compare-bar", schema, subsets, table);
-    var compareChoices = compareMenu.getChoices();
-    // ----------------------------------------
-    //     LineDistributions View
-    // ----------------------------------------
-    var LineDistributionsView = require("lineDistributionsView");
-    var lineDistributionsView = null;
-    hub.subscribe('main-bar-change', function(topic, msg) {
-	if (msg.active === 'compare' && lineDistributionsView === null) {
-	    lineDistributionsView = new LineDistributionsView("#compare-view", compareChoices, subsetMenu.subsets, table);
-
-	    hub.subscribe('compare', function(topic, msg) {
-		console.log('COMPAREEEEEEE');
-		lineDistributionsView.setCompareChoices(msg);
-		lineDistributionsView.refresh();
-		});
-
-	    hub.subscribe('subset_change', function(topic, msg){
-		lineDistributionsView.subsets = msg;
-	    });
-
-	}
-	});
-    // ----------------------------------------
-    //     Comparison Stats 
-    // ----------------------------------------
-    var StatsComparison = require("statsComparison");
-    var statsComparison = new StatsComparison("#compare-stats", compareChoices, subsets, table);
-    hub.subscribe('compare', function(topic, msg) {
-		statsComparison.setCompareChoices(msg);
-		statsComparison.refresh();
-		});
 
     var DistCompareView = require("distCompareView");
     var distCompareView = new DistCompareView("#dist-compare-view", schema, subsets, table);
+    var MultiDistCompareView = require("multiDistCompareView");
+    var multiDistCompareView = new MultiDistCompareView("#multi-dist-compare-view", schema, subsets, table);
 
     hub.subscribe('subset_change', function(topic, msg){
-	statsComparison.subsets = msg;
 	distCompareView.subsets = msg;
+	multiDistCompareView.subsets = msg;
     });
 
     hub.subscribe('main-bar-change', function(topic, msg) {

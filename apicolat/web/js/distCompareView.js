@@ -1,5 +1,5 @@
-define(['lodash', 'context', 'd3', 'when', 'pointError', 'statsComparison'],
-function(lodash, Context, d3, when, PointError, StatsComparison) {
+define(['lodash', 'context', 'd3', 'when',  'statsComparison', 'compareTools'],
+function(lodash, Context, d3, when,  StatsComparison, CompareTools) {
 
     var context = Context.instance();
     var rpc = context.rpc;
@@ -12,6 +12,12 @@ function(lodash, Context, d3, when, PointError, StatsComparison) {
 	this.schema = schema;
 	this.subsets = subsets;
 	this.dataset = dataset;
+
+	var tools = new CompareTools();
+	var placeImg = tools.placeImg;
+	var rpcGetSubsetData = tools.rpcGetSubsetData;
+	var drawBoxPlot = tools.drawBoxPlot;
+	var drawAggredatedKdePlot = tools.drawAggredatedKdePlot;
 
 	this.quantitative_attrs = _(schema.attributes).filter({attribute_type:'QUANTITATIVE', shape:[]}).sortBy('name').value();
 	this.categorical_attrs = _.filter(schema.attributes, {attribute_type:'CATEGORICAL'});
@@ -234,53 +240,13 @@ function(lodash, Context, d3, when, PointError, StatsComparison) {
 		});
 	}
 
-	function placeImg(container, png) {
-	    var img = d3.select(container).selectAll('img')
-		    .data([0])
-		    .enter().append('img');
-	    img.attr('src', 'data:image/png;base64,'+png);
-	    return img;
-	}
-
-	function drawCell(cell, dataset, attr, conditionSet) {
-	    var pointErrorPlot = d3.pointError()
-		.height(200)
-		.width(15);
-	    
-	    return rpcGetSubsetData(dataset, attr, conditionSet)
-		.then(function(points) {
-		    var svg = d3.select(cell).selectAll('svg').data([0])
-			.enter()
-			.append('svg');
-
-		    svg.datum(points)
-			.call(pointErrorPlot);
-		});
-
-	}
-
-	function rpcGetSubsetData(dataset, attr, conditionSet) {
-	    return rpc.call('DynSelectSrv.query', [conditionSet])
-		.then(function(query){
-		    var project = {};
-		    project[attr] = true;
-		    return rpc.call('TableSrv.find', [dataset, query, project]);
-		})
-		.then(function(tableview) {
-		    return rpc.call('TableSrv.get_data', [tableview, "c_list"]);
-		});	
-	}
-
-
 	function drawModal(modalContainerID, modalTemplate, dataset, attr, dselects, subsetNames) {
 	    var boxNode = document.createElement("div");
 	    var kdeNode = document.createElement("div");
-	    return drawBoxPlot(self.dataset, attr, dselects, subsetNames)
-		.then(function(png){placeImg(boxNode, png);})
+	    return drawBoxPlot(boxNode, dataset, attr, dselects, subsetNames)
 		.then(function(){
-		    return drawAggredatedKdePlot(self.dataset, attr, dselects, subsetNames);
+		    return drawAggredatedKdePlot(kdeNode, dataset, attr, dselects, subsetNames);
 		})
-		.then(function(png){placeImg(kdeNode, png);})
 		.then(function() {
 		    $(modalContainerID)
 			.html(_.template(modalTemplate,  {boxplot:boxNode.innerHTML, 
@@ -288,19 +254,6 @@ function(lodash, Context, d3, when, PointError, StatsComparison) {
 							  title:attr+" distribution"}))
 			.modal();
 		});
-	}
-
-
-	function drawBoxPlot(container, dataset, attr, dselects, subsetNames) {
-	    return _drawComparativePlot('box_plot', container, dataset, attr, dselects, subsetNames);
-	}
-
-	function drawAggredatedKdePlot(container, dataset, attr, dselects, subsetNames) {
-	    return _drawComparativePlot('aggregated_dist_plot', container, dataset, attr, dselects, subsetNames);
-	}
-
-	function _drawComparativePlot(remoteCall, dataset, attr, dselects, subsetNames) {
-	    return rpc.call(remoteCall, [dataset, attr, dselects, subsetNames]);
 	}
 
     }
