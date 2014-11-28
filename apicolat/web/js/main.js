@@ -211,6 +211,10 @@ function($, _, when, bootstrap, Context, d3) {
 	if (msg.active === 'dist-compare') {
 	    distCompareView.update();
 	}
+	if (msg.active === 'multi-dist-compare') {
+	    multiDistCompareView.update();
+	}
+
     });
 
 

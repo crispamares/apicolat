@@ -23,27 +23,53 @@ function(lodash, Context, d3, when, CompareTools) {
 	this.categorical_attrs = _.filter(schema.attributes, {attribute_type:'CATEGORICAL'});
 
 
-	var template = '' +
-	      '<div class="table-responsive">' +
-		'<table class="table table-bordered">' +
-		  '<thead>' +
-		  '</thead>' +
-		  '<tbody>' +
-		  '</tbody>' +
-		'</table>' +
+	var row_template = '' +
+	      '<h3> <%= attr %> </h3>' +
+	      '<div class="row">' +
+		'<div class="plot col-sm-6"></div>' +
+		'<div class="stat-result col-sm-6"> Stats Results here </div>' +
 	      '</div>';
 	
 	this.update = function() {
-	    
-	};
+	    var dselects = _.pluck(this.subsets, 'conditionSet');
+	    var subsetNames = _.pluck(this.subsets, 'name');
 
+	    var attrRows = this.container.selectAll("div.attr-row")
+		.data(this.quantitative_attrs, function(d){return d.name;});
+	    
+	    attrRows.enter()
+	      .append("div")
+		.attr("class", "attr-row well")
+//		.html(function(d) {return _.template(row_template, {"attr":d.name});});
+		.each(function () {
+		    	d3.select(this).append("h3")
+			    .text(function (d){return d.name;});
+			var row = d3.select(this).append("div")
+			    .attr("class", "row");
+			row.append("div")
+			    .attr("class", "plot col-sm-6");
+			row.append("div")
+			    .attr("class", "stat-result col-sm-6")
+			    .text("Stats Results Here");
+		});
+
+	    attrRows.selectAll("div.plot")
+		.each(function(d){
+		    var node = this;
+		    this.innerHTML = '<span class="glyphicon glyphicon-time"></span>';
+		    drawAggredatedKdePlot(this, self.dataset, d.name, dselects, subsetNames)
+			.otherwise(function(){
+			    node.innerHTML = '<span class="glyphicon glyphicon-ban-circle"></span>';
+			});
+
+		});
+	};
 
 	this.setSubsets =  function(subsets) {
-	    self.subsets = subsets;
-	    self.update();
+	    this.subsets = subsets;
+	    this.update();
 	};
 	
-	this.tableContainer = this.container.append('div').html(template);
 	this.update();
 
 	function drawDistPlot(cell, dataset, attr, conditionSet) {
@@ -59,36 +85,13 @@ function(lodash, Context, d3, when, CompareTools) {
 		});
 	}
 
-	function placeImg(container, png) {
-	    var img = d3.select(container).selectAll('img')
-		    .data([0])
-		    .enter().append('img');
-	    img.attr('src', 'data:image/png;base64,'+png);
-	    return img;
-	}
-
-	function rpcGetSubsetData(dataset, attr, conditionSet) {
-	    return rpc.call('DynSelectSrv.query', [conditionSet])
-		.then(function(query){
-		    var project = {};
-		    project[attr] = true;
-		    return rpc.call('TableSrv.find', [dataset, query, project]);
-		})
-		.then(function(tableview) {
-		    return rpc.call('TableSrv.get_data', [tableview, "c_list"]);
-		});	
-	}
-
-
 	function drawModal(modalContainerID, modalTemplate, dataset, attr, dselects, subsetNames) {
 	    var boxNode = document.createElement("div");
 	    var kdeNode = document.createElement("div");
-	    return drawBoxPlot(self.dataset, attr, dselects, subsetNames)
-		.then(function(png){placeImg(boxNode, png);})
+	    return drawBoxPlot(boxNode, dataset, attr, dselects, subsetNames)
 		.then(function(){
-		    return drawAggredatedKdePlot(self.dataset, attr, dselects, subsetNames);
+		    return drawAggredatedKdePlot(kdeNode, dataset, attr, dselects, subsetNames);
 		})
-		.then(function(png){placeImg(kdeNode, png);})
 		.then(function() {
 		    $(modalContainerID)
 			.html(_.template(modalTemplate,  {boxplot:boxNode.innerHTML, 
@@ -96,19 +99,6 @@ function(lodash, Context, d3, when, CompareTools) {
 							  title:attr+" distribution"}))
 			.modal();
 		});
-	}
-
-
-	function drawBoxPlot(container, dataset, attr, dselects, subsetNames) {
-	    return _drawComparativePlot('box_plot', container, dataset, attr, dselects, subsetNames);
-	}
-
-	function drawAggredatedKdePlot(container, dataset, attr, dselects, subsetNames) {
-	    return _drawComparativePlot('aggregated_dist_plot', container, dataset, attr, dselects, subsetNames);
-	}
-
-	function _drawComparativePlot(remoteCall, dataset, attr, dselects, subsetNames) {
-	    return rpc.call(remoteCall, [dataset, attr, dselects, subsetNames]);
 	}
 
     }

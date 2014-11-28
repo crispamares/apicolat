@@ -7,9 +7,10 @@ function(lodash, Context, d3, when) {
     function CompareTools() {
 
 	function placeImg(container, png) {
-	    var img = d3.select(container).selectAll('img')
-		    .data([0])
-		    .enter().append('img');
+	    var el = d3.select(container).html(null);
+	    var img = el.selectAll('img')
+		    .data([0]);
+	    img.enter().append('img');
 	    img.attr('src', 'data:image/png;base64,'+png);
 	    return img;
 	}
