@@ -233,7 +233,7 @@ function(lodash, Context, d3, when,  StatsComparison, CompareTools) {
 		.then(function(png) {
 		    d3.select(cell).html(null);
 		    var img = placeImg(cell, png);
-		    img.attr('class', "img-responsive");
+//		    img.attr('class', "img-responsive");
 		    d3.select(cell)
 			.on('mouseover', function(){img.classed("img-responsive", false);})
 			.on('mouseout', function(){img.classed("img-responsive", true);});

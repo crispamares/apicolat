@@ -24,11 +24,22 @@ function(lodash, Context, d3, when, CompareTools) {
 
 
 	var row_template = '' +
-	      '<h3> <%= attr %> </h3>' +
-	      '<div class="row">' +
-		'<div class="plot col-sm-6"></div>' +
-		'<div class="stat-result col-sm-6"> Stats Results here </div>' +
-	      '</div>';
+	    '<div class="col-sm-6">' +
+	    '<div class="panel panel-default">' +
+	    '  <div class="panel-heading">' +
+	    '    <h3 class="panel-title"> <%= attr %> </h3>' +
+	    '  </div>' +
+	    '  <div class="panel-body">' +
+	    '    <div class="row">' +
+	    '       <div class="plot col-sm-12"></div>' +
+	    '       <div class="stat-result col-sm-12"> ' +
+//	    '         <hr>' +
+	    '         <div class="stat-result"> Stats Results here </div>' +
+	    '       </div>' +
+	    '    </div>' +
+	    '  </div>' +
+	    '</div>' +
+	    '</div>';
 	
 	this.update = function() {
 	    var dselects = _.pluck(this.subsets, 'conditionSet');
@@ -39,21 +50,25 @@ function(lodash, Context, d3, when, CompareTools) {
 	    
 	    attrRows.enter()
 	      .append("div")
-		.attr("class", "attr-row well")
-//		.html(function(d) {return _.template(row_template, {"attr":d.name});});
-		.each(function () {
-		    	d3.select(this).append("h3")
-			    .text(function (d){return d.name;});
-			var row = d3.select(this).append("div")
-			    .attr("class", "row");
-			row.append("div")
-			    .attr("class", "plot col-sm-6");
-			row.append("div")
-			    .attr("class", "stat-result col-sm-6")
-			    .text("Stats Results Here");
+		.attr("class", "attr-row")
+		.html(function(d) {return _.template(row_template, {"attr":d.name});})
+		.each(function(d) {
+		    d3.select(this).select("div.plot").data([d]);
 		});
+//		.each(function () {
+//		    	d3.select(this).append("h3")
+//			    .text(function (d){return d.name;});
+//			var row = d3.select(this).append("div")
+//			    .attr("class", "row");
+//			row.append("div")
+//			    .attr("class", "plot col-sm-6");
+//			row.append("div")
+//			    .attr("class", "stat-result col-sm-6")
+//			    .text("Stats Results Here");
+//		});
 
 	    attrRows.selectAll("div.plot")
+//		.datum(this.quantitative_attrs, function(d){return d.name;})
 		.each(function(d){
 		    var node = this;
 		    this.innerHTML = '<span class="glyphicon glyphicon-time"></span>';

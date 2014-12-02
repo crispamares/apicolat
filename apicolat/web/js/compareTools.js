@@ -11,7 +11,9 @@ function(lodash, Context, d3, when) {
 	    var img = el.selectAll('img')
 		    .data([0]);
 	    img.enter().append('img');
-	    img.attr('src', 'data:image/png;base64,'+png);
+	    img.attr({'src': 'data:image/png;base64,'+png,
+		      'class': "img-responsive"});
+
 	    return img;
 	}
 
