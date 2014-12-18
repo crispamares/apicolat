@@ -98,8 +98,8 @@ function(when, d3, Context) {
 
 	this._rpcCompareTwo = function(distributions) {
 	    var d = distributions;
-	    var d1 = d[0].list;
-	    var d2 = (d.length > 1) ? d[1].list : d1;
+	    var d1 = d[0];
+	    var d2 = (d.length > 1) ? d[1] : d1;
 	    
 	    var collectResults = function(testId) {
 		return function(results) {
@@ -109,15 +109,17 @@ function(when, d3, Context) {
 			 testId: testId,
 			 statisticalTest: results.test,
 			 description: results.desc,
-			 rejected: results.rejected};
+			 rejected: results.rejected,
+			 warning: results.warning,
+			 info: results.info};
 		};
 	    };
 
-	    var p1 = rpc.call("StatsSrv.compare", [[d1, d2], 'i', 'two.sided'])
+	    var p1 = rpc.call("StatsSrv.compare", [[d1.list, d2.list], [d1.attr, d2.attr], [d1.dist, d2.dist], 'i', 'two.sided'])
 		.then(collectResults('two-sided'));
-	    var p2 = rpc.call("StatsSrv.compare", [[d1, d2], 'i', 'greater'])
+	    var p2 = rpc.call("StatsSrv.compare", [[d1.list, d2.list], [d1.attr, d2.attr], [d1.dist, d2.dist], 'i', 'greater'])
 		.then(collectResults('greater'));
-	    var p3 = rpc.call("StatsSrv.compare", [[d1, d2], 'i', 'less'])
+	    var p3 = rpc.call("StatsSrv.compare", [[d1.list, d2.list], ["paco", "paco"], [d1.dist, d2.dist], 'i', 'less'])
 		.then(collectResults('less'));
 
 	    return when.join(p1,p2,p3);
@@ -146,7 +148,7 @@ function(when, d3, Context) {
 		self.useOnlyOne = true;
 		self._rpcGetSubsetData(dataset, c.attr, conditionSet1)
 		    .then(function(data){
-			      self.distributions = [{list: data[c.attr], dist: c.subset1}]; 
+			      self.distributions = [{list: data[c.attr], dist: c.subset1, attr: c.attr}]; 
 			      deferred.resolve(self.distributions);
 			      });
 	    }
@@ -156,8 +158,8 @@ function(when, d3, Context) {
 			  [dataset, c.attr, conditionSet2]],
 			 function(v){return self._rpcGetSubsetData(v[0],v[1],v[2]);})
 		    .then(function(a){
-			      self.distributions = [{list: a[0][c.attr], dist: c.subset1},
-						    {list: a[1][c.attr], dist: c.subset2}]; 
+			      self.distributions = [{list: a[0][c.attr], dist: c.subset1, attr: c.attr},
+						    {list: a[1][c.attr], dist: c.subset2, attr: c.attr}]; 
 			      deferred.resolve(self.distributions);
 			      });
 	    }
