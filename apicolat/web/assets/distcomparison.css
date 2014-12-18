@@ -12,9 +12,6 @@
   cursor: pointer;
 }
 
-#stats-info-modal .modal-body{
-    text-align: center;
-}
 #dist-compare-view th button {
   position:absolute;
   right:0;

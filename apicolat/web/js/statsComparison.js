@@ -26,28 +26,36 @@ function(when, d3, Context) {
 
 	var template = 
 	  '<div class="row">'
-	  + '<div class="col-sm-6">'
+	  + '<div class="col-sm-12">'
             + '<p class="h4"> <%= description %> </p>'
+	    + '<ul>'
+	      + '<li> <strong>Test Used</strong>: <%= statisticalTest %></li>'
+	      + '<li> <strong>p-value</strong>: <%= pValue %> , <%= decision %></li>'
+	      + '<li> <%= info %></li>'
+	    + '</ul>'
+	    + '<% if (warning.length > 0) {%>'
+		+ '<div class="alert alert-warning" role="alert"> <strong>Warning:</strong> <%= warning %> </div>'
+	    + '<%} %>'
 	  + '</div>'
-	  + '<div class="col-sm-6">'
-	    + '<table class="table">'
-              + '<thead>'
-                + '<tr>'
-                  + '<th></th>'
-                  + '<th> <%= statisticalTest %> </th>'
-                  + '<th> Decision </th>'
-                + '</tr>'
-              + '</thead>'
-	      + '<tbody>'
-                + '<tr>'
-                  + '<td> p-value </td>'
-                  + '<td class="p-value <%= tdClass %>" data_hypothesis=<%= testId %> > <%= pValue %> </td>'
-                  + '<td class="decision"> <%= decision %> </td>'
-                + '</tr>'
-	      + '</tbody>'
-	    + '</table>'
-          + '</div>'
-        + '</div>';
+//	  + '<div class="col-sm-6">'
+//	    + '<table class="table">'
+//              + '<thead>'
+//                + '<tr>'
+//                  + '<th></th>'
+//                  + '<th> <%= statisticalTest %> </th>'
+//                  + '<th> Decision </th>'
+//                + '</tr>'
+//              + '</thead>'
+//	      + '<tbody>'
+//                + '<tr>'
+//                  + '<td> p-value </td>'
+//                  + '<td class="p-value <%= tdClass %>" data_hypothesis=<%= testId %> > <%= pValue %> </td>'
+//                  + '<td class="decision"> <%= decision %> </td>'
+//                + '</tr>'
+//	      + '</tbody>'
+//	    + '</table>'
+//          + '</div>'
+          + '</div>';
 
 	this.update = function() {
 	    	    
@@ -119,7 +127,7 @@ function(when, d3, Context) {
 		.then(collectResults('two-sided'));
 	    var p2 = rpc.call("StatsSrv.compare", [[d1.list, d2.list], [d1.attr, d2.attr], [d1.dist, d2.dist], 'i', 'greater'])
 		.then(collectResults('greater'));
-	    var p3 = rpc.call("StatsSrv.compare", [[d1.list, d2.list], ["paco", "paco"], [d1.dist, d2.dist], 'i', 'less'])
+	    var p3 = rpc.call("StatsSrv.compare", [[d1.list, d2.list], [d1.attr, d2.attr], [d1.dist, d2.dist], 'i', 'less'])
 		.then(collectResults('less'));
 
 	    return when.join(p1,p2,p3);
