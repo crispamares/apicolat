@@ -13,11 +13,10 @@ function(lodash, Context, d3, when, CompareTools) {
 	this.subsets = subsets;
 	this.dataset = dataset;
 
-	var tools = new CompareTools();
-	var placeImg = tools.placeImg;
-	var rpcGetSubsetData = tools.rpcGetSubsetData;
-	var drawBoxPlot = tools.drawBoxPlot;
-	var drawAggredatedKdePlot = tools.drawAggredatedKdePlot;
+	var placeImg = CompareTools.placeImg;
+	var rpcGetSubsetData = CompareTools.rpcGetSubsetData;
+	var drawBoxPlot = CompareTools.drawBoxPlot;
+	var drawAggredatedKdePlot = CompareTools.drawAggredatedKdePlot;
 
 	this.quantitative_attrs = _(schema.attributes).filter({attribute_type:'QUANTITATIVE', shape:[]}).sortBy('name').value();
 	this.categorical_attrs = _.filter(schema.attributes, {attribute_type:'CATEGORICAL'});
@@ -32,8 +31,9 @@ function(lodash, Context, d3, when, CompareTools) {
 	    '  <div class="panel-body">' +
 	    '    <div class="row">' +
 	    '       <div class="plot col-sm-12"></div>' +
-	    '       <div class="stat-result col-sm-12"> ' +
+	    '       <div class="col-sm-12"> ' +
 //	    '         <hr>' +
+	    '         <button type="button" class="btn btn-default btn-block"><span class="glyphicon glyphicon-refresh"> Compare </span></button>' +
 	    '         <div class="stat-result"> Stats Results here </div>' +
 	    '       </div>' +
 	    '    </div>' +
@@ -54,21 +54,16 @@ function(lodash, Context, d3, when, CompareTools) {
 		.html(function(d) {return _.template(row_template, {"attr":d.name});})
 		.each(function(d) {
 		    d3.select(this).select("div.plot").data([d]);
+
+		    var container = d3.select(this).select("div.stat-result");
+		    d3.select(this).select("button").data([d])
+			.on("click", function(d){
+			    container.html("");
+			    compare(container, self.dataset, d.name, self.subsets);
+			});
 		});
-//		.each(function () {
-//		    	d3.select(this).append("h3")
-//			    .text(function (d){return d.name;});
-//			var row = d3.select(this).append("div")
-//			    .attr("class", "row");
-//			row.append("div")
-//			    .attr("class", "plot col-sm-6");
-//			row.append("div")
-//			    .attr("class", "stat-result col-sm-6")
-//			    .text("Stats Results Here");
-//		});
 
 	    attrRows.selectAll("div.plot")
-//		.datum(this.quantitative_attrs, function(d){return d.name;})
 		.each(function(d){
 		    var node = this;
 		    this.innerHTML = '<span class="glyphicon glyphicon-time"></span>';
@@ -78,6 +73,9 @@ function(lodash, Context, d3, when, CompareTools) {
 			});
 
 		});
+
+	    attrRows.selectAll("div.stat-result").html("");
+		
 	};
 
 	this.setSubsets =  function(subsets) {
@@ -99,6 +97,23 @@ function(lodash, Context, d3, when, CompareTools) {
 			.on('mouseout', function(){img.classed("img-responsive", true);});
 		});
 	}
+	
+	function compare(container, dataset, attr, subsets) {
+	    CompareTools.rpcCompare(dataset, attr, subsets, 'i', "two.sided")
+		.then(function(results) {
+		    container.append('p').text(JSON.stringify(results));
+		});
+//	    CompareTools.rpcCompare(dataset, attr, subsets, 'i', "greater")
+//		.then(function(results) {
+//		    container.append('p').text(JSON.stringify(results));
+//		});
+//	    CompareTools.rpcCompare(dataset, attr, subsets, 'i', "less")
+//		.then(function(results) {
+//		    container.append('p').text(JSON.stringify(results));
+//		});
+
+	}
+
 
 	function drawModal(modalContainerID, modalTemplate, dataset, attr, dselects, subsetNames) {
 	    var boxNode = document.createElement("div");

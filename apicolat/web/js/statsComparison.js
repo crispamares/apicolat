@@ -1,15 +1,12 @@
 
 define(
-["when","d3", "context",  "bootstrap", "jquery"]
+["when","d3", "context", "compareTools",  "bootstrap", "jquery"]
 ,
-function(when, d3, Context) {
+function(when, d3, Context, CompareTools) {
 
     var context = Context.instance();
     var rpc = context.rpc;
     var hub = context.hub;
-
-    var pipeline = require("when/pipeline");
-
 
     var StatsComparison = function(container, compareChoices, subsets, dataset) {
 	var self = this;
@@ -34,7 +31,7 @@ function(when, d3, Context) {
 	      + '<li> <%= info %></li>'
 	    + '</ul>'
 	    + '<% if (warning.length > 0) {%>'
-		+ '<div class="alert alert-warning" role="alert"> <strong>Warning:</strong> <%= warning %> </div>'
+		+ '<div class="alert alert-danger" role="alert"> <strong>Warning:</strong> <%= warning %> </div>'
 	    + '<%} %>'
 	  + '</div>'
 //	  + '<div class="col-sm-6">'
@@ -65,7 +62,7 @@ function(when, d3, Context) {
 	    compareResultsData.push(self.compareTwoResults['less']);
 
 	    var compareResults = self.container.selectAll('div.compare-result')
-		.data(compareResultsData);
+		.data(compareResultsData.filter(function(d){return !d.rejected;}));
 
 	    compareResults.enter()
 		.append('div')
@@ -154,7 +151,7 @@ function(when, d3, Context) {
 
 	    if (compareChoices.subset1 === compareChoices.subset2) {
 		self.useOnlyOne = true;
-		self._rpcGetSubsetData(dataset, c.attr, conditionSet1)
+		CompareTools.rpcGetSubsetData(dataset, c.attr, conditionSet1)
 		    .then(function(data){
 			      self.distributions = [{list: data[c.attr], dist: c.subset1, attr: c.attr}]; 
 			      deferred.resolve(self.distributions);
@@ -162,9 +159,8 @@ function(when, d3, Context) {
 	    }
 	    else {
 		self.useOnlyOne = false;
-		when.map([[dataset, c.attr, conditionSet1],
-			  [dataset, c.attr, conditionSet2]],
-			 function(v){return self._rpcGetSubsetData(v[0],v[1],v[2]);})
+		when.join(CompareTools.rpcGetSubsetData(dataset, c.attr, conditionSet1),
+			  CompareTools.rpcGetSubsetData(dataset, c.attr, conditionSet2))
 		    .then(function(a){
 			      self.distributions = [{list: a[0][c.attr], dist: c.subset1, attr: c.attr},
 						    {list: a[1][c.attr], dist: c.subset2, attr: c.attr}]; 
@@ -175,21 +171,6 @@ function(when, d3, Context) {
 	    return deferred.promise;
 	};
 
-	this._rpcGetSubsetData = function(dataset, attr, conditionSet) {
-	    var tasks = [
-		function (conditionSet) {	return rpc.call('DynSelectSrv.query', conditionSet);},
-		function (query) {
-		    var project = {};
-		    project[attr] = true;
-		    var promise = rpc.call('TableSrv.find', [dataset, query, project]);
-		    return promise;
-		},
-		function (tableview) {return rpc.call('TableSrv.get_data', [tableview, "c_list"]);}
-	    ];
-	    var promise = pipeline(tasks, [conditionSet]);
-	    promise.otherwise(showError);
-	    return promise;
-	};
     };
 
 return StatsComparison;

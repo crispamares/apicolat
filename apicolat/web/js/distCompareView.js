@@ -13,11 +13,10 @@ function(lodash, Context, d3, when,  StatsComparison, CompareTools) {
 	this.subsets = subsets;
 	this.dataset = dataset;
 
-	var tools = new CompareTools();
-	var placeImg = tools.placeImg;
-	var rpcGetSubsetData = tools.rpcGetSubsetData;
-	var drawBoxPlot = tools.drawBoxPlot;
-	var drawAggredatedKdePlot = tools.drawAggredatedKdePlot;
+	var placeImg = CompareTools.placeImg;
+	var rpcGetSubsetData = CompareTools.rpcGetSubsetData;
+	var drawBoxPlot = CompareTools.drawBoxPlot;
+	var drawAggredatedKdePlot = CompareTools.drawAggredatedKdePlot;
 
 	this.quantitative_attrs = _(schema.attributes).filter({attribute_type:'QUANTITATIVE', shape:[]}).sortBy('name').value();
 	this.categorical_attrs = _.filter(schema.attributes, {attribute_type:'CATEGORICAL'});
