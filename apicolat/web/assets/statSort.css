@@ -1,5 +1,19 @@
+svg {
+/*  shape-rendering: crispEdges; */
+}
+
 svg rect {
     fill: white;
     stroke: steelblue;
     stroke-width: 2;
+}
+
+svg path {
+    fill: none;
+    stroke-width: 10;
+    stroke: steelblue;
+}
+
+svg path:hover {
+    stroke-width: 16;
 }

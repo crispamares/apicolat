@@ -36,7 +36,24 @@ function(d3) {
 		    .attr("dy", ".35em")
 		    .attr("text-anchor", "middle")
 		    .text(function(d) { return d; });
-	
+		
+		var linkLine = d3.svg.line()
+			.x(function(d) { return d.x; })
+			.y(function(d) { return d.y; })
+			.interpolate("monotone")
+			.tension(0.5);
+
+		var origin = d.order[1];
+		var links = computeLinks(origin, d.order, offsets, itemHeight, itemWidth);
+
+		var link = g.selectAll("path.link")
+			.data(links)
+		    .enter()
+			.append("path")
+			.attr("class", "link")
+			.attr("d", linkLine);
+
+
 		console.log(offsets);
 	    });
 	}
@@ -103,5 +120,35 @@ function(d3) {
 	return itemsOffset;
     }
 
+    function computeLinks(origin, order, itemsY, itemHeight, itemWidth) {
+
+	function computeLinePoints(origin, target, order, itemsY, yOffset, xOffsetScale, itemHeight, itemWidth) {
+	    var points = [
+		{y: itemsY[origin] + yOffset, x: itemWidth},
+		{y: itemsY[origin] + yOffset, x: xOffsetScale(Math.abs(order.indexOf(origin) - order.indexOf(target)))},
+		{y: itemsY[target] + itemHeight/2, x: xOffsetScale(Math.abs(order.indexOf(origin) - order.indexOf(target)))},
+		{y: itemsY[target] + itemHeight/2, x: itemWidth}
+	    ];
+	    return points;
+	}
+
+    	var links = [];
+
+	var x = d3.scale.ordinal()
+		.domain(d3.range(order.length))
+		.rangeRoundBands([ itemWidth , itemWidth + (order.length * 30)]);
+
+	var y = d3.scale.ordinal()
+	    .domain(d3.range(order.length - 1))
+	    .rangePoints([ 0, itemHeight], 1);
+
+	var iOrigin = order.indexOf(origin);
+	order.forEach(function(target, i) {
+	    if (target === origin) {return;}
+	    var idx = (-i + order.length - 1 + iOrigin) % ( order.length );
+	    links.push(computeLinePoints(origin, target, order, itemsY, y(idx), x, itemHeight, itemWidth));
+	});
+	return links;
+    }
 
 });
