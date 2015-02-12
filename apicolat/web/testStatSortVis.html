@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Apicolat</title>
+    <meta http-equiv="CACHE-CONTROL" content="NO-CACHE">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="assets/bootstrap.min.css" media="screen">
+    <link rel="stylesheet" href="assets/statSort.css">
+    <style> 
+      body { padding: 0 15px; }
+
+
+      @font-face {
+      font-family: 'Glyphicons Halflings';
+      src: url('assets/fonts/glyphicons-halflings-regular.eot');
+      src: url('assets/fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('assets/fonts/glyphicons-halflings-regular.woff') format('woff'), url('assets/fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('assets/fonts/glyphicons-halflings-regular.svg#glyphicons-halflingsregular') format('svg');
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="container">
+      <div id="data">
+      </div>
+      <div id="chart" class="col-sm-12">
+      </div>
+    </div>
+
+    <script src="js/require.js"></script>
+    <script>
+     require.config({
+       baseUrl: 'js',
+       //urlArgs: "bust="+ Math.random(), // Usefull in development. Bust Caches
+       packages: [{ name: 'when', location: 'vendor/when', main: 'when' }],
+       paths: {
+         jquery: 'vendor/jquery.min',
+	 bootstrap: 'vendor/bootstrap.min',
+	 d3: 'vendor/d3.v3.min',
+	 vega: 'vendor/vega',
+	 lodash: 'vendor/lodash.min',
+         context: 'lib/indyva-js/context',
+         hub: 'lib/indyva-js/hub',
+	 FileSaver: 'vendor/FileSaver.min',
+         'ws-rpc': 'lib/indyva-js/ws-rpc',
+	 'reconnecting-websocket': 'lib/indyva-js/reconnecting-websocket'
+       },
+       shim: {
+	 bootstrap: {deps: ['jquery']}
+       }
+     });
+     
+     requirejs(['jquery', 
+		'lodash',
+		'bootstrap', 
+		'd3',
+		'statSort'
+     ],
+     function ($, _, bootstrap, d3, StatSort) {
+       var data = JSON.parse('{"sorting":{"order":["new_subset-1","new_subset-2","new_subset-4","new_subset"],"equals":{"new_subset-1":null,"new_subset-2": ["new_subset-4"],"new_subset":null, "new_subset-4": ["new_subset-2"]}},"tests":{"pvalue":0.998385795346753,"decision":"* hypothesis accepted","test":"Two paired Kolmogorov Smirnov test","desc":"Comparing  Spine Area , subset new_subset-1 IS GREATER THAN subset new_subset-2","rejected":false,"warning":"","info":"Selecting 619 values as population samples for comparison of each variable.","subsetA":"new_subset-1","subsetB":"new_subset-2","pvalue":1,"decision":"*** hypothesis accepted","test":"Two paired Kolmogorov Smirnov test","desc":"Comparing  Spine Area , subset new_subset IS LOWER THAN subset new_subset-1","rejected":false,"warning":"","info":"Selecting 619 values as population samples for comparison of each variable.","subsetA":"new_subset","subsetB":"new_subset-1","pvalue":1,"decision":"*** hypothesis accepted","test":"Two paired Kolmogorov Smirnov test","desc":"Comparing  Spine Area , subset new_subset IS LOWER THAN subset new_subset-2","rejected":false,"warning":"","info":"Selecting 707 values as population samples for comparison of each variable.","subsetA":"new_subset","subsetB":"new_subset-2"}}');
+
+       $('#data').text(JSON.stringify(data));
+       window.d3 = d3;
+
+       var svg = d3.select("#chart")
+	 .append("svg")
+	 .attr("width", "100%")
+	 .attr("height", 500);
+
+       var viz = svg.selectAll("viz")
+	  .data([data.sorting]);
+
+       var statSortChart = d3.statSort()
+			     .width(600)
+			     .height(350);
+
+       viz.enter()
+	  .append("g")
+	  .call(statSortChart);
+
+     }
+     ); 
+     
+
+    </script>
+
+
+  </body>
+</html>
