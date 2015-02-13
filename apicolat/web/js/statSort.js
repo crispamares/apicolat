@@ -7,7 +7,10 @@ function(d3) {
 	    domain = null,
 	    duration = 0,
 	    itemHeight = 60,
-	    itemWidth = 200;
+	    itemWidth = 200,
+	    dispatch = d3.dispatch("itemclick", "linkmouseover"),
+	    selectedLink = null,
+	    origin = null;
 
 	function statSort(g) {
 	    g.each(function(d, i) {
@@ -20,41 +23,57 @@ function(d3) {
 		    
 		var g = d3.select(this);
 	
-		var gItem = g.selectAll("g")
-			.data(d.order)
-		    .enter()
-			.append("g")
-			.attr("transform", function(d, i) { return "translate(0," + offsets[d] + ")"; });
+		var linkLine = d3.svg.line()
+			.x(function(d) { return d.x; })
+			.y(function(d) { return d.y; })
+			.interpolate("monotone");
 
-		gItem.append("rect")
-		    .attr("width", itemWidth)
+		if (d.order.indexOf(origin) >= 0) {
+		    
+		    var links = computeLinks(origin, d.order, offsets, itemHeight, itemWidth);
+
+		    var link = g.selectAll("path.link").data(links);
+		    link.enter()
+			.append("path")
+			.attr("class", "link")
+			.on("mouseover", function(d){
+			    dispatch.linkmouseover({origin:d.origin,
+						    target:d.target,
+						    el: this});
+			});
+		    link.classed("selected", function(d){ 
+			    return selectedLink !== null
+							  && selectedLink["origin"] === d.origin 
+							  && selectedLink["target"] === d.target;});
+		    link.transition().attr("d", function(d){return linkLine(d.points);});
+		    
+		    link.exit().remove();
+		}
+
+		var gItem = g.selectAll("g").data(d.order);
+		gItem.enter()
+		    .append("g")
+		    .attr("transform", function(d, i) { return "translate(0," + offsets[d] + ")"; });
+		gItem.classed("origin", function(d){return origin == d;});
+
+		var rect = gItem.selectAll("rect").data(function(d){return [d];});
+		rect.enter()
+		    .append("rect")
+		    .on("click", function(d){dispatch.itemclick(d);});
+		rect.attr("width", itemWidth)
 		    .attr("height", itemHeight);
+		rect.exit().remove();
 
-		gItem.append("text")
-		    .attr("x", itemWidth / 2)
+		var text = gItem.selectAll("text").data(function(d){return [d];});
+		text.enter().append("text");
+		text.attr("x", itemWidth / 2)
 		    .attr("y", itemHeight / 2)
 		    .attr("dy", ".35em")
 		    .attr("text-anchor", "middle")
 		    .text(function(d) { return d; });
-		
-		var linkLine = d3.svg.line()
-			.x(function(d) { return d.x; })
-			.y(function(d) { return d.y; })
-			.interpolate("monotone")
-			.tension(0.5);
-
-		var origin = d.order[1];
-		var links = computeLinks(origin, d.order, offsets, itemHeight, itemWidth);
-
-		var link = g.selectAll("path.link")
-			.data(links)
-		    .enter()
-			.append("path")
-			.attr("class", "link")
-			.attr("d", linkLine);
+		text.exit().remove();
 
 
-		console.log(offsets);
 	    });
 	}
 
@@ -82,8 +101,35 @@ function(d3) {
 	    return statSort;
 	};
 
-	return statSort;
-		
+	statSort.origin = function(x) {
+	    if (!arguments.length) return origin;
+	    origin = x;
+	    return statSort;
+	};
+
+	statSort.itemHeight = function(x) {
+	    if (!arguments.length) return itemHeight;
+	    itemHeight = x;
+	    return statSort;
+	};
+
+	statSort.itemWidth = function(x) {
+	    if (!arguments.length) return itemWidth;
+	    itemWidth = x;
+	    return statSort;
+	};
+
+	statSort.dispatch = function() {
+	    return dispatch;
+	};
+
+	statSort.selectedLink = function(origin, target) {
+	    if (!arguments.length) return selectedLink;
+	    selectedLink = {"origin":origin, "target":target};
+	    return statSort;
+	};
+	
+	return statSort;		
     };
 
     function reduceSorting(data) {
@@ -146,7 +192,11 @@ function(d3) {
 	order.forEach(function(target, i) {
 	    if (target === origin) {return;}
 	    var idx = (-i + order.length - 1 + iOrigin) % ( order.length );
-	    links.push(computeLinePoints(origin, target, order, itemsY, y(idx), x, itemHeight, itemWidth));
+	    var  link = {};
+	    link.points = computeLinePoints(origin, target, order, itemsY, y(idx), x, itemHeight, itemWidth);
+	    link.origin = origin;
+	    link.target = target;
+	    links.push(link);
 	});
 	return links;
     }

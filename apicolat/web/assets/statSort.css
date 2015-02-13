@@ -5,7 +5,20 @@ svg {
 svg rect {
     fill: white;
     stroke: steelblue;
-    stroke-width: 2;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+
+svg .origin rect {
+    stroke-width: 3;
+}
+
+svg text {
+    pointer-events: none;
+    fill: darkslategray;
+}
+svg .origin text {
+    fill: black;
 }
 
 svg path {
@@ -14,6 +27,7 @@ svg path {
     stroke: steelblue;
 }
 
-svg path:hover {
+svg path.selected {
     stroke-width: 16;
+    stroke: #5BA9EB;
 }

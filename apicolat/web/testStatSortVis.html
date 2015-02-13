@@ -20,10 +20,19 @@
   </head>
   <body>
 
-    <div class="container">
-      <div id="data">
-      </div>
-      <div id="chart" class="col-sm-12">
+    <div class="container" style="padding-top: 100px">
+      <div id="data"></div>
+      <div id="chart" class="col-sm-6"></div>
+      <div id="testDetails" class="col-sm-6">
+        <p>
+          <strong>Test: </strong><span class="test"></span>
+        </p>
+        <p>
+          <strong>p-value: </strong><span class="pValue"></span>
+        </p>
+        <p>
+          <strong>Description: </strong><span class="description"></span>
+        </p>
       </div>
     </div>
 
@@ -57,9 +66,9 @@
 		'statSort'
      ],
      function ($, _, bootstrap, d3, StatSort) {
-       var data = JSON.parse('{"sorting":{"order":["new_subset-1","new_subset-2","new_subset-4","new_subset"],"equals":{"new_subset-1":null,"new_subset-2": ["new_subset-4"],"new_subset":null, "new_subset-4": ["new_subset-2"]}},"tests":{"pvalue":0.998385795346753,"decision":"* hypothesis accepted","test":"Two paired Kolmogorov Smirnov test","desc":"Comparing  Spine Area , subset new_subset-1 IS GREATER THAN subset new_subset-2","rejected":false,"warning":"","info":"Selecting 619 values as population samples for comparison of each variable.","subsetA":"new_subset-1","subsetB":"new_subset-2","pvalue":1,"decision":"*** hypothesis accepted","test":"Two paired Kolmogorov Smirnov test","desc":"Comparing  Spine Area , subset new_subset IS LOWER THAN subset new_subset-1","rejected":false,"warning":"","info":"Selecting 619 values as population samples for comparison of each variable.","subsetA":"new_subset","subsetB":"new_subset-1","pvalue":1,"decision":"*** hypothesis accepted","test":"Two paired Kolmogorov Smirnov test","desc":"Comparing  Spine Area , subset new_subset IS LOWER THAN subset new_subset-2","rejected":false,"warning":"","info":"Selecting 707 values as population samples for comparison of each variable.","subsetA":"new_subset","subsetB":"new_subset-2"}}');
+       data = JSON.parse('{"sorting":{"order":["new_subset-1","new_subset-2","new_subset-4","new_subset"],"equals":{"new_subset-1":null,"new_subset-2":["new_subset-4"],"new_subset-4":["new_subset-2"],"new_subset":null}},"tests":[{"pvalue":0.998385795346753,"decision":"* hypothesis accepted","test":"Two paired Kolmogorov Smirnov test","desc":"Comparing  Spine Area , subset new_subset-1 IS GREATER THAN subset new_subset-2","rejected":false,"warning":"","info":"Selecting 619 values as population samples for comparison of each variable.","subsetA":"new_subset-1","subsetB":"new_subset-2"},{"pvalue":1,"decision":"*** hypothesis accepted","test":"Two paired Kolmogorov Smirnov test","desc":"Comparing  Spine Area , subset new_subset IS LOWER THAN subset new_subset-1","rejected":false,"warning":"","info":"Selecting 619 values as population samples for comparison of each variable.","subsetA":"new_subset","subsetB":"new_subset-1"},{"pvalue":1,"decision":"*** hypothesis accepted","test":"Two paired Kolmogorov Smirnov test","desc":"Comparing  Spine Area , subset new_subset IS LOWER THAN subset new_subset-2","rejected":false,"warning":"","info":"Selecting 707 values as population samples for comparison of each variable.","subsetA":"new_subset","subsetB":"new_subset-2"},{"pvalue":1,"decision":"*** hypothesis accepted","test":"Two paired Kolmogorov Smirnov test","desc":"Comparing  Spine Area , subset new_subset-2 and subset new_subset-4 comes from THE SAME distribution","rejected":false,"warning":"","info":"Selecting 707 values as population samples for comparison of each variable.","subsetA":"new_subset-2","subsetB":"new_subset-4"}]}');
 
-       $('#data').text(JSON.stringify(data));
+       //$('#data').text(JSON.stringify(data));
        window.d3 = d3;
 
        var svg = d3.select("#chart")
@@ -72,11 +81,42 @@
 
        var statSortChart = d3.statSort()
 			     .width(300)
-			     .height(300);
+			     .height(300)
+			     .itemHeight(50)
+			     .itemWidth(130)
+			     .origin(data.sorting.order[0]);
+       var g = viz.enter().append("g").attr("transform", "translate(20, 20)");
+       g.call(statSortChart);
+       
+       statSortChart.dispatch().on("itemclick", function(d){
+	 statSortChart.origin(d);
+	 g.call(statSortChart);
+       });
 
-       viz.enter()
-	  .append("g")
-	  .call(statSortChart);
+       statSortChart.dispatch().on("linkmouseover", function(d){
+	 statSortChart.selectedLink(d.origin, d.target);
+	 g.call(statSortChart);
+	 showTestDetails(data.tests, d.origin, d.target);
+       });
+
+       function showTestDetails(tests, subsetX, subsetY) {
+	 function foundTestResult(tests, subsetX, subsetY) {
+	   var result = null;
+	   tests.forEach(function(testResult){
+	     if ((testResult.subsetA === subsetX  || testResult.subsetA === subsetY)
+	       &&(testResult.subsetB === subsetX  || testResult.subsetB === subsetY) ) {
+	       result = testResult;
+	       }
+	   });
+	   return result;
+	 }
+
+	 var testResult = foundTestResult(tests, subsetX, subsetY);
+	 console.log(testResult);
+	 $("#testDetails .test").text(testResult.test);
+	 $("#testDetails .pValue").text(testResult.pvalue);
+	 $("#testDetails .description").text(testResult.desc);
+       }
 
      }
      ); 
