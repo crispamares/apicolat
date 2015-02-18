@@ -1,33 +1,46 @@
-svg {
-/*  shape-rendering: crispEdges; */
-}
 
-svg rect {
+svg .statSort {
+    shape-rendering: crispEdges;
+ }
+
+svg .statSort rect.group {
     fill: white;
     stroke: steelblue;
     stroke-width: 1;
-    shape-rendering: crispEdges;
 }
 
-svg .origin rect {
-    stroke-width: 3;
+svg .statSort rect.item {
+    fill: #fafafa;
 }
 
-svg text {
+svg .statSort rect:hover {
+    cursor: pointer;
+    stroke: steelblue;
+    stroke-width: 2;
+}
+
+svg .statSort .origin rect {
+    fill: white;
+    stroke: steelblue;
+    stroke-width: 2;
+}
+
+svg .statSort text {
     pointer-events: none;
-    fill: darkslategray;
+    fill: #4F4F4F;
 }
-svg .origin text {
+svg .statSort .origin text {
     fill: black;
 }
 
-svg path {
+svg .statSort path {
     fill: none;
-    stroke-width: 10;
+    stroke-width: 6;
     stroke: steelblue;
 }
 
-svg path.selected {
-    stroke-width: 16;
+svg .statSort path.selected {
+    stroke-width: 10;
     stroke: #5BA9EB;
 }
+

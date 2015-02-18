@@ -16,17 +16,18 @@ function(d3) {
 	    g.each(function(d, i) {
 		var groupedItems = reduceSorting(d);
 
-		var marginSpace = height - (d.order.length * itemHeight),
-		    margin = marginSpace / (groupedItems.length -1);
+		var marginSpace = Math.round(height - (d.order.length * itemHeight)),
+		    margin = Math.round(marginSpace / (groupedItems.length -1));
 
-		var offsets = computeItemsOffset(groupedItems, margin, itemHeight);
+		var offsets = computeItemsOffset(groupedItems, margin, marginSpace, itemHeight);
 		    
-		var g = d3.select(this);
+		var g = d3.select(this)
+		    .classed("statSort", true);
 	
 		var linkLine = d3.svg.line()
 			.x(function(d) { return d.x; })
 			.y(function(d) { return d.y; })
-			.interpolate("monotone");
+			.interpolate("linear");//.interpolate("monotone");
 
 		if (d.order.indexOf(origin) >= 0) {
 		    
@@ -50,18 +51,31 @@ function(d3) {
 		    link.exit().remove();
 		}
 
-		var gItem = g.selectAll("g").data(d.order);
+		var groupRect = g.selectAll("rect.group").data(groupedItems);
+		groupRect.enter()
+		    .append("rect")
+		    .attr("class","group")
+		    .attr("transform", function(d, i) { return "translate(-1," + (offsets[d[0]] - 1) + ")"; });
+		groupRect.attr("width", itemWidth + 1)
+		    .attr("height", function(d){return itemHeight * d.length;});
+
+		var gItem = g.selectAll("g.gItem").data(d.order);
 		gItem.enter()
 		    .append("g")
+		    .attr("class", "gItem")
 		    .attr("transform", function(d, i) { return "translate(0," + offsets[d] + ")"; });
 		gItem.classed("origin", function(d){return origin == d;});
 
-		var rect = gItem.selectAll("rect").data(function(d){return [d];});
+		// needed due diffences in crispEdges behavior
+		var pixelCorrection = (/firefox/i).test(navigator.userAgent)? 2 : 1;
+
+		var rect = gItem.selectAll("rect.item").data(function(d){return [d];});
 		rect.enter()
 		    .append("rect")
+		    .attr("class", "item")
 		    .on("click", function(d){dispatch.itemclick(d);});
 		rect.attr("width", itemWidth)
-		    .attr("height", itemHeight);
+		    .attr("height", itemHeight - pixelCorrection);
 		rect.exit().remove();
 
 		var text = gItem.selectAll("text").data(function(d){return [d];});
@@ -151,8 +165,8 @@ function(d3) {
 	return result;
     }
 
-    function computeItemsOffset(groupedItems, margin, itemHeight) {
-	var lastY = 0;
+    function computeItemsOffset(groupedItems, margin, marginSpace, itemHeight) {
+	var lastY = (groupedItems.length == 1)? marginSpace/2 : 0;
 	var itemsOffset = {};
 
 	groupedItems.forEach(function(g) {
@@ -182,7 +196,7 @@ function(d3) {
 
 	var x = d3.scale.ordinal()
 		.domain(d3.range(order.length))
-		.rangeRoundBands([ itemWidth , itemWidth + (order.length * 30)]);
+		.rangeRoundBands([ itemWidth , itemWidth + (order.length * 20)]);
 
 	var y = d3.scale.ordinal()
 	    .domain(d3.range(order.length - 1))

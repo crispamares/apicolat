@@ -1,0 +1,14 @@
+svg .simpleAxis line.axis {
+    stroke: #4F4F4F;    
+    shape-rendering: crispEdges;
+}
+
+svg .simpleAxis #arrow path {
+    fill: #4F4F4F;
+    stroke-width: 1px;
+    stroke: #4F4F4F;
+}
+
+svg .simpleAxis text {
+    fill: #4F4F4F;    
+}
