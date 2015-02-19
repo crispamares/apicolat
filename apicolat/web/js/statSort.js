@@ -10,6 +10,7 @@ function(d3) {
 	    itemWidth = 200,
 	    dispatch = d3.dispatch("itemclick", "linkmouseover"),
 	    selectedLink = null,
+	    bluredLinks = null,
 	    origin = null;
 
 	function statSort(g) {
@@ -42,10 +43,25 @@ function(d3) {
 						    target:d.target,
 						    el: this});
 			});
+		       
 		    link.classed("selected", function(d){ 
 			    return selectedLink !== null
 							  && selectedLink["origin"] === d.origin 
 							  && selectedLink["target"] === d.target;});
+		    link.each(function(d){
+			   if (bluredLinks === null){return;}
+			   var founded = false;
+			   bluredLinks.forEach(function(l){
+			       if ((l[0] === d.origin  || l[0] === d.target)
+				   &&(l[1] === d.origin  || l[1] === d.target) ) {
+				   founded = true;
+			       }
+			   });
+			   var filter = (founded) ? "url(#blur-filter)" : null;
+			   d3.select(this).attr("filter", filter);
+			});
+			
+
 		    link.transition().attr("d", function(d){return linkLine(d.points);});
 		    
 		    link.exit().remove();
@@ -87,7 +103,17 @@ function(d3) {
 		    .text(function(d) { return d; });
 		text.exit().remove();
 
-
+		if (g.select("defs").empty()) { 
+		    g.append("defs").selectAll("filter")
+			.data(["blur-filter"])
+		      .enter().append("filter")
+			.attr("id", String)
+			.attr("x", 0)
+			.attr("y", 0)
+	              .append("feGaussianBlur")
+			.attr("in", "SourceGraphic")
+			.attr("stdDeviation", 3);
+		}
 	    });
 	}
 
@@ -147,6 +173,12 @@ function(d3) {
 	    selectedLink = null;
 	    return statSort;
 	};
+
+	statSort.bluredLinks = function(x) {
+	    if (!arguments.length) return bluredLinks;
+	    bluredLinks = x;
+	    return statSort;
+	};
 	
 	return statSort;		
     };
@@ -158,7 +190,12 @@ function(d3) {
 	    function(acc, current, i, ordering){
 		if (ignore[current] === true) {return acc;};
 		if (equals[current] === null) {acc.push([current]);}
-		else {
+		else if( typeof equals[current] === 'string' ) {
+		    acc.push( Array(current).concat(Array(equals[current])));
+
+		    ignore[equals[current]] = true;
+		}
+		else { // Several equals
 		    acc.push( Array(current).concat(equals[current]));
 
 		    equals[current].forEach(function(e) {

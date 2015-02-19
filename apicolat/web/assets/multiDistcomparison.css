@@ -1,0 +1,9 @@
+#multi-dist-compare-view .panel-heading h3 { 
+    display: inline-block;
+}
+#multi-dist-compare-view .panel-heading button { 
+    display: inline-block;
+    top: -7px;
+    float: right;
+    position: relative;
+}

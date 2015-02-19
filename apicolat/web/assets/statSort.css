@@ -1,0 +1,46 @@
+
+svg .statSort {
+    shape-rendering: crispEdges;
+ }
+
+svg .statSort rect.group {
+    fill: white;
+    stroke: steelblue;
+    stroke-width: 1;
+}
+
+svg .statSort rect.item {
+    fill: #fafafa;
+}
+
+svg .statSort rect:hover {
+    cursor: pointer;
+    stroke: steelblue;
+    stroke-width: 2;
+}
+
+svg .statSort .origin rect {
+    fill: white;
+    stroke: steelblue;
+    stroke-width: 2;
+}
+
+svg .statSort text {
+    pointer-events: none;
+    fill: #4F4F4F;
+}
+svg .statSort .origin text {
+    fill: black;
+}
+
+svg .statSort path {
+    fill: none;
+    stroke-width: 6;
+    stroke: steelblue;
+}
+
+svg .statSort path.selected {
+    stroke-width: 10;
+    stroke: #5BA9EB;
+}
+

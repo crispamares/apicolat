@@ -17,6 +17,23 @@ function(lodash, Context, d3, when) {
 	return img;
     }
 
+
+    /**
+     *
+     * @param subsets: array[{name:"",conditionSet:""}]
+     *
+     */
+    function rpcStatSort(dataset, attr, subsets) {
+	return when.map(_.pluck(subsets, 'conditionSet'), 
+			function(conditionSet){return rpcGetSubsetData(dataset, attr, conditionSet);})
+	    .then(function(columns){
+		return rpc.call("StatsSrv.statSort", 
+		    [_.pluck(columns, attr), 
+		    _.map(_.range(subsets.length), function(){return attr;}), 
+		    _.pluck(subsets, 'name')]);
+		});
+    }
+
     /**
      *
      * @param subsets: array[{name:"",conditionSet:""}]
@@ -65,6 +82,7 @@ function(lodash, Context, d3, when) {
     CompareTools.placeImg = placeImg;
     CompareTools.rpcGetSubsetData = rpcGetSubsetData;
     CompareTools.rpcCompare = rpcCompare;
+    CompareTools.rpcStatSort = rpcStatSort;
     CompareTools.drawBoxPlot = drawBoxPlot;
     CompareTools.drawAggredatedKdePlot = drawAggredatedKdePlot;
         

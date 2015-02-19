@@ -1,4 +1,4 @@
-define(['lodash', 'context', 'd3', 'when', 'compareTools'],
+define(['lodash', 'context', 'd3', 'when', 'compareTools', 'statSort', 'simpleAxis'],
 function(lodash, Context, d3, when, CompareTools) {
 
     var context = Context.instance();
@@ -23,18 +23,23 @@ function(lodash, Context, d3, when, CompareTools) {
 
 
 	var row_template = '' +
-	    '<div class="col-sm-6">' +
+	    '<div class="col-sm-12">' +
 	    '<div class="panel panel-default">' +
 	    '  <div class="panel-heading">' +
 	    '    <h3 class="panel-title"> <%= attr %> </h3>' +
+	    '    <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-refresh"> Compare </span></button>' +
 	    '  </div>' +
 	    '  <div class="panel-body">' +
 	    '    <div class="row">' +
-	    '       <div class="plot col-sm-12"></div>' +
-	    '       <div class="col-sm-12"> ' +
+	    '       <div class="plot col-sm-6"></div>' +
+	    '       <div class="col-sm-6"> ' +
 //	    '         <hr>' +
-	    '         <button type="button" class="btn btn-default btn-block"><span class="glyphicon glyphicon-refresh"> Compare </span></button>' +
-	    '         <div class="stat-result"> Stats Results here </div>' +
+	    '         <div class="row"> ' +
+	    '            <div class="stat-chart col-sm-6">' +
+	    '            </div>' +
+	    '            <div class="stat-details col-sm-6" style="margin-top: 20px;">' +
+	    '            </div>' +
+	    '          </div>' +
 	    '       </div>' +
 	    '    </div>' +
 	    '  </div>' +
@@ -55,11 +60,13 @@ function(lodash, Context, d3, when, CompareTools) {
 		.each(function(d) {
 		    d3.select(this).select("div.plot").data([d]);
 
-		    var container = d3.select(this).select("div.stat-result");
+		    var chartContainer = d3.select(this).select("div.stat-chart");
+		    var detailsContainer = d3.select(this).select("div.stat-details");
 		    d3.select(this).select("button").data([d])
 			.on("click", function(d){
-			    container.html("");
-			    compare(container, self.dataset, d.name, self.subsets);
+			    chartContainer.html("");
+			    detailsContainer.html("");
+			    compare(chartContainer, detailsContainer, self.dataset, d.name, self.subsets);
 			});
 		});
 
@@ -74,7 +81,8 @@ function(lodash, Context, d3, when, CompareTools) {
 
 		});
 
-	    attrRows.selectAll("div.stat-result").html("");
+	    attrRows.selectAll("div.stat-chart").html("");
+	    attrRows.selectAll("div.stat-details").html("");
 		
 	};
 
@@ -98,38 +106,88 @@ function(lodash, Context, d3, when, CompareTools) {
 		});
 	}
 	
-	function compare(container, dataset, attr, subsets) {
-	    CompareTools.rpcCompare(dataset, attr, subsets, 'i', "two.sided")
-		.then(function(results) {
-		    container.append('p').text(JSON.stringify(results));
-		});
-//	    CompareTools.rpcCompare(dataset, attr, subsets, 'i', "greater")
-//		.then(function(results) {
-//		    container.append('p').text(JSON.stringify(results));
-//		});
-//	    CompareTools.rpcCompare(dataset, attr, subsets, 'i', "less")
-//		.then(function(results) {
-//		    container.append('p').text(JSON.stringify(results));
-//		});
+	function compare(container, detailsContainer, dataset, attr, subsets) {
+	    CompareTools.rpcStatSort(dataset, attr, subsets)
+		.then(function(data) {
+//		    container.append('p').text(JSON.stringify(data));
 
+		    var svg = container.append("svg")
+			    .attr("width", "100%")
+			    .attr("height", 330)
+			    .attr("title", JSON.stringify(data));
+
+		    var axis = d3.simpleAxis()
+			    .width(40)
+			    .height(300);
+		    svg.append("g")
+			.attr("transform", "translate(0, 20)")
+			.data([attr])
+			.call(axis);
+
+		    var viz = svg.selectAll("viz")
+			    .data([data.sorting]);
+
+		    var bluredLinks = [];
+		    data.tests.forEach(function(testResult){
+			if (testResult.pvalue < 0.95) {bluredLinks.push([testResult.subsetA, testResult.subsetB]);}
+		    });
+		    console.log(bluredLinks);
+
+		    var statSortChart = d3.statSort()
+			    .width(300)
+			    .height(300)
+			    .itemHeight(50)
+			    .itemWidth(130)
+			    .origin(data.sorting.order[0])
+			    .bluredLinks(bluredLinks);
+		    var g = viz.enter().append("g").attr("transform", "translate(60, 20)");
+
+
+
+		    g.call(statSortChart);
+		    showTestDetails(detailsContainer, []);
+		    
+		    statSortChart.dispatch().on("itemclick", function(d){
+			statSortChart.origin(d).unselectLinks();
+			g.call(statSortChart);
+			showTestDetails(detailsContainer, []);
+		    });
+
+		    statSortChart.dispatch().on("linkmouseover", function(d){
+			statSortChart.selectedLink(d.origin, d.target);
+			g.call(statSortChart);
+			showTestDetails(detailsContainer, data.tests, d.origin, d.target);
+		    });
+
+		});
 	}
 
-
-	function drawModal(modalContainerID, modalTemplate, dataset, attr, dselects, subsetNames) {
-	    var boxNode = document.createElement("div");
-	    var kdeNode = document.createElement("div");
-	    return drawBoxPlot(boxNode, dataset, attr, dselects, subsetNames)
-		.then(function(){
-		    return drawAggredatedKdePlot(kdeNode, dataset, attr, dselects, subsetNames);
-		})
-		.then(function() {
-		    $(modalContainerID)
-			.html(_.template(modalTemplate,  {boxplot:boxNode.innerHTML, 
-							  kdeplot:kdeNode.innerHTML,
-							  title:attr+" distribution"}))
-			.modal();
+	function showTestDetails(container, tests, subsetX, subsetY) {
+	    function foundTestResult(tests, subsetX, subsetY) {
+		var result = null;
+		tests.forEach(function(testResult){
+		    if ((testResult.subsetA === subsetX  || testResult.subsetA === subsetY)
+			&&(testResult.subsetB === subsetX  || testResult.subsetB === subsetY) ) {
+			result = testResult;
+		    }
 		});
+		return result;
+	    }
+
+	    var testResult = foundTestResult(tests, subsetX, subsetY);
+	    if (testResult === null) {
+		container.html('<p class="text-muted">Statistical tests details...<p>');
+	    }
+	    else {
+		container.html(
+		    '<p> <strong> Test: </strong> '+ testResult.test +'</p>' +
+		    '<p> <strong> p-value: </strong> '+ d3.round(testResult.pvalue, 3) +'</p>' +
+		    '<p> <strong> Description: </strong> '+ testResult.desc +'</p>' +
+		    '<p> <strong> Decision: </strong> '+ testResult.decision +'</p>'
+		);
+	    }
 	}
+
 
     }
     
