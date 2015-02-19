@@ -142,6 +142,11 @@ function(d3) {
 	    selectedLink = {"origin":origin, "target":target};
 	    return statSort;
 	};
+
+	statSort.unselectLinks = function() {
+	    selectedLink = null;
+	    return statSort;
+	};
 	
 	return statSort;		
     };

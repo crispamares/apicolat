@@ -101,8 +101,9 @@
        g.call(statSortChart);
        
        statSortChart.dispatch().on("itemclick", function(d){
-	 statSortChart.origin(d);
+	 statSortChart.origin(d).unselectLinks();
 	 g.call(statSortChart);
+	 showTestDetails([]);
        });
 
        statSortChart.dispatch().on("linkmouseover", function(d){
@@ -124,10 +125,16 @@
 	 }
 
 	 var testResult = foundTestResult(tests, subsetX, subsetY);
-	 console.log(testResult);
-	 $("#testDetails .test").text(testResult.test);
-	 $("#testDetails .pValue").text(testResult.pvalue);
-	 $("#testDetails .description").text(testResult.desc);
+	 if (testResult === null) {
+	   $("#testDetails .test").text('');
+	   $("#testDetails .pValue").text('');
+	   $("#testDetails .description").text('');	   
+	 }
+	 else {
+	   $("#testDetails .test").text(testResult.test);
+	   $("#testDetails .pValue").text(d3.round(testResult.pvalue, 3));
+	   $("#testDetails .description").text(testResult.desc);
+	 }
        }
 
      }
