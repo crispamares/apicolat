@@ -17,6 +17,8 @@ function(d3) {
 	    g.each(function(d, i) {
 		var groupedItems = reduceSorting(d);
 
+		console.log("groupedItems", JSON.stringify(groupedItems));
+
 		var marginSpace = Math.round(height - (d.order.length * itemHeight)),
 		    margin = Math.round(marginSpace / (groupedItems.length -1));
 
@@ -185,26 +187,40 @@ function(d3) {
 
     function reduceSorting(data) {
 	var equals = data.equals;
-	var ignore = {};
-	var result = data.order.reduce(
-	    function(acc, current, i, ordering){
-		if (ignore[current] === true) {return acc;};
-		if (equals[current] === null) {acc.push([current]);}
-		else if( typeof equals[current] === 'string' ) {
-		    acc.push( Array(current).concat(Array(equals[current])));
+	//	var ignore = {};
+	var next_group = 0;
+	var groups = {};
+	var result = [];
+	data.order.forEach(function(current){
+	    var g = null;
+	    if (current in groups) {
+		g = groups[current];
+	    }
+	    else { 
+		g = next_group;
+		result[g] = d3.set([]);
+		next_group += 1;
+	    }
 
-		    ignore[equals[current]] = true;
-		}
-		else { // Several equals
-		    acc.push( Array(current).concat(equals[current]));
+	    if (equals[current] === null) {
+		groups[current] = g;
+		result[g].add(current);
+	    }
+	    else if( typeof equals[current] === 'string' ) {
+		groups[equals[current]] = g;
+		result[g].add(equals[current]);
+	    }
+	    else { // Several equals
+		equals[current].forEach(function(e) {
+		    groups[e] = g;
+		    result[g].add(e);
+		});
+	    }
+	});
 
-		    equals[current].forEach(function(e) {
-			ignore[e] = true;
-		    });
-		}
-		return acc;
-	    }, []);
-	return result;
+	return result.map(function(d){
+	    return d.values()
+		.sort(function(a,b){return data.order.indexOf(a) - data.order.indexOf(b);});});
     }
 
     function computeItemsOffset(groupedItems, margin, marginSpace, itemHeight) {
