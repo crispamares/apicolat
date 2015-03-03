@@ -7,3 +7,11 @@
     float: right;
     position: relative;
 }
+
+#multi-dist-compare-view .stat-chart {
+    text-align: center;
+}
+
+#multi-dist-compare-view .stat-chart .glyphicon {
+    margin-top: 20px;
+}

@@ -70,19 +70,40 @@ function(lodash, Context, d3, when, CompareTools) {
 			});
 		});
 
-	    attrRows.selectAll("div.plot")
+	    
+
+//	    attrRows.selectAll("div.plot")
+//		.each(function(d){
+//		    var node = this;
+//		    this.innerHTML = '<span class="glyphicon glyphicon-time"></span>';
+//		    drawAggredatedKdePlot(this, self.dataset, d.name, dselects, subsetNames)
+//			.otherwise(function(){
+//			    node.innerHTML = '<span class="glyphicon glyphicon-ban-circle"></span>';
+//			});
+//
+//		});
+
+	    //    attrRows.selectAll("div.stat-chart").html("");
+	    //    attrRows.selectAll("div.stat-details").html("");
+
+	    attrRows
 		.each(function(d){
-		    var node = this;
-		    this.innerHTML = '<span class="glyphicon glyphicon-time"></span>';
-		    drawAggredatedKdePlot(this, self.dataset, d.name, dselects, subsetNames)
+		    var node = d3.select(this).select("div.plot").node();
+		    node.innerHTML = '<span class="glyphicon glyphicon-time"></span>';
+		    drawAggredatedKdePlot(node, self.dataset, d.name, dselects, subsetNames)
 			.otherwise(function(){
 			    node.innerHTML = '<span class="glyphicon glyphicon-ban-circle"></span>';
 			});
 
+		    var chartContainer = d3.select(this).select("div.stat-chart");
+		    var detailsContainer = d3.select(this).select("div.stat-details");
+		    chartContainer.html('<span class="glyphicon glyphicon-time"></span>');
+		    detailsContainer.html("");
+		    compare(chartContainer, detailsContainer, self.dataset, d.name, self.subsets)
+			.otherwise(function(){
+			    chartContainer.html('<span class="glyphicon glyphicon-ban-circle"></span>');
+			});
 		});
-
-	    attrRows.selectAll("div.stat-chart").html("");
-	    attrRows.selectAll("div.stat-details").html("");
 		
 	};
 
@@ -107,9 +128,10 @@ function(lodash, Context, d3, when, CompareTools) {
 	}
 	
 	function compare(container, detailsContainer, dataset, attr, subsets) {
-	    CompareTools.rpcStatSort(dataset, attr, subsets)
+	    return CompareTools.rpcStatSort(dataset, attr, subsets)
 		.then(function(data) {
 //		    container.append('p').text(JSON.stringify(data));
+		    container.html(null);
 
 		    var svg = container.append("svg")
 			    .attr("width", "100%")
@@ -159,6 +181,13 @@ function(lodash, Context, d3, when, CompareTools) {
 			showTestDetails(detailsContainer, data.tests, d.origin, d.target);
 		    });
 
+		})
+		.otherwise(function(error){
+		    detailsContainer.html('<div><p>It has been imposible to sort the subsets based on this variable.</p>'+
+					  '<p>Probably every comparison has been rejected</p>'+
+					  '<p>Be aware that every subset needs more tan 50 elements to be compared</p>'+
+					  '</div>');
+		    throw error;
 		});
 	}
 
@@ -176,7 +205,8 @@ function(lodash, Context, d3, when, CompareTools) {
 
 	    var testResult = foundTestResult(tests, subsetX, subsetY);
 	    if (testResult === null) {
-		container.html('<p class="text-muted">Statistical tests details...<p>');
+		container.html('<div class="text-muted"><p>Point to the blue links to show the statistical tests details</p>'+
+			       +'<div>');
 	    }
 	    else {
 		container.html(
