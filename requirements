@@ -19,3 +19,4 @@ six==1.8.0
 tornado==4.0.2
 wsgiref==0.1.2
 xlrd==0.9.3
+seaborn==0.4.0

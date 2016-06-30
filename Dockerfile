@@ -5,20 +5,22 @@ RUN apt-get update && apt-get install -y \
     mongodb \ 
     python-pip \
     python-dev \
+    libzmq3 \ 
     libzmq3-dev \ 
     r-base \
     python-pandas \
     python-scipy \
     python-matplotlib
-    
 
-RUN pip install gevent pymongo pyzmq Werkzeug \
-    gevent-websocket circus Logbook xlrd XlsxWriter \
-    seaborn
+COPY requirements /requirements
+RUN pip install -r /requirements
 
 RUN rm -rf /var/lib/apt/lists/*
 
-RUN echo 'install.packages(c("rzmq","fitdistrplus","rjson"), repos="http://cran.us.r-project.org");q("no");' | R --vanilla
+RUN curl -O "http://cran.r-project.org/src/contrib/Archive/rzmq/rzmq_0.6.8.tar.gz"
+RUN curl -O "https://cran.r-project.org/src/contrib/Archive/rjson/rjson_0.2.14.tar.gz"
+RUN curl -O "https://cran.r-project.org/src/contrib/Archive/fitdistrplus/fitdistrplus_1.0-5.tar.gz"
+RUN R CMD INSTALL rzmq_0.6.8.tar.gz rjson_0.2.14.tar.gz fitdistrplus_1.0-5.tar.gz
 
 COPY apicolat/ /app/apicolat/
 COPY data/ /app/data/
